@@ -17,7 +17,7 @@ export const SocketProvider = ({ children }) => {
       return;
     }
     const token = localStorage.getItem("accessToken");
-    const socket = io(process.env.REACT_APP_SOCKET_URL || "http://localhost:5000", {
+    const socket = io(process.env.REACT_APP_SOCKET_URL || "https://rozgaaar.onrender.com", {
       auth: { token },
       transports: ["websocket"],
     });
