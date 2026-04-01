@@ -27,9 +27,9 @@ const reviewRoutes = require("./routes/review.routes");
 const uploadRoutes = require("./routes/upload.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const paymentRoutes = require("./routes/payment.routes");
-const adminRoutes    = require("./routes/admin.routes");
+const adminRoutes = require("./routes/admin.routes");
 const messagesRoutes = require("./routes/messages.routes");
-const aiRoutes       = require("./routes/ai.routes");
+const aiRoutes = require("./routes/ai.routes");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -38,7 +38,11 @@ const server = http.createServer(app);
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 const io = socketio(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: [
+      "http://localhost:3000",
+      "https://rozgaaar.vercel.app",
+      process.env.CLIENT_URL,
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -61,7 +65,14 @@ const limiter = rateLimit({
 app.use("/api/", limiter);
 
 // ── General Middleware ────────────────────────────────────────────────────────
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://rozgaaar.vercel.app",
+    process.env.CLIENT_URL,
+  ],
+  credentials: true,
+}));
 app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -93,9 +104,9 @@ app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/payments", paymentRoutes);
-app.use("/api/v1/admin",         adminRoutes);
-app.use("/api/v1/messages",      messagesRoutes);
-app.use("/api/v1/ai",             aiRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/messages", messagesRoutes);
+app.use("/api/v1/ai", aiRoutes);
 
 // ── 404 Handler ───────────────────────────────────────────────────────────────
 app.use("*", (req, res) => {
