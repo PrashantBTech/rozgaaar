@@ -8,12 +8,13 @@ const applicationSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "viewed", "shortlisted", "accepted", "rejected", "withdrawn", "no_show", "completed"],
+      enum: ["pending", "viewed", "shortlisted", "accepted", "in_progress", "rejected", "withdrawn", "no_show", "completed"],
       default: "pending",
     },
 
     coverNote: { type: String, maxlength: 500 }, // optional note from worker
     workerDistance: { type: Number }, // km from job location at time of apply
+    resumeUrl: { type: String }, // optional CV / resume link when required
 
     // ── Timing Tracking ───────────────────────────────────────────────────────
     checkInTime: { type: Date },
@@ -29,6 +30,14 @@ const applicationSchema = new mongoose.Schema(
     // ── Reviews (mutual) ─────────────────────────────────────────────────────
     workerReviewed: { type: Boolean, default: false },
     businessReviewed: { type: Boolean, default: false },
+
+    // ── OTP & QR Verification ────────────────────────────────────────────────
+    verification: {
+      otp: { type: String },
+      qrToken: { type: String },
+      type: { type: String, enum: ["start", "end"] },
+      expiresAt: { type: Date }
+    },
 
     // ── Timestamps of status changes ─────────────────────────────────────────
     acceptedAt: { type: Date },

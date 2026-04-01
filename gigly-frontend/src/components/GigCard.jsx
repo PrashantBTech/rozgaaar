@@ -37,7 +37,10 @@ export default function GigCard({ job, onApply, showApply = true }) {
         </div>
         <div style={{ textAlign:"right", flexShrink:0 }}>
           <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:18, color: job.isUrgent ? "var(--urgent)" : "var(--accent)" }}>
-            ₹{job.payPerHour}<span style={{ fontSize:11, fontWeight:400, color:"var(--text-muted)" }}>/hr</span>
+            ₹{job.payPerHour}
+            <span style={{ fontSize:11, fontWeight:400, color:"var(--text-muted)" }}>
+              {job.employmentType === "full_time" ? "/mo" : "/hr"}
+            </span>
           </div>
         </div>
       </div>

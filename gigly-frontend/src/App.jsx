@@ -17,6 +17,7 @@ import FindWork from "./pages/FindWork";
 import PostGig from "./pages/PostGig";
 import JobDetail from "./pages/JobDetail";
 import MyGigs from "./pages/MyGigs";
+import EditGig from "./pages/EditGig";
 import Messages from "./pages/Messages";
 import { Profile, Earnings, MyJobs } from "./pages/ProfileEarnings";
 import AIConcierge from "./pages/AIConcierge";
@@ -55,6 +56,7 @@ export default function App() {
               <Route path="/dashboard"  element={<Dashboard />} />
               <Route path="/find-work"  element={<FindWork />} />
               <Route path="/jobs/:id"   element={<JobDetail />} />
+              <Route path="/jobs/:id/edit" element={<EditGig />} />
               <Route path="/post-gig"   element={<PostGig />} />
               <Route path="/my-gigs"    element={<MyGigs />} />
               <Route path="/my-jobs"    element={<MyJobs />} />

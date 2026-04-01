@@ -5,6 +5,15 @@ import { useAuth } from "../context/AuthContext";
 import { formatDistanceToNow, format } from "date-fns";
 import toast from "react-hot-toast";
 
+const getTrustScore = (u) => {
+  if (!u) return "—";
+  let score = 50;
+  if (u.isIdVerified) score += 20;
+  if (u.totalJobsCompleted > 0) score += Math.min(20, u.totalJobsCompleted * 2);
+  if (u.averageRating > 0) score += (u.averageRating / 5) * 10;
+  return `${Math.min(100, Math.round(score))}%`;
+};
+
 export default function JobDetail() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -15,6 +24,7 @@ export default function JobDetail() {
   const [coverNote, setCoverNote] = useState("");
   const [showNote, setShowNote] = useState(false);
   const [checks, setChecks] = useState({ age:false, transport:false, smartphone:false });
+  const [resumeFile, setResumeFile] = useState(null);
 
   useEffect(() => {
     jobsAPI.getOne(id).then(r => { setJob(r.data.data); setLoading(false); }).catch(() => setLoading(false));
@@ -22,9 +32,15 @@ export default function JobDetail() {
 
   const handleApply = async () => {
     if (!checks.age) { toast.error("Please confirm you meet the prerequisites"); return; }
+
+    const needsResume = job.employmentType === "full_time" && job.requirements?.requireResume;
+    if (needsResume && !resumeFile) {
+      toast.error("Please upload your CV/Resume before applying.");
+      return;
+    }
     setApplying(true);
     try {
-      await appsAPI.apply(job._id, coverNote);
+      await appsAPI.apply(job._id, coverNote, resumeFile || undefined);
       toast.success("Applied! 🎉 You'll be notified when accepted.");
     } catch (err) {
       toast.error(err.response?.data?.message || "Could not apply");
@@ -48,9 +64,11 @@ export default function JobDetail() {
   );
 
   const business = job.postedBy;
-  const totalPay = job.payPerHour * job.durationHours;
+  const isFullTime = job.employmentType === "full_time";
+  const totalPay = isFullTime ? job.payPerHour : job.payPerHour * job.durationHours;
   const isOwner = user?._id === business?._id;
   const slotsLeft = job.slotsRequired - (job.slotsFilled || 0);
+  const employmentLabel = job.employmentType === "full_time" ? "Full-time" : "Part-time / Gig";
 
   return (
     <div className="page-content">
@@ -71,17 +89,20 @@ export default function JobDetail() {
               </div>
               <div style={{ textAlign:"right" }}>
                 <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:32, color:"var(--accent)" }}>
-                  ₹{job.payPerHour}<span style={{ fontSize:14, fontWeight:400, color:"var(--text-muted)" }}>/hr</span>
+                  ₹{job.payPerHour}<span style={{ fontSize:14, fontWeight:400, color:"var(--text-muted)" }}>{isFullTime ? "/mo" : "/hr"}</span>
                 </div>
-                <div style={{ fontSize:13, color:"var(--text-secondary)" }}>₹{totalPay} total est.</div>
+                <div style={{ fontSize:13, color:"var(--text-secondary)" }}>
+                  {isFullTime ? "Estimated monthly salary" : `₹${totalPay} total est.`}
+                </div>
               </div>
             </div>
 
             {/* Meta tags */}
             <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-              <span className="badge badge-info">⏱ {job.durationHours} Hours</span>
+              <span className="badge badge-info">⏱ {job.durationHours} Hours{isFullTime ? "/day" : ""}</span>
               <span className="badge badge-info">📅 {job.date ? format(new Date(job.date), "EEE, MMM d") : ""}</span>
               <span className="badge badge-info">🕐 {job.startTime} – {job.endTime}</span>
+              <span className="badge badge-info">💼 {employmentLabel}</span>
               {slotsLeft > 0 && <span className="badge badge-success">{slotsLeft} slot{slotsLeft>1?"s":""} left</span>}
               {job.requirements?.attire && <span className="badge" style={{ background:"var(--bg-elevated)", color:"var(--text-secondary)" }}>👕 {job.requirements.attire}</span>}
             </div>
@@ -103,6 +124,7 @@ export default function JobDetail() {
                 "Ability to stand for extended periods",
                 "Friendly demeanor",
                 ...(job.requirements?.ownVehicle ? ["Own vehicle required"] : []),
+                ...(job.requirements?.requireResume ? ["CV/Resume upload required to apply"] : []),
               ].map((r, i) => (
                 <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:14, color:"var(--text-secondary)" }}>
                   <span style={{ color:"var(--accent)", marginTop:1, flexShrink:0 }}>✓</span>
@@ -130,7 +152,7 @@ export default function JobDetail() {
                 {[
                   { k:"age", label:"I am 18 years or older", sub:"Required for insurance purposes." },
                   { k:"transport", label:"I have reliable transportation", sub:"Public transit or personal vehicle." },
-                  { k:"smartphone", label:"I have a smartphone with data", sub:"Required for clock-in/clock-out via Gigly app." },
+                  { k:"smartphone", label:"I have a smartphone with data", sub:"Required for clock-in/clock-out via Rozgaaar app." },
                 ].map(c => (
                   <label key={c.k} style={{ display:"flex", gap:12, cursor:"pointer", alignItems:"flex-start" }}>
                     <input type="checkbox" checked={checks[c.k]} onChange={e => setChecks({...checks,[c.k]:e.target.checked})}
@@ -164,21 +186,40 @@ export default function JobDetail() {
           {/* Pricing card */}
           <div className="card fade-in" style={{ marginBottom:16 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <span style={{ fontSize:13, color:"var(--text-secondary)" }}>Rate</span>
-              <span style={{ fontWeight:700 }}>₹{job.payPerHour}/hr</span>
+              <span style={{ fontSize:13, color:"var(--text-secondary)" }}>{isFullTime ? "Salary" : "Rate"}</span>
+              <span style={{ fontWeight:700 }}>₹{job.payPerHour}{isFullTime ? "/mo" : "/hr"}</span>
             </div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <span style={{ fontSize:13, color:"var(--text-secondary)" }}>Duration</span>
+              <span style={{ fontSize:13, color:"var(--text-secondary)" }}>{isFullTime ? "Daily Hours" : "Duration"}</span>
               <span style={{ fontWeight:700 }}>{job.durationHours} hours</span>
             </div>
             <div className="divider" />
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-              <span style={{ fontWeight:700 }}>Estimated Total</span>
-              <span style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:20, color:"var(--accent)" }}>₹{totalPay}</span>
+              <span style={{ fontWeight:700 }}>{isFullTime ? "Total Monthly" : "Estimated Total"}</span>
+              <span style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:20, color:"var(--accent)" }}>₹{totalPay.toLocaleString("en-IN")}</span>
             </div>
 
             {user?.role === "worker" && job.status === "open" && !isOwner && (
               <>
+                {job.employmentType === "full_time" && job.requirements?.requireResume && (
+                  <div className="input-group" style={{ marginBottom:12 }}>
+                    <label className="input-label">CV / Resume (required for this job)</label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      className="input"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setResumeFile(file);
+                      }}
+                    />
+                    {resumeFile && (
+                      <p style={{ fontSize:11, color:"var(--accent)", marginTop:4 }}>
+                        Selected: {resumeFile.name}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {showNote && (
                   <div className="input-group" style={{ marginBottom:12 }}>
                     <label className="input-label">Cover Note (optional)</label>
@@ -186,7 +227,15 @@ export default function JobDetail() {
                       value={coverNote} onChange={e=>setCoverNote(e.target.value)} style={{ resize:"vertical" }} />
                   </div>
                 )}
-                <button className="btn btn-primary btn-full btn-lg" disabled={applying || !checks.age} onClick={handleApply}>
+                <button
+                  className="btn btn-primary btn-full btn-lg"
+                  disabled={
+                    applying ||
+                    !checks.age ||
+                    (job.employmentType === "full_time" && job.requirements?.requireResume && !resumeFile)
+                  }
+                  onClick={handleApply}
+                >
                   {applying ? "Applying…" : "Apply for Gig"}
                 </button>
                 <button className="btn btn-ghost btn-sm btn-full" style={{ marginTop:8 }} onClick={() => setShowNote(s=>!s)}>
@@ -222,7 +271,7 @@ export default function JobDetail() {
                   <div style={{ fontSize:12, color:"var(--text-muted)" }}>Member since {new Date(business.createdAt).getFullYear()}</div>
                 </div>
                 <div style={{ marginLeft:"auto", fontFamily:"var(--font-display)", fontWeight:800, fontSize:18, color:"var(--accent)" }}>
-                  {business.isIdVerified ? "98%" : "—"}
+                  {getTrustScore(business)}
                 </div>
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:6 }}>

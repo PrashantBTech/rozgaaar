@@ -4,15 +4,15 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "⚡ Gigly API",
+      title: "⚡ Rozgaaar API",
       version: "1.0.0",
       description:
         "Hyperlocal instant hiring platform. Connects businesses with gig workers in real-time for short-duration shifts (2–5 hours). No interviews, instant matching.",
-      contact: { name: "Gigly Dev Team", email: "dev@gigly.app" },
+      contact: { name: "Rozgaaar Dev Team", email: "dev@rozgaaar.app" },
     },
     servers: [
       { url: "http://localhost:5000/api/v1", description: "Development" },
-      { url: "https://api.gigly.app/v1", description: "Production" },
+      { url: "https://api.rozgaaar.app/v1", description: "Production" },
     ],
     components: {
       securitySchemes: {

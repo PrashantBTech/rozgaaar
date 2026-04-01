@@ -30,7 +30,7 @@ function AuthCard({ title, subtitle, children }) {
         <div style={{ textAlign:"center", marginBottom:32 }}>
           <Link to="/" style={{ textDecoration:"none" }}>
             <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:28, color:"var(--text-primary)", letterSpacing:"-0.02em" }}>
-              Gigly
+              Rozgaaar
             </div>
           </Link>
           <h2 style={{ fontSize:22, marginTop:20, marginBottom:8 }}>{title}</h2>
@@ -68,7 +68,7 @@ export function Login() {
           <label className="input-label">Email Address</label>
           <div className="input-icon-wrap">
             <span className="input-icon" style={{ fontSize:14 }}>✉️</span>
-            <input className="input" type="email" placeholder="name@gigly.app"
+            <input className="input" type="email" placeholder="name@rozgaaar.app"
               value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required />
           </div>
         </div>
@@ -101,7 +101,7 @@ export function Login() {
         ))}
       </div>
       <p style={{ textAlign:"center", fontSize:13, color:"var(--text-muted)", marginTop:20 }}>
-        New to Gigly?{" "}
+        New to Rozgaaar?{" "}
         <Link to="/register" style={{ color:"var(--accent)", fontWeight:600, textDecoration:"none" }}>Create an account</Link>
       </p>
     </AuthCard>
@@ -126,7 +126,7 @@ export function Register() {
     setLoading(true);
     try {
       const user = await register(form);
-      toast.success(`Welcome to Gigly, ${user.name.split(" ")[0]}! ⚡`);
+      toast.success(`Welcome to Rozgaaar, ${user.name.split(" ")[0]}! ⚡`);
       navigate("/dashboard");
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");

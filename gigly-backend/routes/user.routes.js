@@ -36,7 +36,7 @@ router.get(
   "/:id",
   asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.params.id).select(
-      "name avatar bio role skills businessName businessCategory " +
+      "name avatar bio role skills education businessName businessCategory " +
         "averageRating totalReviews totalJobsCompleted isIdVerified " +
         "location.city location.address createdAt"
     );
@@ -82,7 +82,7 @@ router.put(
   protect,
   asyncHandler(async (req, res) => {
     const allowed = [
-      "name", "bio", "skills", "phone",
+      "name", "bio", "skills", "education", "phone",
       "businessName", "businessCategory", "location",
       "notificationPrefs", "fcmToken",
     ];

@@ -15,8 +15,8 @@ const seed = async () => {
 
   // ── Admin ──────────────────────────────────────────────────────────────────
   const admin = await User.create({
-    name: "Gigly Admin",
-    email: "admin@gigly.app",
+    name: "Rozgaaar Admin",
+    email: "admin@rozgaaar.app",
     password: "Admin@1234",
     role: "admin",
     isEmailVerified: true,
@@ -196,7 +196,7 @@ const seed = async () => {
   console.log(`
 ✅ Seed complete!
 
-👤 Admin:    admin@gigly.app     / Admin@1234
+👤 Admin:    admin@rozgaaar.app     / Admin@1234
 🏪 Business: prashant@gmail.com     / 987654321
 🏪 Business: aarif@gmail.com     / 123456789
 👷 Worker: mr.prashant.cse@gmail.com / 123456789

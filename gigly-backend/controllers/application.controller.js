@@ -10,6 +10,7 @@ const notifySocket = (io, socketId, event, data) => {
 };
 
 // ── @POST /api/v1/applications — Worker applies to job ───────────────────────
+// Accepts JSON or multipart/form-data (with optional "resume" file)
 exports.applyToJob = asyncHandler(async (req, res, next) => {
   const { jobId, coverNote } = req.body;
 
@@ -17,6 +18,14 @@ exports.applyToJob = asyncHandler(async (req, res, next) => {
   if (!job) return next(new ErrorResponse("Job not found", 404));
   if (job.status !== "open") return next(new ErrorResponse("This job is no longer accepting applications", 400));
   if (job.slotsFilled >= job.slotsRequired) return next(new ErrorResponse("All slots are filled", 400));
+
+  // If a resume file was uploaded for this application, capture its URL.
+  const uploadedResumeUrl = req.file?.path;
+
+  // Enforce CV requirement for full-time roles
+  if (job.employmentType === "full_time" && job.requirements?.requireResume && !uploadedResumeUrl) {
+    return next(new ErrorResponse("CV/Resume is required to apply for this job", 400));
+  }
 
   const existing = await Application.findOne({ job: jobId, worker: req.user.id });
   if (existing) return next(new ErrorResponse("You already applied for this job", 400));
@@ -26,6 +35,7 @@ exports.applyToJob = asyncHandler(async (req, res, next) => {
     worker: req.user.id,
     business: job.postedBy._id,
     coverNote,
+    resumeUrl: uploadedResumeUrl,
     agreedPayPerHour: job.payPerHour,
   });
 
@@ -133,7 +143,7 @@ exports.updateApplicationStatus = asyncHandler(async (req, res, next) => {
 
   const application = await Application.findById(req.params.id)
     .populate("worker", "socketId name")
-    .populate("job", "title slotsRequired slotsFilled");
+    .populate("job", "title slotsRequired slotsFilled durationHours payPerHour");
 
   if (!application) return next(new ErrorResponse("Application not found", 404));
   if (application.business.toString() !== req.user.id) {
@@ -150,26 +160,31 @@ exports.updateApplicationStatus = asyncHandler(async (req, res, next) => {
       $addToSet: { hiredWorkers: application.worker._id },
     });
     application.acceptedAt = new Date();
+  } else if (status === "completed" && application.status !== "completed") {
+    application.completedAt = new Date();
+    
+    if (!application.totalPaid) {
+      const duration = application.job.durationHours || 0;
+      const rate = application.agreedPayPerHour || application.job.payPerHour || 0;
+      application.actualHours = duration;
+      application.totalPaid = parseFloat((duration * rate).toFixed(2));
+    }
+    
+    await User.findByIdAndUpdate(application.worker._id, {
+      $inc: { totalJobsCompleted: 1, totalEarnings: application.totalPaid }
+    });
+    await User.findByIdAndUpdate(application.business, {
+      $inc: { totalSpent: application.totalPaid }
+    });
+
+    // Mark the parent Job as completed so it drops off the Find Work feed
+    await Job.findByIdAndUpdate(application.job._id, { status: "completed" });
   }
 
   application.status = status;
   if (status === "rejected") application.rejectedAt = new Date();
   await application.save();
 
-  // Notify worker when shortlisted
-  if (status === "shortlisted") {
-    await Notification.create({
-      recipient: application.worker._id,
-      type: "application_update",
-      title: "🎯 You've been shortlisted!",
-      body: `${req.user.businessName || req.user.name} shortlisted you for "${application.job.title}". They may contact you directly.`,
-      data: { applicationId: application._id },
-    });
-    notifySocket(io, application.worker.socketId, "application_shortlisted", {
-      jobTitle: application.job.title,
-      businessName: req.user.businessName || req.user.name,
-    });
-  }
 
   // Real-time notify worker
   const io = req.app.get("io");
@@ -195,6 +210,12 @@ exports.updateApplicationStatus = asyncHandler(async (req, res, next) => {
         title: "🎉 You got the gig!",
         body: `You were accepted for "${application.job.title}"`,
       }
+      : status === "completed"
+        ? {
+          type: "job_completed",
+          title: "🏆 Job Completed!",
+          body: `"${application.job.title}" is complete. Earnings added to your wallet!`,
+        }
       : status === "shortlisted"
         ? {
           type: "application_shortlisted",
@@ -216,6 +237,37 @@ exports.updateApplicationStatus = asyncHandler(async (req, res, next) => {
   res.json({ success: true, data: application });
 });
 
+// ── @POST /api/v1/applications/:id/generate-verification ─────────────────────
+exports.generateVerification = asyncHandler(async (req, res, next) => {
+  const application = await Application.findById(req.params.id);
+  if (!application) return next(new ErrorResponse("Application not found", 404));
+  if (application.business.toString() !== req.user.id) return next(new ErrorResponse("Not authorized", 403));
+  
+  const { type } = req.body; // "start" or "end"
+  if (!["start", "end"].includes(type)) return next(new ErrorResponse("Invalid verification type", 400));
+  
+  // ensure logical state
+  if (type === "start" && application.status !== "accepted") {
+    return next(new ErrorResponse("Application must be accepted to start work", 400));
+  }
+  if (type === "end" && application.status !== "in_progress") {
+    return next(new ErrorResponse("Worker has not started work yet", 400));
+  }
+
+  const crypto = require("crypto");
+  const otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit code
+  const qrToken = crypto.randomBytes(16).toString("hex");
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins validity
+
+  application.verification = { otp, qrToken, type, expiresAt };
+  await application.save();
+
+  res.json({
+    success: true,
+    data: { otp, qrToken, type, expiresAt }
+  });
+});
+
 // ── @PATCH /api/v1/applications/:id/checkin ──────────────────────────────────
 exports.checkIn = asyncHandler(async (req, res, next) => {
   const application = await Application.findById(req.params.id);
@@ -223,6 +275,18 @@ exports.checkIn = asyncHandler(async (req, res, next) => {
   if (application.worker.toString() !== req.user.id) return next(new ErrorResponse("Not authorized", 403));
   if (application.status !== "accepted") return next(new ErrorResponse("Application not accepted", 400));
 
+  const { otp, qrToken } = req.body;
+  if (!otp && !qrToken) return next(new ErrorResponse("Please provide an OTP or scan the QR code", 400));
+
+  const v = application.verification;
+  if (!v || v.type !== "start") return next(new ErrorResponse("No start code generated by business", 400));
+  if (new Date() > v.expiresAt) return next(new ErrorResponse("Verification code expired. Ask the business to generate a new one.", 400));
+
+  if (otp && v.otp !== otp) return next(new ErrorResponse("Invalid OTP", 400));
+  if (qrToken && v.qrToken !== qrToken) return next(new ErrorResponse("Invalid QR Code", 400));
+
+  // Clear verification data and check-in
+  application.verification = undefined;
   application.checkInTime = new Date();
   application.status = "in_progress";
   await application.save();
@@ -237,7 +301,20 @@ exports.checkOut = asyncHandler(async (req, res, next) => {
   const application = await Application.findById(req.params.id).populate("job");
   if (!application) return next(new ErrorResponse("Application not found", 404));
   if (application.worker.toString() !== req.user.id) return next(new ErrorResponse("Not authorized", 403));
+  if (application.status !== "in_progress") return next(new ErrorResponse("You haven't checked in yet", 400));
 
+  const { otp, qrToken } = req.body;
+  if (!otp && !qrToken) return next(new ErrorResponse("Please provide an OTP or scan the QR code", 400));
+
+  const v = application.verification;
+  if (!v || v.type !== "end") return next(new ErrorResponse("No end code generated by business", 400));
+  if (new Date() > v.expiresAt) return next(new ErrorResponse("Verification code expired. Ask the business to generate a new one.", 400));
+
+  if (otp && v.otp !== otp) return next(new ErrorResponse("Invalid OTP", 400));
+  if (qrToken && v.qrToken !== qrToken) return next(new ErrorResponse("Invalid QR Code", 400));
+
+  // Clear verification data and check-out
+  application.verification = undefined;
   const now = new Date();
   application.checkOutTime = now;
   const diffMs = now - application.checkInTime;
@@ -254,6 +331,9 @@ exports.checkOut = asyncHandler(async (req, res, next) => {
   await User.findByIdAndUpdate(application.business, {
     $inc: { totalSpent: application.totalPaid },
   });
+
+  // Mark the parent Job as completed so it drops off the Find Work feed
+  await Job.findByIdAndUpdate(application.job._id, { status: "completed" });
 
   res.json({
     success: true,

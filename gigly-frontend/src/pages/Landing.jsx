@@ -7,10 +7,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const STATS = [
-  { value: "500k+", label: "FlashGiggers Joined" },
-  { value: "15k+", label: "Gigs Completed" },
+  { value: "***", label: "FlashGiggers Joined" },
+  { value: "***", label: "Gigs Completed" },
   { value: "< 5m", label: "Avg. Response Time" },
-  { value: "4.8/5", label: "App Store Rating" },
+  { value: "***", label: "App Store Rating" },
 ];
 const STEPS = [
   { num: "1", title: "Post a Gig", desc: "Describe the task, set your price, and post it to the local feed. Takes less than 2 minutes." },
@@ -20,7 +20,7 @@ const STEPS = [
 const TRUST = [
   { icon: "🪪", title: "ID Verification", desc: "Government ID checks for all users." },
   { icon: "🔐", title: "Secure Escrow", desc: "Money is held safely until the job is done." },
-  { icon: "🛡️", title: "Insurance", desc: "Damage protection up to ₹75,000." },
+  { icon: "🛡️", title: "Spam Protection", desc: "AI spam detection and prevention." },
   { icon: "⭐", title: "Real Reviews", desc: "Reviews from verified completed gigs." },
 ];
 const CATEGORIES = ["Delivery", "Cleaning", "Moving", "Pet Care", "Cafe Staff", "Event Crew", "Warehouse", "Data Entry"];
@@ -102,7 +102,7 @@ export default function Landing() {
 
   return (
     <div ref={mainRef} style={{ minHeight: "100vh", background: "#05050A", color: "#e8eef8", overflow: "hidden", position: "relative" }}>
-      
+
       {/* ── Background Liquid Blobs ── */}
       <div className="blob" style={{ top: "-10%", left: "-10%", width: "60vw", height: "60vw", background: "var(--neon-blue)" }} />
       <div className="blob" style={{ top: "40%", right: "-20%", width: "50vw", height: "50vw", background: "var(--neon-pink)", animationDelay: "-4s" }} />
@@ -115,7 +115,7 @@ export default function Landing() {
         padding: "0 40px", height: 64, display: "flex", alignItems: "center", gap: 32
       }}>
         <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>
-          <span className="text-gradient">G</span>igly
+          <span className="text-gradient">R</span>ozgaaar
         </div>
         <div className="landing-nav-links hide-tablet" style={{ display: "flex", gap: 28, marginLeft: 12, flex: 1 }}>
           {["Find Work", "Post Work", "How it Works", "Trust & Safety"].map(l => (
@@ -136,7 +136,7 @@ export default function Landing() {
       <div style={{ background: "rgba(0,240,255,0.05)", borderBottom: "1px solid rgba(0,240,255,0.1)", padding: "8px 40px", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--neon-blue)", animation: "pulse 2s infinite", display: "inline-block" }} />
         <span style={{ fontSize: 13, color: "var(--neon-blue)", fontWeight: 600, letterSpacing: "0.04em" }}>
-          SYSTEM LIVE // 458 active gigs near you
+          SYSTEM LIVE // active gigs near you
         </span>
       </div>
 
@@ -176,7 +176,7 @@ export default function Landing() {
               <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>0.5 mi away</span>
               <span style={{ background: "var(--neon-pink)", color: "#000", padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 800 }}>URGENT</span>
             </div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 26, marginBottom: 8, letterSpacing: "-0.02em" }}>Neon Lighting Install</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 26, marginBottom: 8, letterSpacing: "-0.02em" }}>Lightings Installation</div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
               <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--neon-blue)", color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>AJ</div>
               <div>
@@ -189,7 +189,7 @@ export default function Landing() {
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
               <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 32, color: "var(--neon-blue)", lineHeight: 1 }}>
-                ₹65<span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>/hr</span>
+                ₹95<span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>/hr</span>
               </div>
               <button style={{ background: "var(--neon-blue)", color: "#000", border: "none", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontWeight: 800 }}>Apply</button>
             </div>
@@ -241,7 +241,7 @@ export default function Landing() {
             <div style={{ fontSize: 13, color: "var(--neon-blue)", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 16 }}>System Security Core</div>
             <h2 style={{ fontSize: "clamp(32px,4vw,48px)", marginBottom: 24, lineHeight: 1.1 }}>Encrypted & <br /> <span className="text-gradient">Verified.</span></h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16, lineHeight: 1.8, marginBottom: 40 }}>
-              Gigly ensures trust through digital identity verification, secure ledger transactions, and a transparent review architecture.
+              Rozgaaar ensures trust through digital identity verification, secure ledger transactions, and a transparent review architecture.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
               {TRUST.map(t => (
@@ -254,29 +254,29 @@ export default function Landing() {
             </div>
           </div>
           <div className="hide-tablet">
-             <div className="glass-panel" style={{ padding: 40, borderRadius: 24 }}>
-                <h3 style={{ fontSize: 20, marginBottom: 24, borderBottom: "1px solid var(--dark-glass-border)", paddingBottom: 16 }}>Live Network Activity</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {[
-                    { title: "Server Rack Migration", pay: "₹1500", dist: "0.8m", cat: "🖥️" },
-                    { title: "Pop-up Shop Setup", pay: "₹800", dist: "1.2m", cat: "🛠️" },
-                    { title: "Event Photography", pay: "₹450/hr", dist: "0.4m", cat: "📸" },
-                  ].map(j => (
-                    <div key={j.title} style={{ padding: 20, background: "rgba(0,0,0,0.3)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                          <span style={{ fontSize: 24 }}>{j.cat}</span>
-                          <div>
-                            <div style={{ fontWeight: 600, fontSize: 15 }}>{j.title}</div>
-                            <div style={{ fontSize: 12, color: "var(--neon-blue)", marginTop: 4 }}>📍 Network Node {j.dist}</div>
-                          </div>
+            <div className="glass-panel" style={{ padding: 40, borderRadius: 24 }}>
+              <h3 style={{ fontSize: 20, marginBottom: 24, borderBottom: "1px solid var(--dark-glass-border)", paddingBottom: 16 }}>Live Network Activity</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {[
+                  { title: "Server Rack Migration", pay: "₹1500", dist: "0.8m", cat: "🖥️" },
+                  { title: "Pop-up Shop Setup", pay: "₹800", dist: "1.2m", cat: "🛠️" },
+                  { title: "Event Photography", pay: "₹450/hr", dist: "0.4m", cat: "📸" },
+                ].map(j => (
+                  <div key={j.title} style={{ padding: 20, background: "rgba(0,0,0,0.3)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                        <span style={{ fontSize: 24 }}>{j.cat}</span>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 15 }}>{j.title}</div>
+                          <div style={{ fontSize: 12, color: "var(--neon-blue)", marginTop: 4 }}>📍 Network Node {j.dist}</div>
                         </div>
-                        <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: 18 }}>{j.pay}</div>
                       </div>
+                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "#fff", fontSize: 18 }}>{j.pay}</div>
                     </div>
-                  ))}
-                </div>
-             </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -357,14 +357,14 @@ export default function Landing() {
       {/* Footer */}
       <footer style={{ borderTop: "1px solid var(--dark-glass-border)", padding: "32px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20, position: "relative", zIndex: 10, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}>
         <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 18, letterSpacing: "-0.02em" }}>
-          <span className="text-gradient">G</span>igly
+          <span className="text-gradient">R</span>ozgaaar
         </span>
         <div style={{ display: "flex", gap: 32 }}>
           {["About Us", "Privacy Protocol", "Terms of Service", "Support Relay"].map(l => (
             <span key={l} style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", cursor: "pointer", fontWeight: 500, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color = "#fff"} onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.4)"}>{l}</span>
           ))}
         </div>
-        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2026 Gigly Network. All rights reserved.</span>
+        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2026 Rozgaaar Network. All rights reserved.</span>
       </footer>
     </div>
   );

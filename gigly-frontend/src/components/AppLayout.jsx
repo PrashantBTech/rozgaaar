@@ -9,13 +9,15 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) return (
-    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"var(--bg-base)" }}>
-      <div style={{ textAlign:"center" }}>
-        <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:32, marginBottom:16 }}>
-          <span style={{ color:"var(--accent)" }}>G</span>igly
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-base)" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 32, marginBottom: 16 }}>
+          <span style={{ color: "var(--accent)" }}>R</span>ozgaaar
         </div>
-        <div style={{ width:40, height:40, border:"3px solid var(--bg-elevated)", borderTop:"3px solid var(--accent)",
-          borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto" }} />
+        <div style={{
+          width: 40, height: 40, border: "3px solid var(--bg-elevated)", borderTop: "3px solid var(--accent)",
+          borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto"
+        }} />
       </div>
     </div>
   );
@@ -34,7 +36,7 @@ export default function AppLayout() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="main-content" style={{ zIndex: 10, position: "relative", flex: 1, minHeight: "100vh" }}>
         <Header onMenuToggle={() => setSidebarOpen(s => !s)} />
-        <main style={{ flex: 1, position: "relative", zIndex: 10 }}>
+        <main style={{ flex: 1, position: "relative", zIndex: 10, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <Outlet />
         </main>
       </div>

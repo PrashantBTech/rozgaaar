@@ -13,6 +13,7 @@ exports.getJobs = asyncHandler(async (req, res) => {
     category, status = "open",
     minPay, maxPay, date,
     isUrgent, skills,
+    employmentType,
     page = 1, limit = 20,
     sort = "-isUrgent,-createdAt",
   } = req.query;
@@ -60,6 +61,9 @@ exports.getJobs = asyncHandler(async (req, res) => {
   }
   if (skills) {
     query.skills = { $in: skills.split(",") };
+  }
+  if (employmentType && ["full_time", "part_time"].includes(employmentType)) {
+    query.employmentType = employmentType;
   }
 
   const skip = (parseInt(page) - 1) * parseInt(limit);

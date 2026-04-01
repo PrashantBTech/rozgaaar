@@ -10,7 +10,9 @@ const {
   checkIn,
   checkOut,
   withdrawApplication,
+  generateVerification,
 } = require("../controllers/application.controller");
+const { uploadDocument } = require("../config/cloudinary");
 const { protect, authorize } = require("../middleware/auth");
 
 const asyncHandler = require("../middleware/asyncHandler");
@@ -46,7 +48,8 @@ const asyncHandler = require("../middleware/asyncHandler");
  *       400:
  *         description: Already applied / slots full
  */
-router.post("/", protect, authorize("worker"), applyToJob);
+// Accept optional "resume" file via multipart/form-data
+router.post("/", protect, authorize("worker"), uploadDocument.single("resume"), applyToJob);
 
 /**
  * @swagger
@@ -135,6 +138,7 @@ router.get("/:id/contact", protect, authorize("business"), getApplicationContact
 router.patch("/:id/checkin",  protect, authorize("worker"), checkIn);
 router.patch("/:id/checkout", protect, authorize("worker"), checkOut);
 router.patch("/:id/withdraw", protect, authorize("worker"), withdrawApplication);
+router.post("/:id/generate-verification", protect, authorize("business", "admin"), generateVerification);
 
 // Contact route — reveals worker phone to business
 router.get("/:id/contact", protect, authorize("business"), asyncHandler(async (req, res, next) => {

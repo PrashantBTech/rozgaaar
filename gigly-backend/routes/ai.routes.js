@@ -114,7 +114,7 @@ Available tools:
 - Always confirm before updating any application status`.trim();
 
   return `
-You are Gigi, an AI assistant for Gigly — a hyperlocal instant hiring platform in India.
+You are Gigi, an AI assistant for Rozgaaar — a hyperlocal instant hiring platform in India.
 
 ${isWorker ? workerSection : businessSection}
 
@@ -124,7 +124,7 @@ When you need data, output ONLY this JSON (no other text):
 
 == GENERAL RULES ==
 - Keep replies SHORT — max 4 lines
-- Be friendly, use simple English, occasional Hindi is fine 😊
+- Be friendly and ALWAYS respond in ENGLISH only. DO NOT use Hindi. 😊
 - NEVER make up data — always use tools to get real information
 - Always end with a clear question or next step
 `.trim();
@@ -221,7 +221,7 @@ const executeTool = async (toolName, params, userId, userRole) => {
         job:              params.jobId,
         worker:           userId,
         business:         job.postedBy,
-        coverNote:        params.coverNote || "Applied via Gigly AI Assistant — Gigi",
+        coverNote:        params.coverNote || "Applied via Rozgaaar AI Assistant — Gigi",
         agreedPayPerHour: job.payPerHour,
       });
       await Job.findByIdAndUpdate(params.jobId, { $inc: { applicationsCount: 1 } });
@@ -488,8 +488,8 @@ const callOpenRouter = async (messages, systemPrompt) => {
         headers: {
           "Content-Type":  "application/json",
           "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "HTTP-Referer":  "https://gigly.app",
-          "X-Title":       "Gigly AI Concierge",
+          "HTTP-Referer":  "https://rozgaaar.app",
+          "X-Title":       "Rozgaaar AI Concierge",
         },
         body: JSON.stringify({
           model,

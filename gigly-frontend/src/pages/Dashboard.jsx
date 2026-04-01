@@ -96,20 +96,23 @@ export default function Dashboard() {
       {/* ── Stats Row ── */}
       <div
         className="stats-grid fade-in fade-in-1"
-        style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:16, marginBottom:32 }}
+        style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(250px, 1fr))", gap:16, marginBottom:32 }}
       >
-        <div className="stat-card">
+        {/*<div className="stat-card">
           <div className="stat-label">Earned Today</div>
           <div className="stat-value" style={{ color:"var(--accent)" }}>
             ₹{stats.earned.toLocaleString("en-IN", { minimumFractionDigits:2, maximumFractionDigits:2 })}
           </div>
           <div className="stat-delta">+₹120 vs yesterday</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">New Gigs Nearby</div>
-          <div className="stat-value" style={{ color:"var(--cyan)" }}>{nearbyGigs.length}</div>
-          <div className="stat-delta">Available now</div>
-        </div>
+        </div> */}
+        
+        {user?.role === "worker" && (
+          <div className="stat-card">
+            <div className="stat-label">New Gigs Nearby</div>
+            <div className="stat-value" style={{ color:"var(--cyan)" }}>{nearbyGigs.length}</div>
+            <div className="stat-delta">Available now</div>
+          </div>
+        )}
         <div className="stat-card">
           <div className="stat-label">Active Jobs</div>
           <div className="stat-value">{stats.activeJobs}</div>
@@ -122,7 +125,7 @@ export default function Dashboard() {
         <div style={{ fontSize:12, color:"var(--text-muted)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:14 }}>
           Quick Actions
         </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:16 }}>
+        <div className="grid-2" style={{ gap:16 }}>
           {quickActions.map(a => (
             <button key={a.label} className="card"
               style={{ border:"1px solid var(--border)", cursor:"pointer", textAlign:"left", background:"var(--bg-card)", transition:"all 0.2s" }}

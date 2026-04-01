@@ -64,7 +64,7 @@ export default function Sidebar({ open, onClose }) {
               fontFamily:"var(--font-display)"
             }}>G</div>
             <span style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:20, color:"var(--text-primary)", letterSpacing:"-0.02em" }}>
-              Gigly
+              Rozgaaar
             </span>
             <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%",
               background: isConnected ? "var(--accent)" : "var(--text-muted)",

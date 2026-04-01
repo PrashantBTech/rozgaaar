@@ -3,18 +3,29 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { usersAPI, reviewsAPI } from "../services/api";
 import toast from "react-hot-toast";
+import WorkerScanModal from "../components/WorkerScanModal";
+
+const getTrustScore = (u) => {
+  if (!u) return "—";
+  let score = 50;
+  if (u.isIdVerified) score += 20;
+  if (u.totalJobsCompleted > 0) score += Math.min(20, u.totalJobsCompleted * 2);
+  if (u.averageRating > 0) score += (u.averageRating / 5) * 10;
+  return `${Math.min(100, Math.round(score))}%`;
+};
 
 export function Profile() {
   const { user, updateUser, loadUser } = useAuth();
-  const [form, setForm] = useState({ name:"", bio:"", phone:"", skills:[] });
+  const [form, setForm] = useState({ name:"", bio:"", phone:"", skills:[], education:[] });
   const [skillInput, setSkillInput] = useState("");
+  const [educationInput, setEducationInput] = useState("");
   const [reviews, setReviews] = useState([]);
   const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState("info");
 
   useEffect(() => {
     if (user) {
-      setForm({ name:user.name||"", bio:user.bio||"", phone:user.phone||"", skills:user.skills||[] });
+      setForm({ name:user.name||"", bio:user.bio||"", phone:user.phone||"", skills:user.skills||[], education:user.education||[] });
       reviewsAPI.getForUser(user._id).then(r => setReviews(r.data.data||[])).catch(()=>{});
     }
   }, [user]);
@@ -22,7 +33,18 @@ export function Profile() {
   const save = async () => {
     setSaving(true);
     try {
-      const { data } = await usersAPI.updateProfile(form);
+      const finalForm = { ...form };
+      if (skillInput.trim()) {
+        finalForm.skills = [...finalForm.skills, skillInput.trim()];
+        setSkillInput("");
+      }
+      if (educationInput.trim()) {
+        finalForm.education = [...finalForm.education, educationInput.trim()];
+        setEducationInput("");
+      }
+      setForm(finalForm);
+
+      const { data } = await usersAPI.updateProfile(finalForm);
       updateUser(data.data);
       toast.success("Profile updated!");
     } catch { toast.error("Save failed"); }
@@ -36,6 +58,14 @@ export function Profile() {
     }
   };
   const removeSkill = (i) => setForm(f => ({ ...f, skills:f.skills.filter((_,idx)=>idx!==i) }));
+
+  const addEducation = (e) => {
+    if (e.key === "Enter" && educationInput.trim()) {
+      setForm(f => ({ ...f, education:[...f.education, educationInput.trim()] }));
+      setEducationInput("");
+    }
+  };
+  const removeEducation = (i) => setForm(f => ({ ...f, education:f.education.filter((_,idx)=>idx!==i) }));
 
   if (!user) return null;
   const initials = user.name?.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase();
@@ -57,11 +87,22 @@ export function Profile() {
               {user.isIdVerified && <span className="badge badge-success">✓ Verified</span>}
             </div>
             <div style={{ fontSize:14, color:"var(--text-secondary)", marginBottom:8, textTransform:"capitalize" }}>{user.role}</div>
-            {user.bio && <p style={{ fontSize:13, color:"var(--text-muted)" }}>{user.bio}</p>}
+            {user.bio && <p style={{ fontSize:13, color:"var(--text-muted)", marginBottom: 12 }}>{user.bio}</p>}
+            
+            {(user.skills?.length > 0 || user.education?.length > 0) && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                {user.skills?.map((s, i) => (
+                  <span key={`skill-${i}`} className="tag" style={{ fontSize: 11, padding: "2px 8px", background: "var(--accent-dim)", color: "var(--accent)", border: "1px solid rgba(0, 240, 255, 0.3)" }}>{s}</span>
+                ))}
+                {user.education?.map((e, i) => (
+                  <span key={`edu-${i}`} className="tag" style={{ fontSize: 11, padding: "2px 8px", background: "var(--gold-dim)", color: "var(--gold)", border: "1px solid rgba(245, 200, 66, 0.3)" }}>🎓 {e}</span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="profile-banner-stats" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }}>
             {[
-              { label:"Trust Score", value: user.isIdVerified ? "92%" : "—", color:"var(--accent)" },
+              { label:"Trust Score", value: getTrustScore(user), color:"var(--accent)" },
               { label:"Jobs Done", value:user.totalJobsCompleted||0, color:"var(--cyan)" },
               { label:"Earnings", value:`₹${(user.totalEarnings||0).toLocaleString("en-IN")}`, color:"var(--gold)" },
               { label:"Rating", value:user.averageRating ? `${user.averageRating}★` : "—", color:"var(--gold)" },
@@ -77,12 +118,11 @@ export function Profile() {
 
       {/* ── Tabs ── */}
       <div style={{ display:"flex", gap:4, marginBottom:24, borderBottom:"1px solid var(--border)", paddingBottom:0 }}>
-        {["info","skills","reviews"].map(t => (
-          <button key={t} className="btn btn-ghost btn-sm"
-            style={{ borderBottom: tab===t ? "2px solid var(--accent)" : "2px solid transparent",
-              color:tab===t ? "var(--accent)" : "var(--text-secondary)", borderRadius:"var(--radius-sm) var(--radius-sm) 0 0",
-              textTransform:"capitalize" }}
-            onClick={() => setTab(t)}>{t}</button>
+        {[{id:"info", label:"Info"}, {id:"skills", label:"Skills & Education"}, {id:"reviews", label:"Reviews"}].map(t => (
+          <button key={t.id} className="btn btn-ghost btn-sm"
+            style={{ borderBottom: tab===t.id ? "2px solid var(--accent)" : "2px solid transparent",
+              color:tab===t.id ? "var(--accent)" : "var(--text-secondary)", borderRadius:"var(--radius-sm) var(--radius-sm) 0 0" }}
+            onClick={() => setTab(t.id)}>{t.label}</button>
         ))}
       </div>
 
@@ -125,24 +165,46 @@ export function Profile() {
       )}
 
       {tab === "skills" && (
-        <div className="card fade-in" style={{ maxWidth:600 }}>
-          <h3 style={{ fontSize:16, marginBottom:16 }}>Skills</h3>
-          <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:16 }}>
-            {form.skills.map((s,i) => (
-              <div key={i} className="tag active" style={{ cursor:"pointer" }} onClick={() => removeSkill(i)}>
-                {s} ✕
-              </div>
-            ))}
-            {form.skills.length === 0 && <span style={{ color:"var(--text-muted)", fontSize:13 }}>No skills added yet</span>}
+        <div className="card fade-in" style={{ maxWidth:800, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+          <div>
+            <h3 style={{ fontSize:16, marginBottom:16 }}>Skills</h3>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:16 }}>
+              {form.skills.map((s,i) => (
+                <div key={i} className="tag active" style={{ cursor:"pointer" }} onClick={() => removeSkill(i)}>
+                  {s} ✕
+                </div>
+              ))}
+              {form.skills.length === 0 && <span style={{ color:"var(--text-muted)", fontSize:13 }}>No skills added yet</span>}
+            </div>
+            <div className="input-group">
+              <label className="input-label">Add Skill (press Enter)</label>
+              <input className="input" placeholder="e.g. Barista, Data Entry"
+                value={skillInput} onChange={e=>setSkillInput(e.target.value)} onKeyDown={addSkill} />
+            </div>
           </div>
-          <div className="input-group">
-            <label className="input-label">Add Skill (press Enter)</label>
-            <input className="input" placeholder="e.g. Barista, Moving, Data Entry"
-              value={skillInput} onChange={e=>setSkillInput(e.target.value)} onKeyDown={addSkill} />
+          
+          <div>
+            <h3 style={{ fontSize:16, marginBottom:16 }}>Education</h3>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:16 }}>
+              {form.education.map((e,i) => (
+                <div key={i} className="tag active" style={{ cursor:"pointer", background: "var(--bg-elevated)", color: "var(--text-primary)", borderColor: "var(--border)" }} onClick={() => removeEducation(i)}>
+                  {e} ✕
+                </div>
+              ))}
+              {form.education.length === 0 && <span style={{ color:"var(--text-muted)", fontSize:13 }}>No education added yet</span>}
+            </div>
+            <div className="input-group">
+              <label className="input-label">Add Education/Degree (press Enter)</label>
+              <input className="input" placeholder="e.g. B.Tech Computer Science"
+                value={educationInput} onChange={e=>setEducationInput(e.target.value)} onKeyDown={addEducation} />
+            </div>
           </div>
-          <button className="btn btn-primary" style={{ marginTop:16 }} disabled={saving} onClick={save}>
-            {saving ? "Saving…" : "Save Skills"}
-          </button>
+          
+          <div style={{ gridColumn: "1 / -1", borderTop: "1px solid var(--border)", paddingTop: 16 }}>
+            <button className="btn btn-primary" disabled={saving} onClick={save}>
+              {saving ? "Saving…" : "Save Profile Details"}
+            </button>
+          </div>
         </div>
       )}
 
@@ -234,7 +296,7 @@ export function Earnings() {
       {/* Balance card */}
       <div className="card fade-in fade-in-1" style={{ marginBottom:24, background:"linear-gradient(135deg,var(--bg-card),var(--bg-elevated))", position:"relative", overflow:"hidden" }}>
         <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse at 80% 20%,rgba(59,232,176,0.08),transparent 60%)" }} />
-        <div style={{ position:"relative", display:"grid", gridTemplateColumns:"1fr auto", gap:20, alignItems:"center" }}>
+        <div style={{ position:"relative", display:"flex", flexWrap:"wrap", justifyContent:"space-between", gap:20, alignItems:"center" }}>
           <div>
             <div style={{ fontSize:12, color:"var(--text-muted)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8 }}>
               Total Available Balance
@@ -354,6 +416,7 @@ export function MyJobs() {
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("all");
+  const [scanApp, setScanApp] = useState(null);
 
   useEffect(() => {
     import("../services/api").then(({ appsAPI }) =>
@@ -415,18 +478,30 @@ export function MyJobs() {
                   {a.totalPaid > 0 && <div style={{ fontWeight:700, color:"var(--accent)", fontSize:16 }}>₹{a.totalPaid}</div>}
                   {a.status === "accepted" && (
                     <button className="btn btn-primary btn-sm" style={{ marginTop:8 }}
-                      onClick={() => import("../services/api").then(({appsAPI})=>appsAPI.checkIn(a._id).then(()=>window.location.reload()))}>
-                      ✓ Check In
+                      onClick={() => setScanApp(scanApp?.app._id === a._id ? null : { app: a, type: "start" })}>
+                      {scanApp?.app._id === a._id ? "Close Panel" : "✓ Check In"}
                     </button>
                   )}
                   {a.status === "in_progress" && (
                     <button className="btn btn-danger btn-sm" style={{ marginTop:8 }}
-                      onClick={() => import("../services/api").then(({appsAPI})=>appsAPI.checkOut(a._id).then(()=>window.location.reload()))}>
-                      Check Out
+                      onClick={() => setScanApp(scanApp?.app._id === a._id ? null : { app: a, type: "end" })}>
+                      {scanApp?.app._id === a._id ? "Close Panel" : "Check Out"}
                     </button>
                   )}
                 </div>
               </div>
+              
+              {/* Inline Scan / OTP block */}
+              {scanApp && scanApp.app._id === a._id && (
+                <WorkerScanModal
+                  application={scanApp.app}
+                  type={scanApp.type}
+                  onClose={(success) => {
+                    setScanApp(null);
+                    if (success) window.location.reload();
+                  }}
+                />
+              )}
             </div>
           ))}
         </div>

@@ -69,14 +69,14 @@ app.use(morgan("combined", { stream: { write: (msg) => logger.info(msg.trim()) }
 // ── API Docs (Swagger) ────────────────────────────────────────────────────────
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: ".swagger-ui .topbar { display: none }",
-  customSiteTitle: "Gigly API Docs",
+  customSiteTitle: "Rozgaaar API Docs",
 }));
 
 // ── Health Check ──────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({
     success: true,
-    message: "Gigly API is running 🚀",
+    message: "Rozgaaar API is running 🚀",
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
@@ -118,7 +118,7 @@ cron.schedule("*/5 * * * *", async () => {
 // ── Start Server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  logger.info(`🚀 Gigly server running on port ${PORT} [${process.env.NODE_ENV}]`);
+  logger.info(`🚀 Rozgaaar server running on port ${PORT} [${process.env.NODE_ENV}]`);
   logger.info(`📚 API Docs: http://localhost:${PORT}/api/docs`);
 });
 

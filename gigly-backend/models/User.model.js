@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String, default: "" },
     bio: { type: String, maxlength: 300 },
     skills: [{ type: String, trim: true }], // e.g. ["barista", "data entry", "forklift"]
+    education: [{ type: String, trim: true }], // e.g. ["B.Tech CS", "High School"]
 
     // ── Business-specific fields ─────────────────────────────────────────────
     businessName: { type: String, trim: true },

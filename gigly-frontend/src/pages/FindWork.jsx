@@ -37,6 +37,7 @@ export default function FindWork() {
     isUrgent: searchParams.get("isUrgent") === "true",
     minPay: searchParams.get("minPay") || "",
     sort: searchParams.get("sort") || "-isUrgent,-createdAt",
+    employmentType: searchParams.get("employmentType") || "",
   };
 
   const setFilter = (k, v) => {
@@ -55,13 +56,14 @@ export default function FindWork() {
       if (filters.minPay)   params.minPay = filters.minPay;
       if (filters.q)        params.q = filters.q;
       if (filters.city)     params.city = filters.city;
+      if (filters.employmentType) params.employmentType = filters.employmentType;
       const { data } = await jobsAPI.getAll(params);
       if (page === 1) setJobs(data.data || []);
       else setJobs(prev => [...prev, ...(data.data || [])]);
       setTotal(data.total || 0);
     } catch {}
     finally { setLoading(false); }
-  }, [page, filters.category, filters.isUrgent, filters.minPay, filters.sort, filters.q, filters.city]);
+  }, [page, filters.category, filters.isUrgent, filters.minPay, filters.sort, filters.q, filters.city, filters.employmentType]);
 
   useEffect(() => { loadJobs(); }, [loadJobs]);
 
@@ -121,6 +123,27 @@ export default function FindWork() {
           onClick={() => setFilter("minPay", filters.minPay === "50" ? "" : "50")}>
           💰 High Pay (₹50+/hr)
         </button>
+        <button
+          className={`tag ${filters.employmentType === "" ? "active" : ""}`}
+          style={{ cursor:"pointer" }}
+          onClick={() => setFilter("employmentType", "")}
+        >
+          🧩 Any Type
+        </button>
+        <button
+          className={`tag ${filters.employmentType === "part_time" ? "active" : ""}`}
+          style={{ cursor:"pointer" }}
+          onClick={() => setFilter("employmentType", filters.employmentType === "part_time" ? "" : "part_time")}
+        >
+          ⏱ Part-time / Gigs
+        </button>
+        <button
+          className={`tag ${filters.employmentType === "full_time" ? "active" : ""}`}
+          style={{ cursor:"pointer" }}
+          onClick={() => setFilter("employmentType", filters.employmentType === "full_time" ? "" : "full_time")}
+        >
+          💼 Full-time Only
+        </button>
         <div style={{ width:1, height:24, background:"var(--border)", margin:"0 4px" }} />
         {CATEGORIES.map(c => (
           <button key={c.v} className={`tag ${filters.category === c.v ? "active" : ""}`} style={{ cursor:"pointer" }}
@@ -139,7 +162,7 @@ export default function FindWork() {
 
       {/* ── Job Grid ── */}
       {loading && page === 1 ? (
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))", gap:16 }}>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:16 }}>
           {[1,2,3,4,5,6].map(i => (
             <div key={i} className="skeleton" style={{ height:180, borderRadius:"var(--radius-lg)" }} />
           ))}
@@ -152,7 +175,7 @@ export default function FindWork() {
         </div>
       ) : (
         <>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))", gap:16 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:16 }}>
             {jobs.map(job => (
               <div key={job._id} style={{ opacity: applying === job._id ? 0.6 : 1, transition:"opacity 0.2s" }}>
                 <GigCard job={job} onApply={handleApply} />

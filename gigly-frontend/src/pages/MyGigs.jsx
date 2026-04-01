@@ -1,57 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jobsAPI, appsAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import WorkerProfileModal from "../components/WorkerProfileModal";
+import ReviewWorkerModal from "../components/ReviewWorkerModal";
+import BusinessVerificationModal from "../components/BusinessVerificationModal";
 
-function ContactButton({ applicationId }) {
-  const [contact, setContact] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [copied, setCopied]   = useState(false);
-
-  const reveal = async () => {
-    setLoading(true);
-    try {
-      const { data } = await import("../services/api")
-        .then(({ default: api }) => api.get(`/applications/${applicationId}/contact`));
-      setContact(data.data);
-    } catch (err) {
-      const toastLib = await import("react-hot-toast").then(m => m.default);
-      toastLib.error(err.response?.data?.message || "Could not load contact");
-    } finally { setLoading(false); }
-  };
-
-  const copy = () => {
-    navigator.clipboard.writeText(contact.phone);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (!contact) return (
-    <button className="btn btn-secondary btn-sm" onClick={reveal} disabled={loading}>
-      {loading ? "..." : "📞 View Phone"}
-    </button>
-  );
-
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
-      background: "var(--accent-dim)",
-      border: "1px solid rgba(59,232,176,0.3)",
-      borderRadius: "var(--radius-md)", padding: "6px 12px",
-    }}>
-      <span style={{ fontWeight: 700, fontSize: 13, color: "var(--accent)" }}>
-        📞 {contact.phone}
-      </span>
-      <button className="btn btn-primary btn-sm" onClick={copy}>
-        {copied ? "✓ Copied!" : "Copy"}
-      </button>
-      <a href={`tel:${contact.phone}`} className="btn btn-secondary btn-sm"
-        style={{ textDecoration: "none" }}>
-        Call
-      </a>
-    </div>
-  );
-}
 
 export default function MyGigs() {
   const [jobs, setJobs]               = useState([]);
@@ -59,6 +14,10 @@ export default function MyGigs() {
   const [expandedJob, setExpandedJob] = useState(null);
   const [applicants, setApplicants]   = useState({});
   const [loadingApps, setLoadingApps] = useState({});
+  const { user } = useAuth();
+  const [selectedApplicantId, setSelectedApplicantId] = useState(null);
+  const [reviewingApp, setReviewingApp] = useState(null);
+  const [verifyApp, setVerifyApp] = useState(null); // { app, type: 'start' | 'end' }
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -242,24 +201,33 @@ export default function MyGigs() {
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {applicants[job._id].map(app => (
-                        <div key={app._id} style={{
-                          display: "flex", gap: 12, alignItems: "center",
-                          padding: "12px 14px",
-                          background: "var(--bg-surface)",
-                          borderRadius: "var(--radius-md)",
-                          border: "1px solid var(--border)",
-                          flexWrap: "wrap",
-                        }}>
+                        <div key={app._id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          <div style={{
+                            display: "flex", gap: 12, alignItems: "center",
+                            padding: "12px 14px",
+                            background: "var(--bg-surface)",
+                            borderRadius: "var(--radius-md)",
+                            border: "1px solid var(--border)",
+                            flexWrap: "wrap",
+                          }}>
 
                           {/* Avatar */}
                           <div className="avatar avatar-md avatar-placeholder"
-                            style={{ fontSize: 13 }}>
+                            style={{ fontSize: 16, cursor: "pointer", transition: "transform 0.2s" }}
+                            onClick={() => setSelectedApplicantId(app.worker?._id)}
+                            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                            onMouseOut={(e) => e.currentTarget.style.transform = "none"}
+                            title="View Profile">
                             {app.worker?.name?.[0] || "W"}
                           </div>
 
                           {/* Worker info */}
                           <div style={{ flex: 1, minWidth: 160 }}>
-                            <div style={{ fontWeight: 600, fontSize: 14 }}>
+                            <div style={{ fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "color 0.2s" }}
+                                 onClick={() => setSelectedApplicantId(app.worker?._id)}
+                                 onMouseOver={(e) => e.currentTarget.style.color = "var(--accent)"}
+                                 onMouseOut={(e) => e.currentTarget.style.color = "var(--text-primary)"}
+                                 title="View Profile">
                               {app.worker?.name}
                             </div>
                             <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
@@ -303,6 +271,14 @@ export default function MyGigs() {
                             }`} style={{ textTransform: "capitalize" }}>
                               {app.status}
                             </span>
+                            
+                            {/* View Resume Button */}
+                            {app.resumeUrl && (
+                              <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer" 
+                                 className="btn btn-secondary btn-sm" style={{ textDecoration: 'none' }}>
+                                📄 View CV
+                              </a>
+                            )}
 
                             {/* PENDING — Shortlist + Accept + Reject */}
                             {app.status === "pending" && (
@@ -322,10 +298,9 @@ export default function MyGigs() {
                               </>
                             )}
 
-                            {/* SHORTLISTED — View Phone + Accept + Reject */}
+                            {/* SHORTLISTED — Accept + Reject */}
                             {app.status === "shortlisted" && (
                               <>
-                                <ContactButton applicationId={app._id} />
                                 <button className="btn btn-primary btn-sm"
                                   onClick={() => updateStatus(app._id, "accepted", job._id)}>
                                   ✅ Accept
@@ -337,13 +312,22 @@ export default function MyGigs() {
                               </>
                             )}
 
-                            {/* ACCEPTED — View Phone + Mark Completed */}
+                            {/* ACCEPTED — Start Work */}
                             {app.status === "accepted" && (
                               <>
-                                <ContactButton applicationId={app._id} />
                                 <button className="btn btn-primary btn-sm"
-                                  onClick={() => markCompleted(app._id, job._id)}>
-                                  ✓ Mark Completed
+                                  onClick={() => setVerifyApp(verifyApp?.app._id === app._id ? null : { app, type: "start" })}>
+                                  {verifyApp?.app._id === app._id ? "Close Panel" : "▶ Start Work"}
+                                </button>
+                              </>
+                            )}
+                            
+                            {/* IN_PROGRESS — End Work */}
+                            {app.status === "in_progress" && (
+                              <>
+                                <button className="btn btn-primary btn-sm"
+                                  onClick={() => setVerifyApp(verifyApp?.app._id === app._id ? null : { app, type: "end" })}>
+                                  {verifyApp?.app._id === app._id ? "Close Panel" : "⏹ End Work"}
                                 </button>
                               </>
                             )}
@@ -357,10 +341,31 @@ export default function MyGigs() {
 
                             {/* COMPLETED */}
                             {app.status === "completed" && (
-                              <span className="badge badge-success">✓ Completed</span>
+                              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                <span className="badge badge-success">✓ Completed</span>
+                                {!app.businessReviewed ? (
+                                  <button className="btn btn-secondary btn-sm" onClick={() => setReviewingApp(app)}>
+                                    ⭐ Leave Review
+                                  </button>
+                                ) : (
+                                  <span style={{ fontSize: 12, color: "var(--text-muted)" }}>✓ Reviewed</span>
+                                )}
+                              </div>
                             )}
 
                           </div>
+                          </div>
+
+                          {verifyApp && verifyApp.app._id === app._id && (
+                            <BusinessVerificationModal
+                              application={verifyApp.app}
+                              type={verifyApp.type}
+                              onClose={() => {
+                                setVerifyApp(null);
+                                loadApplicants(job._id); // refresh state
+                              }}
+                            />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -371,6 +376,30 @@ export default function MyGigs() {
             </div>
           ))}
         </div>
+      )}
+
+      {selectedApplicantId && (
+        <WorkerProfileModal
+          applicantId={selectedApplicantId}
+          onClose={() => setSelectedApplicantId(null)}
+        />
+      )}
+
+      {reviewingApp && (
+        <ReviewWorkerModal
+          application={reviewingApp}
+          onClose={() => setReviewingApp(null)}
+          onSuccess={(appId) => {
+            setApplicants(prev => {
+              const newApps = { ...prev };
+              for (const jId in newApps) {
+                newApps[jId] = newApps[jId].map(a => a._id === appId ? { ...a, businessReviewed: true } : a);
+              }
+              return newApps;
+            });
+            setReviewingApp(null);
+          }}
+        />
       )}
     </div>
   );

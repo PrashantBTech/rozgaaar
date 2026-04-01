@@ -24,12 +24,15 @@ export default function PostGig() {
     payPerHour:"", date:"", startTime:"", endTime:"",
     address:"", city:"", pincode:"", landmark:"",
     slotsRequired:1, isUrgent:false, paymentMode:"platform_wallet",
-    requirements:{ minAge:18, gender:"any", experience:"none" },
+    employmentType:"part_time",
+    requirements:{ minAge:18, gender:"any", experience:"none", requireResume:false },
   });
 
   const upd = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const updNested = (parent, k) => (e) => setForm({ ...form, [parent]:{ ...form[parent], [k]: e.target.value }});
-  const totalPay = (parseFloat(form.payPerHour)||0) * (parseInt(form.durationHours)||0);
+  const totalPay = form.employmentType === "full_time"
+    ? parseFloat(form.payPerHour)||0
+    : (parseFloat(form.payPerHour)||0) * (parseInt(form.durationHours)||0);
 
   const submit = async () => {
     if (!form.title || !form.category || !form.payPerHour || !form.date || !form.startTime || !form.address) {
@@ -78,7 +81,32 @@ export default function PostGig() {
                 <label className="input-label">Job Title *</label>
                 <input className="input" placeholder='e.g. "Help me move a sofa"' value={form.title} onChange={upd("title")} />
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+              <div className="input-group">
+                <label className="input-label">Hiring Type *</label>
+                <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+                  <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
+                    <input
+                      type="radio"
+                      name="employmentType"
+                      value="part_time"
+                      checked={form.employmentType === "part_time"}
+                      onChange={e => setForm({ ...form, employmentType: e.target.value })}
+                    />
+                    Part-time / Gig
+                  </label>
+                  <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
+                    <input
+                      type="radio"
+                      name="employmentType"
+                      value="full_time"
+                      checked={form.employmentType === "full_time"}
+                      onChange={e => setForm({ ...form, employmentType: e.target.value })}
+                    />
+                    Full-time hire
+                  </label>
+                </div>
+              </div>
+              <div className="grid-2" style={{ gap:14 }}>
                 <div className="input-group">
                   <label className="input-label">Category *</label>
                   <select className="input" value={form.category} onChange={upd("category")}>
@@ -87,7 +115,9 @@ export default function PostGig() {
                   </select>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Duration (hours) *</label>
+                  <label className="input-label">
+                    {form.employmentType === "full_time" ? "Daily Hours *" : "Duration (hours) *"}
+                  </label>
                   <input className="input" type="number" min={1} max={12} value={form.durationHours} onChange={upd("durationHours")} />
                 </div>
               </div>
@@ -97,7 +127,7 @@ export default function PostGig() {
                   value={form.description} onChange={upd("description")}
                   style={{ resize:"vertical", minHeight:100 }} />
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+              <div className="grid-2" style={{ gap:14 }}>
                 <div className="input-group">
                   <label className="input-label">Slots Required</label>
                   <input className="input" type="number" min={1} max={50} value={form.slotsRequired} onChange={upd("slotsRequired")} />
@@ -120,12 +150,14 @@ export default function PostGig() {
               <h3 style={{ fontSize:16 }}>Rate & Location</h3>
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+              <div className="grid-2" style={{ gap:14 }}>
                 <div className="input-group">
-                  <label className="input-label">Hourly Rate (₹) *</label>
+                  <label className="input-label">
+                    {form.employmentType === "full_time" ? "Monthly Salary (₹) *" : "Hourly Rate (₹) *"}
+                  </label>
                   <div className="input-icon-wrap">
                     <span className="input-icon" style={{ fontSize:13, fontWeight:700 }}>₹</span>
-                    <input className="input" type="number" min={0} placeholder="150" value={form.payPerHour} onChange={upd("payPerHour")} />
+                    <input className="input" type="number" min={0} placeholder={form.employmentType === "full_time" ? "25000" : "150"} value={form.payPerHour} onChange={upd("payPerHour")} />
                   </div>
                 </div>
                 <div className="input-group">
@@ -145,7 +177,7 @@ export default function PostGig() {
                 <label className="input-label">Location / Address *</label>
                 <input className="input" placeholder="123 Main St, Downtown" value={form.address} onChange={upd("address")} />
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+              <div className="grid-3" style={{ gap:12 }}>
                 <div className="input-group">
                   <label className="input-label">City</label>
                   <input className="input" placeholder="New Delhi" value={form.city} onChange={upd("city")} />
@@ -159,6 +191,46 @@ export default function PostGig() {
                   <input className="input" placeholder="Near metro" value={form.landmark} onChange={upd("landmark")} />
                 </div>
               </div>
+
+              {/* Full-time extras */}
+              {form.employmentType === "full_time" && (
+                <div
+                  style={{
+                    padding:"14px 16px",
+                    borderRadius:"var(--radius-md)",
+                    border:"1px solid var(--border)",
+                    background:"var(--bg-elevated)",
+                    display:"flex",
+                    flexDirection:"column",
+                    gap:8,
+                  }}
+                >
+                  <div style={{ fontSize:13, fontWeight:600 }}>Full-time options</div>
+                  <div style={{ fontSize:12, color:"var(--text-secondary)", marginBottom:4 }}>
+                    Do you want applicants to upload a CV/Resume for this role?
+                  </div>
+                  <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
+                    <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
+                      <input
+                        type="radio"
+                        name="requireResume"
+                        checked={form.requirements.requireResume === true}
+                        onChange={() => setForm({ ...form, requirements: { ...form.requirements, requireResume: true } })}
+                      />
+                      Yes, CV/Resume required
+                    </label>
+                    <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
+                      <input
+                        type="radio"
+                        name="requireResume"
+                        checked={form.requirements.requireResume === false}
+                        onChange={() => setForm({ ...form, requirements: { ...form.requirements, requireResume: false } })}
+                      />
+                      No, CV/Resume not required
+                    </label>
+                  </div>
+                </div>
+              )}
 
               {/* Urgent toggle */}
               <div style={{ display:"flex", alignItems:"flex-start", gap:12, padding:"16px", background:"var(--urgent-dim)", borderRadius:"var(--radius-md)", border:"1px solid rgba(255,107,107,0.2)" }}>
@@ -200,7 +272,7 @@ export default function PostGig() {
             </div>
             <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap" }}>
               {form.category && <span className="badge badge-info">{CATEGORIES.find(c=>c.v===form.category)?.l || form.category}</span>}
-              {form.durationHours && <span className="badge badge-info">⏱ {form.durationHours}h</span>}
+              {form.durationHours && <span className="badge badge-info">⏱ {form.durationHours}h {form.employmentType === "full_time" ? "/ day" : "/ gig"}</span>}
             </div>
             <p style={{ fontSize:13, color:"var(--text-secondary)", marginBottom:16, lineHeight:1.6,
               display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
@@ -211,10 +283,12 @@ export default function PostGig() {
               <div>
                 <div style={{ fontSize:11, color:"var(--text-muted)", marginBottom:2 }}>Est. Earnings</div>
                 <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:22, color:"var(--accent)" }}>
-                  {totalPay > 0 ? `₹${totalPay}` : "₹—"}
+                  {totalPay > 0 ? `₹${totalPay.toLocaleString("en-IN")}` : "₹—"}
                 </div>
                 <div style={{ fontSize:11, color:"var(--text-muted)" }}>
-                  ₹{form.payPerHour||"—"}/hr × {form.durationHours}h
+                  {form.employmentType === "full_time" 
+                    ? "per month" 
+                    : `₹${form.payPerHour||"—"}/hr × ${form.durationHours}h`}
                 </div>
               </div>
               <div style={{ textAlign:"right" }}>

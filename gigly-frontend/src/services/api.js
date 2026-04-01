@@ -56,13 +56,26 @@ export const jobsAPI = {
 
 // ── Applications ──────────────────────────────────────────────────────────────
 export const appsAPI = {
-  apply: (jobId, coverNote) => api.post("/applications", { jobId, coverNote }),
+  apply: (jobId, coverNote, resumeFile) => {
+    // If a resume file is provided, send multipart/form-data so backend can upload it.
+    if (resumeFile) {
+      const fd = new FormData();
+      fd.append("jobId", jobId);
+      if (coverNote) fd.append("coverNote", coverNote);
+      fd.append("resume", resumeFile);
+      return api.post("/applications", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return api.post("/applications", { jobId, coverNote });
+  },
   getMine: () => api.get("/applications/my"),
   getForJob: (jobId) => api.get(`/applications/job/${jobId}`),
   getContact: (applicationId) => api.get(`/applications/${applicationId}/contact`),
   updateStatus: (id, status) => api.patch(`/applications/${id}/status`, { status }),
-  checkIn: (id) => api.patch(`/applications/${id}/checkin`),
-  checkOut: (id) => api.patch(`/applications/${id}/checkout`),
+  generateVerification: (id, type) => api.post(`/applications/${id}/generate-verification`, { type }),
+  checkIn: (id, data) => api.patch(`/applications/${id}/checkin`, data),
+  checkOut: (id, data) => api.patch(`/applications/${id}/checkout`, data),
   withdraw: (id) => api.patch(`/applications/${id}/withdraw`),
 };
 

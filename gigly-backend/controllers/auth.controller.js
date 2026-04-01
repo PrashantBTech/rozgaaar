@@ -53,7 +53,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   try {
     await sendEmail({
       to: user.email,
-      subject: "Welcome to Gigly – Verify your email",
+      subject: "Welcome to Rozgaaar – Verify your email",
       html: `<p>Hi ${user.name}! Please <a href="${verifyUrl}">click here</a> to verify your email.</p>`,
     });
   } catch (err) {
@@ -127,7 +127,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   try {
     await sendEmail({
       to: user.email,
-      subject: "Gigly – Password Reset",
+      subject: "Rozgaaar – Password Reset",
       html: `<p>Reset your password: <a href="${resetUrl}">${resetUrl}</a>. Valid for 10 minutes.</p>`,
     });
     res.json({ success: true, message: "Password reset email sent" });

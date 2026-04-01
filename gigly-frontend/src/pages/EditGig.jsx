@@ -59,7 +59,8 @@ export default function EditGig() {
     slotsRequired: 1,
     isUrgent: false,
     paymentMode: "platform_wallet",
-    requirements: { minAge: 18, gender: "any", experience: "none", ownVehicle: false, ownEquipment: false },
+    employmentType: "part_time",
+    requirements: { minAge: 18, gender: "any", experience: "none", ownVehicle: false, ownEquipment: false, requireResume: false },
     // Preserve existing coordinates if present (no geocoding on frontend).
     locationCoordinates: [0, 0],
     status: "open",
@@ -96,12 +97,14 @@ export default function EditGig() {
           slotsRequired: j.slotsRequired ?? 1,
           isUrgent: !!j.isUrgent,
           paymentMode: j.paymentMode || "platform_wallet",
+          employmentType: j.employmentType || "part_time",
           requirements: {
             minAge: j.requirements?.minAge ?? 18,
             gender: j.requirements?.gender ?? "any",
             experience: j.requirements?.experience ?? "none",
             ownVehicle: j.requirements?.ownVehicle ?? false,
             ownEquipment: j.requirements?.ownEquipment ?? false,
+            requireResume: j.requirements?.requireResume ?? false,
           },
           locationCoordinates: j.location?.coordinates?.length ? j.location.coordinates : [0, 0],
           status: j.status || "open",
@@ -162,6 +165,7 @@ export default function EditGig() {
         isUrgent: !!form.isUrgent,
         paymentMode: form.paymentMode,
         requirements: form.requirements,
+        employmentType: form.employmentType,
         status: nextStatus,
         // Keep cron expiration consistent when date changes.
         endsAt: new Date(form.date),
@@ -270,6 +274,31 @@ export default function EditGig() {
               <div className="input-group">
                 <label className="input-label">Job Title *</label>
                 <input className="input" placeholder='e.g. "Help me move a sofa"' value={form.title} onChange={upd("title")} />
+              </div>
+              <div className="input-group">
+                <label className="input-label">Hiring Type *</label>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+                    <input
+                      type="radio"
+                      name="employmentType"
+                      value="part_time"
+                      checked={form.employmentType === "part_time"}
+                      onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                    />
+                    Part-time / Gig
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+                    <input
+                      type="radio"
+                      name="employmentType"
+                      value="full_time"
+                      checked={form.employmentType === "full_time"}
+                      onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                    />
+                    Full-time hire
+                  </label>
+                </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 <div className="input-group">
@@ -381,6 +410,56 @@ export default function EditGig() {
                   <input className="input" placeholder="Near metro" value={form.landmark} onChange={upd("landmark")} />
                 </div>
               </div>
+
+              {/* Full-time extras */}
+              {form.employmentType === "full_time" && (
+                <div
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: "var(--radius-md)",
+                    border: "1px solid var(--border)",
+                    background: "var(--bg-elevated)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>Full-time options</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
+                    Do you want applicants to upload a CV/Resume for this role?
+                  </div>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+                      <input
+                        type="radio"
+                        name="requireResume"
+                        checked={form.requirements.requireResume === true}
+                        onChange={() =>
+                          setForm({
+                            ...form,
+                            requirements: { ...form.requirements, requireResume: true },
+                          })
+                        }
+                      />
+                      Yes, CV/Resume required
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+                      <input
+                        type="radio"
+                        name="requireResume"
+                        checked={form.requirements.requireResume === false}
+                        onChange={() =>
+                          setForm({
+                            ...form,
+                            requirements: { ...form.requirements, requireResume: false },
+                          })
+                        }
+                      />
+                      No, CV/Resume not required
+                    </label>
+                  </div>
+                </div>
+              )}
 
               {/* Urgent toggle */}
               <div

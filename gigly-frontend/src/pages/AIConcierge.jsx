@@ -7,14 +7,14 @@ import toast from "react-hot-toast";
 // ── Typing animation dots ─────────────────────────────────────────────────────
 function TypingDots() {
   return (
-    <div style={{ display:"flex", gap:4, alignItems:"center", padding:"12px 16px" }}>
-      {[0,1,2].map(i => (
+    <div style={{ display: "flex", gap: 4, alignItems: "center", padding: "12px 16px" }}>
+      {[0, 1, 2].map(i => (
         <span key={i} style={{
-          width:7, height:7, borderRadius:"50%",
-          background:"var(--accent)", display:"inline-block",
-          animation:"pulse 1.2s ease infinite",
-          animationDelay:`${i*0.2}s`,
-          opacity:0.7,
+          width: 7, height: 7, borderRadius: "50%",
+          background: "var(--accent)", display: "inline-block",
+          animation: "pulse 1.2s ease infinite",
+          animationDelay: `${i * 0.2}s`,
+          opacity: 0.7,
         }} />
       ))}
     </div>
@@ -26,32 +26,32 @@ function ChatJobCard({ job, onApply, onDetails }) {
   const totalPay = (job.payPerHour || 0) * (job.durationHours || 0);
   return (
     <div style={{
-      background:"var(--bg-elevated)",
-      border:"1px solid var(--border-active)",
-      borderRadius:"var(--radius-md)",
-      padding:"12px 14px",
-      marginTop:8,
-      transition:"all 0.2s",
+      background: "var(--bg-elevated)",
+      border: "1px solid var(--border-active)",
+      borderRadius: "var(--radius-md)",
+      padding: "12px 14px",
+      marginTop: 8,
+      transition: "all 0.2s",
     }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
-        <div style={{ fontWeight:700, fontSize:14, color:"var(--text-primary)", flex:1, marginRight:8 }}>
-          {job.isUrgent && <span style={{ color:"var(--urgent)", marginRight:6 }}>🔴</span>}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)", flex: 1, marginRight: 8 }}>
+          {job.isUrgent && <span style={{ color: "var(--urgent)", marginRight: 6 }}>🔴</span>}
           {job.title}
         </div>
-        <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:16, color:"var(--accent)", flexShrink:0 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "var(--accent)", flexShrink: 0 }}>
           ₹{job.payPerHour}/hr
         </div>
       </div>
-      <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:8 }}>
-        <span style={{ fontSize:11, color:"var(--text-muted)" }}>⏱ {job.durationHours}h</span>
-        <span style={{ fontSize:11, color:"var(--text-muted)" }}>💰 ₹{totalPay} total</span>
-        {job.location?.city && <span style={{ fontSize:11, color:"var(--text-muted)" }}>📍 {job.location.city}</span>}
-        {job.location?.address && <span style={{ fontSize:11, color:"var(--text-muted)" }}>• {job.location.address.slice(0,30)}</span>}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>⏱ {job.durationHours}h</span>
+        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>💰 ₹{totalPay} total</span>
+        {job.location?.city && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>📍 {job.location.city}</span>}
+        {job.location?.address && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>• {job.location.address.slice(0, 30)}</span>}
       </div>
-      <div style={{ display:"flex", gap:8 }}>
+      <div style={{ display: "flex", gap: 8 }}>
         <button
           className="btn btn-primary btn-sm"
-          style={{ flex:1 }}
+          style={{ flex: 1 }}
           onClick={() => onApply(job)}>
           ⚡ Apply Now
         </button>
@@ -68,25 +68,27 @@ function ChatJobCard({ job, onApply, onDetails }) {
 // ── Business Gig Card shown inside chat ──────────────────────────────────────
 function BusinessGigCard({ gig, onViewApplicants }) {
   const statusColor = {
-    open:"var(--accent)", completed:"var(--cyan)", expired:"var(--text-muted)",
-    cancelled:"var(--urgent)", draft:"var(--gold)",
+    open: "var(--accent)", completed: "var(--cyan)", expired: "var(--text-muted)",
+    cancelled: "var(--urgent)", draft: "var(--gold)",
   };
   return (
     <div style={{
-      background:"var(--bg-elevated)", border:"1px solid var(--border)",
-      borderRadius:"var(--radius-md)", padding:"12px 14px", marginTop:8,
+      background: "var(--bg-elevated)", border: "1px solid var(--border)",
+      borderRadius: "var(--radius-md)", padding: "12px 14px", marginTop: 8,
     }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
-        <div style={{ fontWeight:700, fontSize:14, flex:1, marginRight:8 }}>
-          {gig.isUrgent && <span style={{ color:"var(--urgent)", marginRight:4 }}>🔴</span>}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+        <div style={{ fontWeight: 700, fontSize: 14, flex: 1, marginRight: 8 }}>
+          {gig.isUrgent && <span style={{ color: "var(--urgent)", marginRight: 4 }}>🔴</span>}
           {gig.title}
         </div>
-        <span style={{ fontSize:11, fontWeight:700, color: statusColor[gig.status] || "var(--text-muted)",
-          background:"var(--bg-card)", padding:"2px 8px", borderRadius:10, flexShrink:0 }}>
+        <span style={{
+          fontSize: 11, fontWeight: 700, color: statusColor[gig.status] || "var(--text-muted)",
+          background: "var(--bg-card)", padding: "2px 8px", borderRadius: 10, flexShrink: 0
+        }}>
           {gig.status}
         </span>
       </div>
-      <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:8, fontSize:11, color:"var(--text-muted)" }}>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 8, fontSize: 11, color: "var(--text-muted)" }}>
         <span>₹{gig.payPerHour}/hr</span>
         <span>⏱ {gig.durationHours}h</span>
         <span>👥 {gig.slotsFilled}/{gig.slotsRequired} filled</span>
@@ -95,7 +97,7 @@ function BusinessGigCard({ gig, onViewApplicants }) {
         {gig.location && <span>📍 {gig.location}</span>}
       </div>
       {gig.applications > 0 && (
-        <button className="btn btn-secondary btn-sm" style={{ width:"100%" }}
+        <button className="btn btn-secondary btn-sm" style={{ width: "100%" }}
           onClick={() => onViewApplicants(gig)}>
           View {gig.applications} Applicant{gig.applications !== 1 ? "s" : ""} →
         </button>
@@ -107,36 +109,40 @@ function BusinessGigCard({ gig, onViewApplicants }) {
 // ── Applicant Card shown inside chat ──────────────────────────────────────────
 function ApplicantCard({ applicant }) {
   const statusColor = {
-    pending:"var(--gold)", shortlisted:"var(--cyan)",
-    accepted:"var(--accent)", rejected:"var(--urgent)", completed:"var(--accent)",
+    pending: "var(--gold)", shortlisted: "var(--cyan)",
+    accepted: "var(--accent)", rejected: "var(--urgent)", completed: "var(--accent)",
   };
   return (
     <div style={{
-      background:"var(--bg-elevated)", border:"1px solid var(--border)",
-      borderRadius:"var(--radius-md)", padding:"12px 14px", marginTop:6,
-      display:"flex", gap:10, alignItems:"center",
+      background: "var(--bg-elevated)", border: "1px solid var(--border)",
+      borderRadius: "var(--radius-md)", padding: "12px 14px", marginTop: 6,
+      display: "flex", gap: 10, alignItems: "center",
     }}>
-      <div className="avatar avatar-sm avatar-placeholder" style={{ fontSize:10, flexShrink:0 }}>
+      <div className="avatar avatar-sm avatar-placeholder" style={{ fontSize: 10, flexShrink: 0 }}>
         {applicant.name?.[0] || "W"}
       </div>
-      <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontWeight:700, fontSize:13 }}>{applicant.name}</div>
-        <div style={{ fontSize:11, color:"var(--text-muted)" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 13 }}>{applicant.name}</div>
+        <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
           ★ {applicant.rating || "New"} • {applicant.jobsDone || 0} jobs
-          {applicant.isVerified && <span style={{ color:"var(--accent)", marginLeft:4 }}>✓ Verified</span>}
+          {applicant.isVerified && <span style={{ color: "var(--accent)", marginLeft: 4 }}>✓ Verified</span>}
           {applicant.city && <span> • 📍 {applicant.city}</span>}
         </div>
         {applicant.skills?.length > 0 && (
-          <div style={{ display:"flex", gap:4, marginTop:4, flexWrap:"wrap" }}>
-            {applicant.skills.slice(0,3).map(s => (
-              <span key={s} style={{ fontSize:10, background:"var(--bg-card)",
-                padding:"1px 6px", borderRadius:8, color:"var(--text-secondary)" }}>{s}</span>
+          <div style={{ display: "flex", gap: 4, marginTop: 4, flexWrap: "wrap" }}>
+            {applicant.skills.slice(0, 3).map(s => (
+              <span key={s} style={{
+                fontSize: 10, background: "var(--bg-card)",
+                padding: "1px 6px", borderRadius: 8, color: "var(--text-secondary)"
+              }}>{s}</span>
             ))}
           </div>
         )}
       </div>
-      <span style={{ fontSize:11, fontWeight:700, flexShrink:0,
-        color: statusColor[applicant.status] || "var(--text-muted)" }}>
+      <span style={{
+        fontSize: 11, fontWeight: 700, flexShrink: 0,
+        color: statusColor[applicant.status] || "var(--text-muted)"
+      }}>
         {applicant.status}
       </span>
     </div>
@@ -149,18 +155,18 @@ function SuggestionChip({ text, onClick }) {
     <button
       onClick={() => onClick(text)}
       style={{
-        background:"var(--bg-elevated)",
-        border:"1px solid var(--border)",
-        borderRadius:20,
-        padding:"6px 14px",
-        fontSize:12, fontWeight:500,
-        color:"var(--text-secondary)",
-        cursor:"pointer",
-        transition:"all 0.15s",
-        whiteSpace:"nowrap",
+        background: "var(--bg-elevated)",
+        border: "1px solid var(--border)",
+        borderRadius: 20,
+        padding: "6px 14px",
+        fontSize: 12, fontWeight: 500,
+        color: "var(--text-secondary)",
+        cursor: "pointer",
+        transition: "all 0.15s",
+        whiteSpace: "nowrap",
       }}
-      onMouseEnter={e => { e.target.style.borderColor="var(--accent)"; e.target.style.color="var(--accent)"; }}
-      onMouseLeave={e => { e.target.style.borderColor="var(--border)"; e.target.style.color="var(--text-secondary)"; }}
+      onMouseEnter={e => { e.target.style.borderColor = "var(--accent)"; e.target.style.color = "var(--accent)"; }}
+      onMouseLeave={e => { e.target.style.borderColor = "var(--border)"; e.target.style.color = "var(--text-secondary)"; }}
     >
       {text}
     </button>
@@ -204,32 +210,32 @@ function parseApplicantsFromToolResults(toolResults) {
 // ── Main AI Concierge Page ────────────────────────────────────────────────────
 export default function AIConcierge() {
   const { user } = useAuth();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
-  const [messages, setMessages]       = useState([]);   // conversation history
-  const [input, setInput]             = useState("");
-  const [loading, setLoading]         = useState(false);
+  const [messages, setMessages] = useState([]);   // conversation history
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [appliedJobs, setAppliedJobs] = useState(new Set()); // track applied job IDs
 
-  const bottomRef  = useRef();
-  const inputRef   = useRef();
+  const bottomRef = useRef();
+  const inputRef = useRef();
 
   // ── Initial greeting ────────────────────────────────────────────────────────
   useEffect(() => {
     const firstName = user?.name?.split(" ")[0] || "there";
-    const isWorker  = user?.role === "worker";
+    const isWorker = user?.role === "worker";
 
     const greeting = isWorker
       ? `Hey ${firstName}! 👋 I'm **Gigi**, your AI job assistant.\n\nTell me what kind of work you're looking for — I'll find the best gigs near you and can even apply on your behalf!\n\nWhat would you like to work today?`
       : `Hey ${firstName}! 👋 I'm **Gigi**, your AI business assistant.\n\nI can help you manage your gig postings, check applications, view applicant profiles, and much more!\n\nWhat would you like to know about your business today?`;
 
     setMessages([{
-      role:        "assistant",
-      content:     greeting,
+      role: "assistant",
+      content: greeting,
       toolResults: [],
-      jobCards:    [],
-      timestamp:   new Date(),
+      jobCards: [],
+      timestamp: new Date(),
     }]);
 
     // Load suggestion chips
@@ -245,7 +251,7 @@ export default function AIConcierge() {
 
   // ── Auto scroll ─────────────────────────────────────────────────────────────
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior:"smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
   // ── Send message to AI ───────────────────────────────────────────────────────
@@ -256,42 +262,42 @@ export default function AIConcierge() {
     setInput("");
 
     // Add user message to UI
-    const userMsg = { role:"user", content:msgText, timestamp:new Date() };
+    const userMsg = { role: "user", content: msgText, timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
 
     try {
       // Build history for API (only role + content, no extra fields)
       const history = [...messages, userMsg].map(m => ({
-        role:    m.role,
+        role: m.role,
         content: m.content,
       }));
 
       const { data } = await api.post("/ai/chat", {
-        messages:     history,
+        messages: history,
         userLocation: { city: user?.location?.city || "" },
       });
 
-      const jobCards    = parseJobsFromToolResults(data.toolResults);
-      const gigCards    = parseGigsFromToolResults(data.toolResults);
-      const appCards    = parseApplicantsFromToolResults(data.toolResults);
+      const jobCards = parseJobsFromToolResults(data.toolResults);
+      const gigCards = parseGigsFromToolResults(data.toolResults);
+      const appCards = parseApplicantsFromToolResults(data.toolResults);
 
       setMessages(prev => [...prev, {
-        role:        "assistant",
-        content:     data.reply,
+        role: "assistant",
+        content: data.reply,
         toolResults: data.toolResults || [],
         jobCards,
         gigCards,
         appCards,
-        timestamp:   new Date(),
+        timestamp: new Date(),
       }]);
     } catch (err) {
       const errMsg = err?.response?.data?.message || err.message || "Unknown error";
       console.error("Gigi error:", errMsg);
       setMessages(prev => [...prev, {
-        role:      "assistant",
-        content:   `Sorry, something went wrong: ${errMsg}. Please try again! 🙏`,
-        jobCards:  [],
+        role: "assistant",
+        content: `Sorry, something went wrong: ${errMsg}. Please try again! 🙏`,
+        jobCards: [],
         timestamp: new Date(),
       }]);
     } finally {
@@ -303,14 +309,14 @@ export default function AIConcierge() {
   // ── Apply to a job directly via backend (bypasses AI for reliability) ─────────
   const handleApplyViaAI = async (job) => {
     if (appliedJobs.has(job._id)) {
-      toast("You already applied for this gig!", { icon:"ℹ️" });
+      toast("You already applied for this gig!", { icon: "ℹ️" });
       return;
     }
 
     // Show user message in chat
     const userMsg = {
-      role:      "user",
-      content:   `Apply for "${job.title}"`,
+      role: "user",
+      content: `Apply for "${job.title}"`,
       timestamp: new Date(),
     };
     setMessages(prev => [...prev, userMsg]);
@@ -319,27 +325,27 @@ export default function AIConcierge() {
     try {
       // Call backend directly with the jobId — no AI needed for apply
       const { data } = await api.post("/ai/apply", {
-        jobId:     job._id,
-        coverNote: "Applied via Gigly AI Assistant — Gigi",
+        jobId: job._id,
+        coverNote: "Applied via Rozgaaar AI Assistant — Gigi",
       });
 
       setAppliedJobs(prev => new Set([...prev, job._id]));
 
       setMessages(prev => [...prev, {
-        role:        "assistant",
-        content:     `✅ Done! You've successfully applied for **${job.title}**!\n\n💰 ₹${job.payPerHour}/hr • ⏱ ${job.durationHours || ""}h\n\nThe business will review your application soon. I'll let you know when they respond! 🎉`,
+        role: "assistant",
+        content: `✅ Done! You've successfully applied for **${job.title}**!\n\n💰 ₹${job.payPerHour}/hr • ⏱ ${job.durationHours || ""}h\n\nThe business will review your application soon. I'll let you know when they respond! 🎉`,
         toolResults: [{ tool: "apply_to_job", result: { success: true } }],
-        jobCards:    [],
-        timestamp:   new Date(),
+        jobCards: [],
+        timestamp: new Date(),
       }]);
 
       toast.success(`Applied for ${job.title}! 🎉`);
     } catch (err) {
       const errMsg = err?.response?.data?.message || "Could not apply. Please try again.";
       setMessages(prev => [...prev, {
-        role:      "assistant",
-        content:   `Sorry, I couldn\'t apply: ${errMsg}`,
-        jobCards:  [],
+        role: "assistant",
+        content: `Sorry, I couldn\'t apply: ${errMsg}`,
+        jobCards: [],
         timestamp: new Date(),
       }]);
       toast.error(errMsg);
@@ -363,118 +369,123 @@ export default function AIConcierge() {
 
   return (
     <div style={{
-      display:       "flex",
+      display: "flex",
       flexDirection: "column",
-      height:        "calc(100vh - var(--header-h))",
-      background:    "var(--bg-base)",
-      position:      "relative",
+      height: "calc(100vh - var(--header-h))",
+      background: "var(--bg-base)",
+      position: "relative",
+      width: "100%",
+      overflowX: "hidden",
     }}>
 
       {/* ── Top bar ── */}
       <div style={{
-        padding:       "14px 20px",
-        borderBottom:  "1px solid var(--border)",
-        background:    "var(--bg-surface)",
-        display:       "flex",
-        alignItems:    "center",
-        gap:           14,
-        flexShrink:    0,
+        padding: "14px 20px",
+        borderBottom: "1px solid var(--border)",
+        background: "var(--bg-surface)",
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        flexShrink: 0,
       }}>
         {/* Gigi avatar */}
         <div style={{
-          width:46, height:46, borderRadius:"50%",
-          background:"linear-gradient(135deg,var(--accent),var(--cyan))",
-          display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:22, flexShrink:0,
-          boxShadow:"0 0 20px var(--accent-glow)",
-          animation:"glow 3s ease infinite",
+          width: 46, height: 46, borderRadius: "50%",
+          background: "linear-gradient(135deg,var(--accent),var(--cyan))",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 22, flexShrink: 0,
+          boxShadow: "0 0 20px var(--accent-glow)",
+          animation: "glow 3s ease infinite",
         }}>
           🤖
         </div>
-        <div>
-          <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:16 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 8 }}>
             Gigi
             <span style={{
-              marginLeft:8, fontSize:10, fontWeight:600,
-              background:"var(--accent-dim)", color:"var(--accent)",
-              border:"1px solid rgba(59,232,176,0.3)",
-              borderRadius:10, padding:"2px 8px", verticalAlign:"middle",
+              marginLeft: 8, fontSize: 10, fontWeight: 600,
+              background: "var(--accent-dim)", color: "var(--accent)",
+              border: "1px solid rgba(59,232,176,0.3)",
+              borderRadius: 10, padding: "2px 8px", verticalAlign: "middle",
             }}>AI</span>
           </div>
-          <div style={{ fontSize:12, color:"var(--text-muted)" }}>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             Your personal job concierge • Always online
           </div>
         </div>
-        <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
           <div style={{
-            width:8, height:8, borderRadius:"50%",
-            background:"var(--accent)",
-            boxShadow:"0 0 8px var(--accent-glow)",
-            animation:"pulse 2s ease infinite",
+            width: 8, height: 8, borderRadius: "50%",
+            background: "var(--accent)",
+            boxShadow: "0 0 8px var(--accent-glow)",
+            animation: "pulse 2s ease infinite",
           }} />
-          <span style={{ fontSize:12, color:"var(--accent)", fontWeight:600 }}>Online</span>
+          <span style={{ fontSize: 12, color: "var(--accent)", fontWeight: 600 }}>Online</span>
         </div>
       </div>
 
       {/* ── Messages area ── */}
       <div style={{
-        flex:       1,
-        overflowY:  "auto",
-        padding:    "20px 16px",
-        display:    "flex",
+        flex: 1,
+        minWidth: 0,
+        overflowY: "auto",
+        padding: "20px 16px",
+        display: "flex",
         flexDirection: "column",
-        gap:        16,
+        gap: 16,
       }}>
 
         {messages.map((msg, idx) => (
           <div key={idx} style={{
-            display:       "flex",
+            display: "flex",
             flexDirection: msg.role === "user" ? "row-reverse" : "row",
-            gap:           10,
-            alignItems:    "flex-end",
-            animation:     "fadeIn 0.3s ease both",
+            gap: 10,
+            alignItems: "flex-end",
+            animation: "fadeIn 0.3s ease both",
           }}>
 
             {/* Avatar */}
             {msg.role === "assistant" && (
               <div style={{
-                width:32, height:32, borderRadius:"50%", flexShrink:0,
-                background:"linear-gradient(135deg,var(--accent),var(--cyan))",
-                display:"flex", alignItems:"center", justifyContent:"center",
-                fontSize:16, alignSelf:"flex-start",
+                width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                background: "linear-gradient(135deg,var(--accent),var(--cyan))",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 16, alignSelf: "flex-start",
               }}>🤖</div>
             )}
             {msg.role === "user" && (
               <div className="avatar avatar-sm avatar-placeholder"
-                style={{ fontSize:10, alignSelf:"flex-end", flexShrink:0 }}>
-                {user?.name?.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase()}
+                style={{ fontSize: 10, alignSelf: "flex-end", flexShrink: 0 }}>
+                {user?.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
               </div>
             )}
 
             {/* Bubble */}
-            <div style={{ maxWidth:"75%", display:"flex", flexDirection:"column", gap:8 }}>
+            <div style={{ maxWidth: "85%", display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{
-                padding:      "10px 14px",
+                padding: "10px 14px",
                 borderRadius: msg.role === "user"
                   ? "18px 18px 4px 18px"
                   : "18px 18px 18px 4px",
-                background:   msg.role === "user"
+                background: msg.role === "user"
                   ? "var(--accent)"
                   : "var(--bg-card)",
                 color: msg.role === "user" ? "#080d1a" : "var(--text-primary)",
                 border: msg.role === "assistant" ? "1px solid var(--border)" : "none",
-                fontSize:    14,
-                lineHeight:  1.6,
-                boxShadow:   msg.role === "user"
+                fontSize: 14,
+                lineHeight: 1.6,
+                boxShadow: msg.role === "user"
                   ? "0 2px 12px rgba(59,232,176,0.2)"
                   : "var(--shadow-card)",
+                wordBreak: "break-word",
+                overflowWrap: "anywhere"
               }}
                 dangerouslySetInnerHTML={{ __html: formatContent(msg.content) }}
               />
 
               {/* Worker: Job cards from search */}
               {msg.jobCards?.length > 0 && (
-                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {msg.jobCards.map(job => (
                     <ChatJobCard key={job._id} job={job}
                       onApply={handleApplyViaAI}
@@ -485,7 +496,7 @@ export default function AIConcierge() {
 
               {/* Business: Gig cards */}
               {msg.gigCards?.length > 0 && (
-                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {msg.gigCards.map(gig => (
                     <BusinessGigCard key={gig._id} gig={gig}
                       onViewApplicants={handleViewApplicants} />
@@ -495,7 +506,7 @@ export default function AIConcierge() {
 
               {/* Business: Applicant cards */}
               {msg.appCards?.length > 0 && (
-                <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {msg.appCards.map(app => (
                     <ApplicantCard key={app.applicationId} applicant={app} />
                   ))}
@@ -506,16 +517,16 @@ export default function AIConcierge() {
               {msg.toolResults?.some(tr => tr.tool === "apply_to_job" && tr.result?.success) && (
                 <div style={{
                   background: "var(--accent-dim)",
-                  border:     "1px solid rgba(59,232,176,0.3)",
-                  borderRadius:"var(--radius-md)",
-                  padding:    "10px 14px",
-                  fontSize:   13,
-                  color:      "var(--accent)",
+                  border: "1px solid rgba(59,232,176,0.3)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "10px 14px",
+                  fontSize: 13,
+                  color: "var(--accent)",
                   fontWeight: 600,
                 }}>
                   ✅ Application submitted successfully!
                   <button className="btn btn-ghost btn-sm"
-                    style={{ marginLeft:8, fontSize:12, color:"var(--accent)" }}
+                    style={{ marginLeft: 8, fontSize: 12, color: "var(--accent)" }}
                     onClick={() => navigate("/my-jobs")}>
                     View in My Jobs →
                   </button>
@@ -524,13 +535,13 @@ export default function AIConcierge() {
 
               {/* Timestamp */}
               <div style={{
-                fontSize:    10,
-                color:       "var(--text-muted)",
-                textAlign:   msg.role === "user" ? "right" : "left",
+                fontSize: 10,
+                color: "var(--text-muted)",
+                textAlign: msg.role === "user" ? "right" : "left",
                 paddingLeft: msg.role === "assistant" ? 4 : 0,
               }}>
                 {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString("en-IN", {
-                  hour:"2-digit", minute:"2-digit"
+                  hour: "2-digit", minute: "2-digit"
                 }) : ""}
               </div>
             </div>
@@ -539,15 +550,15 @@ export default function AIConcierge() {
 
         {/* Typing indicator */}
         {loading && (
-          <div style={{ display:"flex", gap:10, alignItems:"flex-end", animation:"fadeIn 0.3s ease" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "flex-end", animation: "fadeIn 0.3s ease" }}>
             <div style={{
-              width:32, height:32, borderRadius:"50%", flexShrink:0,
-              background:"linear-gradient(135deg,var(--accent),var(--cyan))",
-              display:"flex", alignItems:"center", justifyContent:"center", fontSize:16,
+              width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+              background: "linear-gradient(135deg,var(--accent),var(--cyan))",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
             }}>🤖</div>
             <div style={{
-              background:"var(--bg-card)", border:"1px solid var(--border)",
-              borderRadius:"18px 18px 18px 4px", overflow:"hidden",
+              background: "var(--bg-card)", border: "1px solid var(--border)",
+              borderRadius: "18px 18px 18px 4px", overflow: "hidden",
             }}>
               <TypingDots />
             </div>
@@ -560,11 +571,11 @@ export default function AIConcierge() {
       {/* ── Suggestion chips ── */}
       {messages.length <= 2 && !loading && (
         <div style={{
-          padding:    "8px 16px 4px",
-          borderTop:  "1px solid var(--border)",
-          display:    "flex",
-          gap:        8,
-          overflowX:  "auto",
+          padding: "8px 16px 4px",
+          borderTop: "1px solid var(--border)",
+          display: "flex",
+          gap: 8,
+          overflowX: "auto",
           flexShrink: 0,
           background: "var(--bg-surface)",
         }}>
@@ -576,11 +587,11 @@ export default function AIConcierge() {
 
       {/* ── Input bar ── */}
       <div style={{
-        padding:    "12px 16px",
-        borderTop:  "1px solid var(--border)",
+        padding: "12px 16px",
+        borderTop: "1px solid var(--border)",
         background: "var(--bg-surface)",
-        display:    "flex",
-        gap:        10,
+        display: "flex",
+        gap: 10,
         flexShrink: 0,
       }}>
         <input
@@ -595,14 +606,14 @@ export default function AIConcierge() {
               sendMessage();
             }
           }}
-          style={{ flex:1, background:"var(--bg-base)" }}
+          style={{ flex: 1, background: "var(--bg-base)" }}
           disabled={loading}
         />
         <button
           className="btn btn-primary"
           onClick={() => sendMessage()}
           disabled={!input.trim() || loading}
-          style={{ padding:"10px 20px", flexShrink:0 }}>
+          style={{ padding: "10px 20px", flexShrink: 0 }}>
           {loading ? "..." : "Send →"}
         </button>
       </div>

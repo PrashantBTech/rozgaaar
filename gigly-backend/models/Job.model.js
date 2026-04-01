@@ -26,7 +26,13 @@ const jobSchema = new mongoose.Schema(
     endTime: { type: String, required: true },   // "14:00"
     durationHours: { type: Number, required: true, min: 1, max: 12 },
 
-    // ── Pay ──────────────────────────────────────────────────────────────────
+    // ── Pay / Type ──────────────────────────────────────────────────────────
+    employmentType: {
+      type: String,
+      enum: ["part_time", "full_time"],
+      default: "part_time",
+      required: true,
+    },
     payPerHour: { type: Number, required: true, min: 0 },
     totalPay: { type: Number }, // auto-calculated
     paymentMode: {
@@ -68,6 +74,7 @@ const jobSchema = new mongoose.Schema(
       experience: { type: String, enum: ["none", "some", "experienced"], default: "none" },
       ownVehicle: { type: Boolean, default: false },
       ownEquipment: { type: Boolean, default: false },
+      requireResume: { type: Boolean, default: false },
     },
 
     // ── Urgency ──────────────────────────────────────────────────────────────
