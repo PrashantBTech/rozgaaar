@@ -32,6 +32,7 @@ const messagesRoutes = require("./routes/messages.routes");
 const aiRoutes       = require("./routes/ai.routes");
 
 const app = express();
+app.set("trust proxy", 1);
 const server = http.createServer(app);
 
 // ── Socket.io ─────────────────────────────────────────────────────────────────
