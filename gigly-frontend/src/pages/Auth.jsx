@@ -8,7 +8,7 @@ function AuthCard({ title, subtitle, children }) {
   return (
     <div style={{
       minHeight:"100vh", background:"var(--bg-base)",
-      display:"flex", alignItems:"center", justifyContent:"center",
+      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
       padding:"clamp(16px, 4vw, 24px)", position:"relative", overflow: "hidden"
     }}>
       {/* Background Watermark */}
@@ -22,6 +22,7 @@ function AuthCard({ title, subtitle, children }) {
 
       <Link
         to="/"
+        className="auth-back-link"
         style={{
           position:"absolute", top:30, left:30,
           fontSize:12, color:"var(--text-primary)",

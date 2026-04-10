@@ -1106,4 +1106,14 @@ h6 {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .auth-back-link {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    align-self: flex-start;
+    margin-bottom: 20px;
+    width: 100%;
+    z-index: 10;
+  }
 }
