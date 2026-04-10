@@ -25,12 +25,22 @@ export default function AppLayout() {
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <div className="app-layout" style={{ position: "relative", overflow: "hidden", background: "var(--bg-base)" }}>
-      {/* ── Global Animated Neon Background ── */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-        <div className="blob" style={{ top: "-10%", left: "-10%", width: "50vw", height: "50vw", background: "var(--neon-blue)", opacity: 0.25 }} />
-        <div className="blob" style={{ top: "40%", right: "-20%", width: "40vw", height: "40vw", background: "var(--neon-pink)", animationDelay: "-4s", opacity: 0.2 }} />
-        <div className="blob" style={{ bottom: "-20%", left: "20%", width: "60vw", height: "60vw", background: "var(--accent)", opacity: 0.15 }} />
+    <div className="app-layout" style={{ position: "relative", minHeight: "100vh", background: "var(--bg-base)", overflowX: "hidden" }}>
+      {/* Background Watermark */}
+      <div style={{ 
+        position: "fixed", top: "50%", left: "55%", transform: "translate(-50%, -50%)", 
+        fontSize: "10vw", 
+        fontWeight: 900, color: "rgba(0,0,0,0.012)", 
+        pointerEvents: "none", zIndex: 0, whiteSpace: "nowrap", 
+        fontFamily: "var(--font-display)",
+        textAlign: "center",
+        width: "90vw",
+        display: "flex",
+        justifyContent: "center",
+        letterSpacing: "-0.05em",
+        opacity: 0.8
+      }}>
+        ROZGAAAR
       </div>
 
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />

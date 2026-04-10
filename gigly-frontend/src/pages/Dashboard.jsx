@@ -81,15 +81,23 @@ export default function Dashboard() {
     <div className="page-content">
 
       {/* ── Welcome Banner ── */}
-      <div className="fade-in" style={{ marginBottom:32 }}>
-        <div style={{ fontSize:13, color:"var(--text-muted)", marginBottom:4, fontWeight:500 }}>
-          {GREET()}, {user?.name?.split(" ")[0]} 👋
+      <div className="fade-in" style={{ marginBottom:48 }}>
+        <div style={{ fontSize:14, color:"var(--text-muted)", marginBottom:10, fontWeight:700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+          {GREET()}, {user?.name?.split(" ")[0]}
         </div>
-        <h1 style={{ fontSize:"clamp(22px,3vw,32px)", marginBottom:8 }}>
-          Welcome back, <span style={{ color:"var(--accent)" }}>{user?.name?.split(" ")[0]}</span>
+        <h1 style={{ 
+          fontSize: "clamp(32px, 5vw, 48px)", 
+          marginBottom:16, 
+          fontFamily: "var(--font-display)", 
+          fontWeight: 800, 
+          textTransform: "uppercase", 
+          lineHeight: 1,
+          letterSpacing: "-0.04em"
+        }}>
+          Overview<span style={{ color:"var(--accent)", fontStyle: "italic", fontFamily: "var(--font-editorial)", textTransform: "lowercase", marginLeft: 10, fontWeight: 400 }}>of your gig activity.</span>
         </h1>
-        <p style={{ color:"var(--text-secondary)", fontSize:14 }}>
-          Connect instantly with local opportunities.
+        <p style={{ color:"var(--text-secondary)", fontSize:18, fontFamily: "var(--font-editorial)", fontStyle: "italic" }}>
+          Explore and manage your local network opportunities.
         </p>
       </div>
 

@@ -26,8 +26,8 @@ export default function Sidebar({ open, onClose }) {
     { to: "/my-jobs",    icon: icons.myGigs,    label: "My Jobs"   },
     { to: "/messages",   icon: icons.messages,  label: "Messages"  },
     { to: "/earnings",   icon: icons.earnings,  label: "Earnings"  },
-    { to: "/profile",    icon: icons.profile,   label: "Profile"   },
     { to: "/ai-concierge", icon: "🤖",              label: "Ask Gigi"  },
+    { to: "/profile",    icon: icons.profile,   label: "Profile"   },
   ];
   const businessLinks = [
     { to: "/dashboard",  icon: icons.dashboard, label: "Dashboard" },
@@ -35,8 +35,8 @@ export default function Sidebar({ open, onClose }) {
     { to: "/my-gigs",    icon: icons.myGigs,    label: "My Gigs"   },
     { to: "/messages",   icon: icons.messages,  label: "Messages"  },
     { to: "/earnings",   icon: icons.earnings,  label: "Earnings"  },
-    { to: "/profile",    icon: icons.profile,   label: "Profile"   },
     { to: "/ai-concierge", icon: "🤖",              label: "Ask Gigi"  },
+    { to: "/profile",    icon: icons.profile,   label: "Profile"   },
   ];
   const adminLinks = [
     { to: "/dashboard",  icon: icons.dashboard, label: "Dashboard" },
@@ -55,41 +55,52 @@ export default function Sidebar({ open, onClose }) {
       {open && <div style={{ position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:99 }} onClick={onClose} />}
       <nav className={`sidebar${open ? " open" : ""}`}>
         {/* Logo */}
-        <div style={{ padding:"20px 20px 12px", borderBottom:"1px solid var(--border)" }}>
+        <div style={{ padding:"24px 16px 16px", borderBottom:"1px solid var(--border)" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div style={{
-              width:34, height:34, borderRadius:"var(--radius-sm)",
-              background:"var(--accent)", display:"flex", alignItems:"center",
-              justifyContent:"center", fontSize:18, fontWeight:800, color:"#080d1a",
+              width:34, height:34, borderRadius:"8px",
+              background:"var(--dark-accent)", display:"flex", alignItems:"center",
+              justifyContent:"center", fontSize:16, fontWeight:900, color:"var(--accent)",
               fontFamily:"var(--font-display)"
-            }}>G</div>
-            <span style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:20, color:"var(--text-primary)", letterSpacing:"-0.02em" }}>
+            }}>R</div>
+            <span style={{ 
+              fontFamily:"var(--font-display)", 
+              fontWeight:800, 
+              fontSize:18, 
+              color:"var(--text-primary)", 
+              letterSpacing:"-0.04em", 
+              textTransform: "uppercase" 
+            }}>
               Rozgaaar
             </span>
-            <div style={{ marginLeft:"auto", width:8, height:8, borderRadius:"50%",
-              background: isConnected ? "var(--accent)" : "var(--text-muted)",
-              boxShadow: isConnected ? "0 0 8px var(--accent-glow)" : "none"
-            }} title={isConnected ? "Live" : "Offline"} />
+            <div style={{ marginLeft:"auto", width:6, height:6, borderRadius:"50%",
+              background: isConnected ? "#10B981" : "var(--text-muted)",
+              boxShadow: isConnected ? "0 0 10px rgba(16,185,129,0.3)" : "none"
+            }} />
           </div>
         </div>
 
         {/* Links */}
-        <div style={{ flex:1, overflowY:"auto", padding:"12px 12px" }}>
+        <div style={{ flex:1, overflowY:"auto", padding:"20px 14px" }}>
           {links.map(({ to, icon, label }) => (
             <NavLink key={to} to={to} onClick={onClose}
               style={({ isActive }) => ({
-                display:"flex", alignItems:"center", gap:12,
-                padding:"10px 12px", borderRadius:"var(--radius-md)",
-                marginBottom:2, textDecoration:"none", fontWeight:500,
-                fontSize:14, transition:"all 0.15s",
-                background: isActive ? "linear-gradient(90deg, var(--accent-dim), transparent)" : "transparent",
-                color: isActive ? "#fff" : "var(--text-secondary)",
-                borderLeft: isActive ? "3px solid var(--neon-blue)" : "3px solid transparent",
-                boxShadow: isActive ? "-15px 0 30px -10px var(--neon-pink)" : "none",
+                display:"flex", alignItems:"center", gap:14,
+                padding:"12px 16px", borderRadius:"var(--radius-md)",
+                marginBottom:4, textDecoration:"none", fontWeight:isActive ? 700 : 500,
+                fontSize:14, transition:"all 0.25s cubic-bezier(0.23, 1, 0.32, 1)",
+                background: isActive ? "var(--dark-accent)" : "transparent",
+                color: isActive ? "#FFFFFF" : "var(--text-secondary)",
+                letterSpacing: isActive ? "0.02em" : "0",
               })}
             >
-              <span style={{ fontSize:16 }}>{icon}</span>
-              {label}
+              {({ isActive }) => (
+                <>
+                  <span style={{ fontSize:18, opacity: isActive ? 1 : 0.7 }}>{icon}</span>
+                  {label}
+                  {isActive && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "var(--accent)" }} />}
+                </>
+              )}
             </NavLink>
           ))}
         </div>

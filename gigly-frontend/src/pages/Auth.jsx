@@ -9,34 +9,53 @@ function AuthCard({ title, subtitle, children }) {
     <div style={{
       minHeight:"100vh", background:"var(--bg-base)",
       display:"flex", alignItems:"center", justifyContent:"center",
-      padding:24, position:"relative",
+      padding:24, position:"relative", overflow: "hidden"
     }}>
+      {/* Background Watermark */}
+      <div style={{ 
+        position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", 
+        fontSize: "25vw", fontWeight: 900, color: "rgba(0,0,0,0.015)", 
+        pointerEvents: "none", zIndex: 0, whiteSpace: "nowrap", fontFamily: "var(--font-display)" 
+      }}>
+        ROZGAAAR
+      </div>
+
       <Link
         to="/"
         style={{
-          position:"absolute",
-          top:20,
-          left:20,
-          fontSize:13,
-          color:"var(--accent)",
-          textDecoration:"none",
-          fontWeight:600,
-          zIndex:2,
+          position:"absolute", top:30, left:30,
+          fontSize:12, color:"var(--text-primary)",
+          textDecoration:"none", fontWeight:800, zIndex:2,
+          textTransform: "uppercase", letterSpacing: "0.1em",
+          display: "flex", alignItems: "center", gap: 8
         }}
       >
-        ← Back
+        ← Back to network
       </Link>
-      <div style={{ width:"100%", maxWidth:420, position:"relative" }}>
-        <div style={{ textAlign:"center", marginBottom:32 }}>
+
+      <div style={{ width:"100%", maxWidth:480, position:"relative", zIndex: 1 }}>
+        <div style={{ textAlign:"center", marginBottom:40 }}>
           <Link to="/" style={{ textDecoration:"none" }}>
-            <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:28, color:"var(--text-primary)", letterSpacing:"-0.02em" }}>
-              Rozgaaar
+            <div style={{ 
+              fontFamily:"var(--font-display)", fontWeight:800, fontSize:32, 
+              color:"var(--text-primary)", letterSpacing:"-0.04em", textTransform: "uppercase" 
+            }}>
+              Rozgaaar<span style={{ color: "var(--accent)" }}>.</span>
             </div>
           </Link>
-          <h2 style={{ fontSize:22, marginTop:20, marginBottom:8 }}>{title}</h2>
-          <p style={{ color:"var(--text-secondary)", fontSize:14 }}>{subtitle}</p>
+          <h2 style={{ 
+            fontSize:38, marginTop:24, marginBottom:12, 
+            fontFamily: "var(--font-display)", letterSpacing: "-0.02em",
+            textTransform: "uppercase"
+          }}>{title}</h2>
+          <p style={{ 
+            color:"var(--text-secondary)", fontSize:16, 
+            fontFamily: "var(--font-editorial)", fontStyle: "italic" 
+          }}>{subtitle}</p>
         </div>
-        <div className="card">{children}</div>
+        <div className="card" style={{ padding: "40px", border: "1px solid rgba(0,0,0,0.05)" }}>
+          {children}
+        </div>
       </div>
     </div>
   );

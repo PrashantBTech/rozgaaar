@@ -44,14 +44,14 @@ export default function Header({ onMenuToggle }) {
   return (
     <header style={{
       height: "var(--header-h)",
-      background: "var(--dark-glass)",
-      backdropFilter: "blur(24px)",
-      WebkitBackdropFilter: "blur(24px)",
-      borderBottom: "1px solid var(--dark-glass-border)",
+      background: "rgba(235, 233, 228, 0.8)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      borderBottom: "1px solid var(--border)",
       display: "flex", alignItems: "center",
-      padding: "0 16px", gap: 10,
+      padding: "0 24px", gap: 10,
       position: "sticky", top: 0, zIndex: 50,
-      boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)"
+      transition: "all 0.3s"
     }}>
 
       {/* ── Hamburger — always visible on mobile ── */}
