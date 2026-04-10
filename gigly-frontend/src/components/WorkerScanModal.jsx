@@ -54,11 +54,11 @@ export default function WorkerScanModal({ application, type, onClose }) {
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "var(--bg-surface)", padding: 4, borderRadius: "var(--radius-md)", border: "1px solid var(--border)", maxWidth: 300 }}>
+        <div style={{ display: "flex", gap: 4, marginBottom: 16, background: "var(--bg-surface)", padding: 4, borderRadius: "var(--radius-md)", border: "1px solid var(--border)", width: "100%" }}>
           <button 
             type="button"
             className={`btn ${method === "otp" ? "btn-primary" : ""}`} 
-            style={{ flex: 1, background: method !== "otp" ? "transparent" : "", color: method !== "otp" ? "var(--text-primary)" : "", border: "none" }}
+            style={{ flex: 1, background: method !== "otp" ? "transparent" : "", color: method !== "otp" ? "var(--text-primary)" : "", border: "none", padding: "10px 4px", fontSize: "13px" }}
             onClick={() => setMethod("otp")}
           >
             🔢 Enter OTP
@@ -66,7 +66,7 @@ export default function WorkerScanModal({ application, type, onClose }) {
           <button 
             type="button"
             className={`btn ${method === "qr" ? "btn-primary" : ""}`} 
-            style={{ flex: 1, background: method !== "qr" ? "transparent" : "", color: method !== "qr" ? "var(--text-primary)" : "", border: "none" }}
+            style={{ flex: 1, background: method !== "qr" ? "transparent" : "", color: method !== "qr" ? "var(--text-primary)" : "", border: "none", padding: "10px 4px", fontSize: "13px" }}
             onClick={() => setMethod("qr")}
           >
             📷 Scan QR
