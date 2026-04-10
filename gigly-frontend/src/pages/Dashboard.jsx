@@ -85,8 +85,7 @@ export default function Dashboard() {
         <div style={{ fontSize:14, color:"var(--text-muted)", marginBottom:10, fontWeight:700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
           {GREET()}, {user?.name?.split(" ")[0]}
         </div>
-        <h1 style={{ 
-          fontSize: "clamp(32px, 5vw, 48px)", 
+        <h1 className="resp-h1" style={{ 
           marginBottom:16, 
           fontFamily: "var(--font-display)", 
           fontWeight: 800, 
@@ -104,7 +103,7 @@ export default function Dashboard() {
       {/* ── Stats Row ── */}
       <div
         className="stats-grid fade-in fade-in-1"
-        style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(250px, 1fr))", gap:16, marginBottom:32 }}
+        style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))", gap:16, marginBottom:32 }}
       >
         {/*<div className="stat-card">
           <div className="stat-label">Earned Today</div>
@@ -133,16 +132,16 @@ export default function Dashboard() {
         <div style={{ fontSize:12, color:"var(--text-muted)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:14 }}>
           Quick Actions
         </div>
-        <div className="grid-2" style={{ gap:16 }}>
+        <div className="grid-2" style={{ gap:"clamp(12px, 3vw, 16px)" }}>
           {quickActions.map(a => (
             <button key={a.label} className="card"
-              style={{ border:"1px solid var(--border)", cursor:"pointer", textAlign:"left", background:"var(--bg-card)", transition:"all 0.2s" }}
+              style={{ padding:"clamp(16px, 4vw, 24px)", border:"1px solid var(--border)", cursor:"pointer", textAlign:"left", background:"var(--bg-card)", transition:"all 0.2s" }}
               onClick={a.action}
               onMouseEnter={e => { e.currentTarget.style.borderColor="var(--border-active)"; e.currentTarget.style.transform="translateY(-2px)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor="var(--border)"; e.currentTarget.style.transform="none"; }}>
-              <div style={{ fontSize:28, marginBottom:12 }}>{a.icon}</div>
-              <div style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:16, color:a.color, marginBottom:6 }}>{a.label}</div>
-              <div style={{ fontSize:13, color:"var(--text-secondary)" }}>{a.sub}</div>
+              <div style={{ fontSize:"clamp(20px, 5vw, 28px)", marginBottom:12 }}>{a.icon}</div>
+              <div style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:"clamp(14px, 2vw, 16px)", color:a.color, marginBottom:6 }}>{a.label}</div>
+              <div style={{ fontSize:"clamp(11px, 1.5vw, 13px)", color:"var(--text-secondary)" }}>{a.sub}</div>
             </button>
           ))}
         </div>

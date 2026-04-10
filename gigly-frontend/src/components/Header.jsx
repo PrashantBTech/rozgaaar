@@ -49,7 +49,7 @@ export default function Header({ onMenuToggle }) {
       WebkitBackdropFilter: "blur(20px)",
       borderBottom: "1px solid var(--border)",
       display: "flex", alignItems: "center",
-      padding: "0 24px", gap: 10,
+      padding: "0 clamp(12px, 3vw, 24px)", gap: "clamp(6px, 2vw, 12px)",
       position: "sticky", top: 0, zIndex: 50,
       transition: "all 0.3s"
     }}>
@@ -125,9 +125,9 @@ export default function Header({ onMenuToggle }) {
           </button>
 
           {showNotifs && (
-            <div style={{
+            <div className="notif-dropdown" style={{
               position: "absolute", right: 0, top: "calc(100% + 8px)",
-              width: 320, background: "var(--bg-card)",
+              width: "min(360px, 90vw)", background: "var(--bg-card)",
               border: "1px solid var(--border)", borderRadius: "var(--radius-lg)",
               boxShadow: "var(--shadow-card)", zIndex: 200, overflow: "hidden",
             }}>
@@ -142,21 +142,25 @@ export default function Header({ onMenuToggle }) {
                   </button>
                 )}
               </div>
-              <div style={{ maxHeight: 320, overflowY: "auto" }}>
+              <div style={{ maxHeight: "min(420px, 60vh)", overflowY: "auto" }}>
                 {allNotifs.length === 0 ? (
                   <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)" }}>
+                    <div style={{ fontSize: 24, marginBottom: 8 }}>📭</div>
                     No notifications yet
                   </div>
                 ) : allNotifs.map((n, i) => (
                   <div key={n._id || i} style={{
                     padding: "12px 16px", borderBottom: "1px solid var(--border)",
-                    background: n.isRead ? "transparent" : "rgba(59,232,176,0.04)",
+                    background: n.isRead ? "transparent" : "rgba(212,168,83,0.05)",
                     cursor: "pointer",
-                  }}>
-                    <div style={{ fontWeight: n.isRead ? 400 : 600, fontSize: 13, color: "var(--text-primary)", marginBottom: 2 }}>
+                    transition: "background 0.2s"
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+                  onMouseLeave={e => e.currentTarget.style.background = n.isRead ? "transparent" : "rgba(212,168,83,0.05)"}>
+                    <div style={{ fontWeight: n.isRead ? 400 : 700, fontSize: 13, color: "var(--text-primary)", marginBottom: 2 }}>
                       {n.title || n.type}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>
                       {n.body || n.jobTitle || ""}
                     </div>
                   </div>
@@ -189,6 +193,15 @@ export default function Header({ onMenuToggle }) {
           .header-menu-btn { display: flex !important; }
           .header-search   { display: none !important; }
           .show-mobile     { display: flex !important; }
+          
+          .notif-dropdown {
+            position: fixed !important;
+            top: var(--header-h) !important;
+            right: 16px !important;
+            left: 16px !important;
+            width: auto !important;
+            max-width: none !important;
+          }
         }
       `}</style>
     </header>

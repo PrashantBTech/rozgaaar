@@ -9,12 +9,12 @@ function AuthCard({ title, subtitle, children }) {
     <div style={{
       minHeight:"100vh", background:"var(--bg-base)",
       display:"flex", alignItems:"center", justifyContent:"center",
-      padding:24, position:"relative", overflow: "hidden"
+      padding:"clamp(16px, 4vw, 24px)", position:"relative", overflow: "hidden"
     }}>
       {/* Background Watermark */}
       <div style={{ 
         position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", 
-        fontSize: "25vw", fontWeight: 900, color: "rgba(0,0,0,0.015)", 
+        fontSize: "clamp(120px, 25vw, 400px)", fontWeight: 900, color: "rgba(0,0,0,0.015)", 
         pointerEvents: "none", zIndex: 0, whiteSpace: "nowrap", fontFamily: "var(--font-display)" 
       }}>
         ROZGAAAR
@@ -53,7 +53,7 @@ function AuthCard({ title, subtitle, children }) {
             fontFamily: "var(--font-editorial)", fontStyle: "italic" 
           }}>{subtitle}</p>
         </div>
-        <div className="card" style={{ padding: "40px", border: "1px solid rgba(0,0,0,0.05)" }}>
+        <div className="card" style={{ padding: "clamp(24px, 8vw, 40px)", border: "1px solid rgba(0,0,0,0.05)" }}>
           {children}
         </div>
       </div>

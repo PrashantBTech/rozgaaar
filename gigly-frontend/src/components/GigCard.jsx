@@ -35,10 +35,10 @@ export default function GigCard({ job, onApply, showApply = true }) {
             </div>
           </div>
         </div>
-        <div style={{ textAlign:"right", flexShrink:0 }}>
-          <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:18, color: job.isUrgent ? "var(--urgent)" : "var(--accent)" }}>
+        <div style={{ textAlign:"right", flexShrink:0, marginLeft: 8 }}>
+          <div style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:"clamp(15px, 3.5vw, 18px)", color: job.isUrgent ? "var(--urgent)" : "var(--accent)" }}>
             ₹{job.payPerHour}
-            <span style={{ fontSize:11, fontWeight:400, color:"var(--text-muted)" }}>
+            <span style={{ fontSize:10, fontWeight:400, color:"var(--text-muted)" }}>
               {job.employmentType === "full_time" ? "/mo" : "/hr"}
             </span>
           </div>
@@ -46,12 +46,12 @@ export default function GigCard({ job, onApply, showApply = true }) {
       </div>
 
       {/* Tags row */}
-      <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:12 }}>
-        {job.isUrgent && <span className="badge badge-urgent">🔴 Urgent</span>}
-        <span className="badge badge-info">⏱ {job.durationHours}h</span>
-        {distanceText && <span className="badge" style={{ background:"var(--bg-elevated)", color:"var(--text-secondary)" }}>📍 {distanceText}</span>}
-        {slotsLeft > 0 && <span className="badge badge-success">{slotsLeft} slot{slotsLeft>1?"s":""} left</span>}
-        {job.paymentMode === "platform_wallet" && <span className="badge badge-success">⚡ Instant Pay</span>}
+      <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:12 }}>
+        {job.isUrgent && <span className="badge badge-urgent" style={{ fontSize: 9 }}>🔴 Urgent</span>}
+        <span className="badge badge-info" style={{ fontSize: 9 }}>⏱ {job.durationHours}h</span>
+        {distanceText && <span className="badge" style={{ background:"var(--bg-elevated)", color:"var(--text-secondary)", fontSize: 9 }}>📍 {distanceText}</span>}
+        {slotsLeft > 0 && <span className="badge badge-success" style={{ fontSize: 9 }}>{slotsLeft} slot{slotsLeft>1?"s":""} left</span>}
+        {job.paymentMode === "platform_wallet" && <span className="badge badge-success" style={{ fontSize: 9 }}>⚡ Instant Pay</span>}
       </div>
 
       {/* Description */}

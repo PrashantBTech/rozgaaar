@@ -28,8 +28,8 @@ export default function AppLayout() {
     <div className="app-layout" style={{ position: "relative", minHeight: "100vh", background: "var(--bg-base)", overflowX: "hidden" }}>
       {/* Background Watermark */}
       <div style={{ 
-        position: "fixed", top: "50%", left: "55%", transform: "translate(-50%, -50%)", 
-        fontSize: "10vw", 
+        position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", 
+        fontSize: "clamp(120px, 15vw, 240px)", 
         fontWeight: 900, color: "rgba(0,0,0,0.012)", 
         pointerEvents: "none", zIndex: 0, whiteSpace: "nowrap", 
         fontFamily: "var(--font-display)",

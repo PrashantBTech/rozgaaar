@@ -300,6 +300,20 @@ export default function Landing() {
           min-width: 500px;
         }
 
+        @media (max-width: 400px) {
+          .pill-nav {
+            padding: 8px 12px !important;
+          }
+          .btn-pill-white {
+            padding: 6px 14px !important;
+            font-size: 11px !important;
+          }
+          .nav-link-login {
+            font-size: 11px !important;
+            padding: 4px 8px !important;
+          }
+        }
+
         .nav-link {
           color: rgba(255,255,255,0.6);
           font-size: 13px;
@@ -537,8 +551,8 @@ export default function Landing() {
         </div>
 
         {/* CTA */}
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
-          <span className="nav-link" style={{ color: "rgba(255,255,255,0.5)" }} onClick={() => navigate("/login")}>Log in</span>
+        <div style={{ display: "flex", gap: "clamp(4px, 1.5vw, 8px)", alignItems: "center", flexShrink: 0 }}>
+          <span className="nav-link nav-link-login" style={{ color: "rgba(255,255,255,0.5)" }} onClick={() => navigate("/login")}>Log in</span>
           <button className="btn-pill-white" onClick={() => navigate("/register")}>Get Started</button>
         </div>
       </nav>
@@ -561,25 +575,25 @@ export default function Landing() {
           {/* Hero Typography — Rekordr-style mix */}
           <div style={{ lineHeight: 1.0, marginBottom: 48 }}>
             <div className="hero-line">
-              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(60px, 10vw, 130px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: "#1A1A1A" }}>
+              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#1A1A1A" }}>
                 FIND
               </span>
             </div>
             <div className="hero-line" style={{ display: "flex", alignItems: "baseline", gap: "0.3em", flexWrap: "wrap" }}>
-              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(60px, 10vw, 130px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: "#1A1A1A" }}>
+              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#1A1A1A" }}>
                 WORK
               </span>
-              <span className="serif-italic" style={{ fontSize: "clamp(40px, 7vw, 90px)", color: "rgba(26,26,26,0.45)", lineHeight: 1.1 }}>
+              <span className="serif-italic" style={{ fontSize: "clamp(32px, 7vw, 90px)", color: "rgba(26,26,26,0.45)", lineHeight: 1.1 }}>
                 and
               </span>
             </div>
             <div className="hero-line">
-              <span className="serif-italic" style={{ fontSize: "clamp(48px, 8.5vw, 110px)", color: "#D4A853" }}>
+              <span className="serif-italic" style={{ fontSize: "clamp(40px, 8.5vw, 110px)", color: "#D4A853" }}>
                 hire seamlessly
               </span>
             </div>
             <div className="hero-line">
-              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(60px, 10vw, 130px)", letterSpacing: "-0.04em", textTransform: "uppercase", color: "#1A1A1A" }}>
+              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#1A1A1A" }}>
                 INSTANTLY.
               </span>
             </div>
@@ -606,8 +620,8 @@ export default function Landing() {
       <Marquee items={CATEGORIES} speed={35} />
 
       {/* ── Stats Row ── */}
-      <section className="stats-row" style={{ padding: "100px 6vw", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 40 }}>
+      <section className="stats-row" style={{ padding: "clamp(40px, 8vw, 100px) 6vw", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "clamp(20px, 4vw, 40px)" }}>
           {STATS.map((s, i) => (
             <div key={i} className="stat-item">
               <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(40px, 5vw, 64px)", letterSpacing: "-0.03em", color: "#1A1A1A", lineHeight: 1 }}>
@@ -623,7 +637,7 @@ export default function Landing() {
       </section>
 
       {/* ── About Section ── */}
-      <section id="about-section" style={{ background: "#1A1A1A", padding: "100px 6vw", scrollMarginTop: "90px" }}>
+      <section id="about-section" style={{ background: "#1A1A1A", padding: "clamp(60px, 10vw, 100px) 6vw", scrollMarginTop: "90px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           {/* Scrolling "ABOUT" label */}
           <div style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "14px 0", marginBottom: 80 }}>
@@ -685,7 +699,7 @@ export default function Landing() {
       </div>
 
       {/* ── How It Works ── */}
-      <section id="how-it-works-section" className="steps-section" style={{ padding: "100px 6vw", scrollMarginTop: "90px" }}>
+      <section id="how-it-works-section" className="steps-section" style={{ padding: "clamp(60px, 10vw, 100px) 6vw", scrollMarginTop: "90px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
           {/* Section label */}
@@ -736,7 +750,7 @@ export default function Landing() {
       </section>
 
       {/* ── Live Gig Cards ── */}
-      <section style={{ background: "#F2F0EB", padding: "100px 6vw" }}>
+      <section style={{ background: "#F2F0EB", padding: "clamp(60px, 10vw, 100px) 6vw" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 56, flexWrap: "wrap", gap: 24 }}>
             <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", letterSpacing: "-0.03em", lineHeight: 1, color: "#1A1A1A" }}>
@@ -774,7 +788,7 @@ export default function Landing() {
       </section>
 
       {/* ── Trust & Safety ── */}
-      <section id="trust-section" className="trust-section" style={{ padding: "100px 6vw", background: "#EBE9E4", scrollMarginTop: "90px" }}>
+      <section id="trust-section" className="trust-section" style={{ padding: "clamp(60px, 10vw, 100px) 6vw", background: "#EBE9E4", scrollMarginTop: "90px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
           <div style={{ overflow: "hidden", borderTop: "1px solid rgba(26,26,26,0.12)", borderBottom: "1px solid rgba(26,26,26,0.12)", padding: "14px 0", marginBottom: 80 }}>
@@ -799,8 +813,8 @@ export default function Landing() {
               {TRUST.map((t, i) => (
                 <div key={i} className="trust-row" style={{
                   display: "grid",
-                  gridTemplateColumns: "40px 1fr",
-                  gap: 24,
+                  gridTemplateColumns: "30px 1fr",
+                  gap: 16,
                   padding: "28px 0",
                   borderBottom: i < TRUST.length - 1 ? "1px solid rgba(26,26,26,0.1)" : "none",
                   alignItems: "start",
