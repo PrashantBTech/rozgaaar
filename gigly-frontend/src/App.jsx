@@ -25,7 +25,7 @@ import { Profile, Earnings, MyJobs } from "./pages/ProfileEarnings";
 // import AIConcierge from "./pages/AIConcierge";
 
 export default function App() {
-  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || import.meta?.env?.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <BrowserRouter>
