@@ -20,9 +20,14 @@ const sendEmail = async ({ to, subject, html, text }) => {
     text: text || html.replace(/<[^>]*>/g, ""),
   };
 
-  const info = await transporter.sendMail(mailOptions);
-  logger.info(`📧 Email sent to ${to}: ${info.messageId}`);
-  return info;
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logger.info(`📧 Email sent to ${to}: ${info.messageId}`);
+    return info;
+  } catch (err) {
+    console.error("NODEMAILER ERROR:", err);
+    throw err;
+  }
 };
 
 module.exports = sendEmail;
