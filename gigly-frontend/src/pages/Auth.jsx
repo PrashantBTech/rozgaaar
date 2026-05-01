@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { authAPI } from "../services/api";
+import { useGoogleLogin } from "@react-oauth/google";
 
 // ── Shared auth card wrapper ──────────────────────────────────────────────────
 function AuthCard({ title, subtitle, children }) {
@@ -66,8 +68,32 @@ function AuthCard({ title, subtitle, children }) {
 export function Login() {
   const [form, setForm] = useState({ email:"", password:"", remember:false });
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setLoading(true);
+    try {
+      const user = await googleLogin(tokenResponse.access_token, "worker"); // defaulting to worker on login
+      toast.success(`Welcome back, ${user.name.split(" ")[0]}! ⚡`);
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Google Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => toast.error("Google Login Failed"),
+  });
+
+  const [forgotMode, setForgotMode] = useState(false); // false | 'email' | 'otp'
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [resetOTP, setResetOTP] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   const submit = async (e) => {
     e.preventDefault();
@@ -80,6 +106,73 @@ export function Login() {
       toast.error(err.response?.data?.message || "Invalid credentials");
     } finally { setLoading(false); }
   };
+
+  const handleForgotRequest = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await authAPI.forgotPassword(forgotEmail);
+      toast.success("OTP sent to your email!");
+      setForgotMode("otp");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send OTP");
+    } finally { setLoading(false); }
+  };
+
+  const handleForgotReset = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await authAPI.resetPassword(resetOTP, newPassword);
+      toast.success("Password reset successfully! You can now login.");
+      setForgotMode(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Invalid OTP or request expired");
+    } finally { setLoading(false); }
+  };
+
+  if (forgotMode === "email") {
+    return (
+      <AuthCard title="Reset Password" subtitle="Enter your email to receive an OTP.">
+        <form onSubmit={handleForgotRequest} style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          <div className="input-group">
+            <label className="input-label">Email Address</label>
+            <input className="input" type="email" value={forgotEmail} onChange={e=>setForgotEmail(e.target.value)} required />
+          </div>
+          <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
+            {loading ? "Sending..." : "Send OTP"}
+          </button>
+          <button className="btn btn-ghost btn-sm btn-full" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
+        </form>
+      </AuthCard>
+    );
+  }
+
+  if (forgotMode === "otp") {
+    return (
+      <AuthCard title="Enter OTP" subtitle="Enter the 6-digit OTP sent to your email.">
+        <form onSubmit={handleForgotReset} style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          <div className="input-group">
+            <label className="input-label">OTP</label>
+            <input className="input" type="text" value={resetOTP} onChange={e=>setResetOTP(e.target.value)} required />
+          </div>
+          <div className="input-group">
+            <label className="input-label">New Password</label>
+            <div className="input-icon-wrap" style={{ position: "relative" }}>
+              <input className="input" type={showPassword ? "text" : "password"} value={newPassword} onChange={e=>setNewPassword(e.target.value)} required minLength={8} />
+              <span onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 16 }}>
+                {showPassword ? "👁️‍🗨️" : "👁️"}
+              </span>
+            </div>
+          </div>
+          <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
+            {loading ? "Resetting..." : "Reset Password"}
+          </button>
+          <button className="btn btn-ghost btn-sm btn-full" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
+        </form>
+      </AuthCard>
+    );
+  }
 
   return (
     <AuthCard title="Welcome Back" subtitle="Enter your credentials to access your dashboard.">
@@ -95,10 +188,15 @@ export function Login() {
         <div className="input-group">
           <div style={{ display:"flex", justifyContent:"space-between" }}>
             <label className="input-label">Password</label>
-            <Link to="/forgot-password" style={{ fontSize:11, color:"var(--accent)", textDecoration:"none" }}>Forgot password?</Link>
+            <span onClick={() => setForgotMode("email")} style={{ fontSize:11, color:"var(--accent)", cursor:"pointer" }}>Forgot password?</span>
           </div>
-          <input className="input" type="password" placeholder="••••••••"
-            value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required />
+          <div className="input-icon-wrap" style={{ position: "relative" }}>
+            <input className="input" type={showPassword ? "text" : "password"} placeholder="••••••••"
+              value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required />
+            <span onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 16 }}>
+              {showPassword ? "👁️‍🗨️" : "👁️"}
+            </span>
+          </div>
         </div>
         <label style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:13, color:"var(--text-secondary)" }}>
           <input type="checkbox" checked={form.remember} onChange={e=>setForm({...form,remember:e.target.checked})}
@@ -115,10 +213,8 @@ export function Login() {
         <span style={{ fontSize:12, color:"var(--text-muted)" }}>Or continue with</span>
         <div style={{ flex:1, height:1, background:"var(--border)" }} />
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginTop:16 }}>
-        {["Facebook","Google"].map(p => (
-          <button key={p} className="btn btn-secondary btn-sm">{p}</button>
-        ))}
+      <div style={{ marginTop:16 }}>
+        <button className="btn btn-secondary btn-sm btn-full" onClick={() => loginWithGoogle()} type="button" disabled={loading}>Google</button>
       </div>
       <p style={{ textAlign:"center", fontSize:13, color:"var(--text-muted)", marginTop:20 }}>
         New to Rozgaaar?{" "}
@@ -135,8 +231,29 @@ export function Register() {
   const [form, setForm] = useState({ name:"", email:"", phone:"", password:"", role:initRole, businessName:"", city:"" });
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [verifyMode, setVerifyMode] = useState(false);
+  const [otp, setOtp] = useState("");
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setLoading(true);
+    try {
+      await googleLogin(tokenResponse.access_token, form.role);
+      toast.success("Logged in with Google! ⚡");
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Google Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signupWithGoogle = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => toast.error("Google Signup Failed"),
+  });
 
   const upd = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
@@ -145,13 +262,42 @@ export function Register() {
     if (!agreed) { toast.error("Please agree to Terms of Service"); return; }
     setLoading(true);
     try {
-      const user = await register(form);
-      toast.success(`Welcome to Rozgaaar, ${user.name.split(" ")[0]}! ⚡`);
-      navigate("/dashboard");
+      await register(form);
+      toast.success("Account created! OTP sent to your email.");
+      setVerifyMode(true);
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");
     } finally { setLoading(false); }
   };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await authAPI.verifyEmail(otp);
+      toast.success("Email verified! Welcome to Rozgaaar ⚡");
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Invalid OTP");
+    } finally { setLoading(false); }
+  };
+
+  if (verifyMode) {
+    return (
+      <AuthCard title="Verify Email" subtitle="Enter the 6-digit OTP sent to your email.">
+        <form onSubmit={handleVerify} style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          <div className="input-group">
+            <label className="input-label">OTP</label>
+            <input className="input" type="text" value={otp} onChange={e=>setOtp(e.target.value)} required />
+          </div>
+          <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
+            {loading ? "Verifying..." : "Verify Email"}
+          </button>
+          <button className="btn btn-ghost btn-sm btn-full" type="button" onClick={() => navigate("/dashboard")}>Skip for now</button>
+        </form>
+      </AuthCard>
+    );
+  }
 
   return (
     <AuthCard title="Create Account" subtitle="Join the fastest growing local gig community.">
@@ -200,7 +346,12 @@ export function Register() {
         </div>
         <div className="input-group">
           <label className="input-label">Password</label>
-          <input className="input" type="password" placeholder="Min 8 characters" value={form.password} onChange={upd("password")} required minLength={8} />
+          <div className="input-icon-wrap" style={{ position: "relative" }}>
+            <input className="input" type={showPassword ? "text" : "password"} placeholder="Min 8 characters" value={form.password} onChange={upd("password")} required minLength={8} />
+            <span onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 16 }}>
+              {showPassword ? "👁️‍🗨️" : "👁️"}
+            </span>
+          </div>
         </div>
         <label style={{ display:"flex", alignItems:"flex-start", gap:8, cursor:"pointer", fontSize:13, color:"var(--text-secondary)" }}>
           <input type="checkbox" checked={agreed} onChange={e=>setAgreed(e.target.checked)}
@@ -217,10 +368,8 @@ export function Register() {
         <span style={{ fontSize:12, color:"var(--text-muted)" }}>Or continue with</span>
         <div style={{ flex:1, height:1, background:"var(--border)" }} />
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginTop:16 }}>
-        {["Google","Facebook"].map(p => (
-          <button key={p} className="btn btn-secondary btn-sm">{p}</button>
-        ))}
+      <div style={{ marginTop:16 }}>
+        <button className="btn btn-secondary btn-sm btn-full" onClick={() => signupWithGoogle()} type="button" disabled={loading}>Google</button>
       </div>
       <p style={{ textAlign:"center", fontSize:13, color:"var(--text-muted)", marginTop:20 }}>
         Already have an account?{" "}

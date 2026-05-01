@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jobsAPI } from "../services/api";
 import toast from "react-hot-toast";
@@ -30,9 +30,19 @@ export default function PostGig() {
 
   const upd = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const updNested = (parent, k) => (e) => setForm({ ...form, [parent]:{ ...form[parent], [k]: e.target.value }});
-  const totalPay = form.employmentType === "full_time"
-    ? parseFloat(form.payPerHour)||0
-    : (parseFloat(form.payPerHour)||0) * (parseInt(form.durationHours)||0);
+  const totalPay = (parseFloat(form.payPerHour)||0) * (parseInt(form.durationHours)||0);
+
+  useEffect(() => {
+    if (form.startTime && form.durationHours) {
+      const [h, m] = form.startTime.split(":");
+      const start = new Date();
+      start.setHours(parseInt(h), parseInt(m), 0, 0);
+      start.setHours(start.getHours() + parseInt(form.durationHours));
+      const endH = String(start.getHours()).padStart(2, "0");
+      const endM = String(start.getMinutes()).padStart(2, "0");
+      setForm(prev => ({ ...prev, endTime: `${endH}:${endM}` }));
+    }
+  }, [form.startTime, form.durationHours]);
 
   const submit = async () => {
     if (!form.title || !form.category || !form.payPerHour || !form.date || !form.startTime || !form.address) {
@@ -81,31 +91,7 @@ export default function PostGig() {
                 <label className="input-label">Job Title *</label>
                 <input className="input" placeholder='e.g. "Help me move a sofa"' value={form.title} onChange={upd("title")} />
               </div>
-              <div className="input-group">
-                <label className="input-label">Hiring Type *</label>
-                <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-                  <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
-                    <input
-                      type="radio"
-                      name="employmentType"
-                      value="part_time"
-                      checked={form.employmentType === "part_time"}
-                      onChange={e => setForm({ ...form, employmentType: e.target.value })}
-                    />
-                    Part-time / Gig
-                  </label>
-                  <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
-                    <input
-                      type="radio"
-                      name="employmentType"
-                      value="full_time"
-                      checked={form.employmentType === "full_time"}
-                      onChange={e => setForm({ ...form, employmentType: e.target.value })}
-                    />
-                    Full-time hire
-                  </label>
-                </div>
-              </div>
+              {/* Removed Hiring Type radio buttons (focused on part-time only) */}
               <div className="grid-2" style={{ gap:14 }}>
                 <div className="input-group">
                   <label className="input-label">Category *</label>
@@ -116,7 +102,7 @@ export default function PostGig() {
                 </div>
                 <div className="input-group">
                   <label className="input-label">
-                    {form.employmentType === "full_time" ? "Daily Hours *" : "Duration (hours) *"}
+                    Duration (hours) *
                   </label>
                   <input className="input" type="number" min={1} max={12} value={form.durationHours} onChange={upd("durationHours")} />
                 </div>
@@ -153,11 +139,11 @@ export default function PostGig() {
               <div className="grid-2" style={{ gap:14 }}>
                 <div className="input-group">
                   <label className="input-label">
-                    {form.employmentType === "full_time" ? "Monthly Salary (₹) *" : "Hourly Rate (₹) *"}
+                    Hourly Rate (₹) *
                   </label>
                   <div className="input-icon-wrap">
                     <span className="input-icon" style={{ fontSize:13, fontWeight:700 }}>₹</span>
-                    <input className="input" type="number" min={0} placeholder={form.employmentType === "full_time" ? "25000" : "150"} value={form.payPerHour} onChange={upd("payPerHour")} />
+                    <input className="input" type="number" min={0} placeholder="150" value={form.payPerHour} onChange={upd("payPerHour")} />
                   </div>
                 </div>
                 <div className="input-group">
@@ -170,7 +156,7 @@ export default function PostGig() {
                 </div>
                 <div className="input-group">
                   <label className="input-label">End Time</label>
-                  <input className="input" type="time" value={form.endTime} onChange={upd("endTime")} />
+                  <input className="input" type="time" value={form.endTime} readOnly style={{ background:"var(--bg-base)" }} />
                 </div>
               </div>
               <div className="input-group">
@@ -192,45 +178,7 @@ export default function PostGig() {
                 </div>
               </div>
 
-              {/* Full-time extras */}
-              {form.employmentType === "full_time" && (
-                <div
-                  style={{
-                    padding:"14px 16px",
-                    borderRadius:"var(--radius-md)",
-                    border:"1px solid var(--border)",
-                    background:"var(--bg-elevated)",
-                    display:"flex",
-                    flexDirection:"column",
-                    gap:8,
-                  }}
-                >
-                  <div style={{ fontSize:13, fontWeight:600 }}>Full-time options</div>
-                  <div style={{ fontSize:12, color:"var(--text-secondary)", marginBottom:4 }}>
-                    Do you want applicants to upload a CV/Resume for this role?
-                  </div>
-                  <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
-                    <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
-                      <input
-                        type="radio"
-                        name="requireResume"
-                        checked={form.requirements.requireResume === true}
-                        onChange={() => setForm({ ...form, requirements: { ...form.requirements, requireResume: true } })}
-                      />
-                      Yes, CV/Resume required
-                    </label>
-                    <label style={{ display:"flex", alignItems:"center", gap:6, fontSize:13 }}>
-                      <input
-                        type="radio"
-                        name="requireResume"
-                        checked={form.requirements.requireResume === false}
-                        onChange={() => setForm({ ...form, requirements: { ...form.requirements, requireResume: false } })}
-                      />
-                      No, CV/Resume not required
-                    </label>
-                  </div>
-                </div>
-              )}
+              {/* Full-time extras removed */}
 
               {/* Urgent toggle */}
               <div style={{ display:"flex", alignItems:"flex-start", gap:12, padding:"16px", background:"var(--urgent-dim)", borderRadius:"var(--radius-md)", border:"1px solid rgba(255,107,107,0.2)" }}>
@@ -272,7 +220,7 @@ export default function PostGig() {
             </div>
             <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap" }}>
               {form.category && <span className="badge badge-info">{CATEGORIES.find(c=>c.v===form.category)?.l || form.category}</span>}
-              {form.durationHours && <span className="badge badge-info">⏱ {form.durationHours}h {form.employmentType === "full_time" ? "/ day" : "/ gig"}</span>}
+              {form.durationHours && <span className="badge badge-info">⏱ {form.durationHours}h / gig</span>}
             </div>
             <p style={{ fontSize:13, color:"var(--text-secondary)", marginBottom:16, lineHeight:1.6,
               display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
@@ -286,9 +234,7 @@ export default function PostGig() {
                   {totalPay > 0 ? `₹${totalPay.toLocaleString("en-IN")}` : "₹—"}
                 </div>
                 <div style={{ fontSize:11, color:"var(--text-muted)" }}>
-                  {form.employmentType === "full_time" 
-                    ? "per month" 
-                    : `₹${form.payPerHour||"—"}/hr × ${form.durationHours}h`}
+                  {`₹${form.payPerHour||"—"}/hr × ${form.durationHours}h`}
                 </div>
               </div>
               <div style={{ textAlign:"right" }}>

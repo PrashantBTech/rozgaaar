@@ -6,6 +6,7 @@ const router = express.Router();
 const {
   register, login, refreshToken, verifyEmail,
   forgotPassword, resetPassword, logout, getMe,
+  googleAuth
 } = require("../controllers/auth.controller");
 const { protect } = require("../middleware/auth");
 
@@ -44,6 +45,7 @@ const { protect } = require("../middleware/auth");
  */
 router.post("/register", register);
 router.post("/login", login);
+router.post("/google", googleAuth);
 router.post("/refresh-token", refreshToken);
 router.get("/verify-email/:token", verifyEmail);
 router.post("/forgot-password", forgotPassword);

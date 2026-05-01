@@ -123,27 +123,7 @@ export default function FindWork() {
           onClick={() => setFilter("minPay", filters.minPay === "50" ? "" : "50")}>
           💰 High Pay (₹50+/hr)
         </button>
-        <button
-          className={`tag ${filters.employmentType === "" ? "active" : ""}`}
-          style={{ cursor:"pointer" }}
-          onClick={() => setFilter("employmentType", "")}
-        >
-          🧩 Any Type
-        </button>
-        <button
-          className={`tag ${filters.employmentType === "part_time" ? "active" : ""}`}
-          style={{ cursor:"pointer" }}
-          onClick={() => setFilter("employmentType", filters.employmentType === "part_time" ? "" : "part_time")}
-        >
-          ⏱ Part-time / Gigs
-        </button>
-        <button
-          className={`tag ${filters.employmentType === "full_time" ? "active" : ""}`}
-          style={{ cursor:"pointer" }}
-          onClick={() => setFilter("employmentType", filters.employmentType === "full_time" ? "" : "full_time")}
-        >
-          💼 Full-time Only
-        </button>
+
         <div style={{ width:1, height:24, background:"var(--border)", margin:"0 4px" }} />
         {CATEGORIES.map(c => (
           <button key={c.v} className={`tag ${filters.category === c.v ? "active" : ""}`} style={{ cursor:"pointer" }}

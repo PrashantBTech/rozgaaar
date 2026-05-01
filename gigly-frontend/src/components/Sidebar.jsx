@@ -26,7 +26,6 @@ export default function Sidebar({ open, onClose }) {
     { to: "/my-jobs",    icon: icons.myGigs,    label: "My Jobs"   },
     { to: "/messages",   icon: icons.messages,  label: "Messages"  },
     { to: "/earnings",   icon: icons.earnings,  label: "Earnings"  },
-    { to: "/ai-concierge", icon: "🤖",              label: "Ask Gigi"  },
     { to: "/profile",    icon: icons.profile,   label: "Profile"   },
   ];
   const businessLinks = [
@@ -35,7 +34,6 @@ export default function Sidebar({ open, onClose }) {
     { to: "/my-gigs",    icon: icons.myGigs,    label: "My Gigs"   },
     { to: "/messages",   icon: icons.messages,  label: "Messages"  },
     { to: "/earnings",   icon: icons.earnings,  label: "Earnings"  },
-    { to: "/ai-concierge", icon: "🤖",              label: "Ask Gigi"  },
     { to: "/profile",    icon: icons.profile,   label: "Profile"   },
   ];
   const adminLinks = [

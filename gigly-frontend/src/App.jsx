@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Layout
 import AppLayout from "./components/AppLayout";
@@ -21,11 +22,13 @@ import MyGigs from "./pages/MyGigs";
 import EditGig from "./pages/EditGig";
 import Messages from "./pages/Messages";
 import { Profile, Earnings, MyJobs } from "./pages/ProfileEarnings";
-import AIConcierge from "./pages/AIConcierge";
+// import AIConcierge from "./pages/AIConcierge";
 
 export default function App() {
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || import.meta?.env?.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
   return (
-    <BrowserRouter>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
           <Toaster
@@ -64,7 +67,7 @@ export default function App() {
               <Route path="/messages"   element={<Messages />} />
               <Route path="/earnings"   element={<Earnings />} />
               <Route path="/profile"    element={<Profile />} />
-              <Route path="/ai-concierge" element={<AIConcierge />} />
+              {/* <Route path="/ai-concierge" element={<AIConcierge />} /> */}
             </Route>
 
             {/* ── Catch-all ── */}
@@ -74,5 +77,6 @@ export default function App() {
         </SocketProvider>
       </AuthProvider>
     </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 }

@@ -33,7 +33,7 @@ export default function JobDetail() {
   const handleApply = async () => {
     if (!checks.age) { toast.error("Please confirm you meet the prerequisites"); return; }
 
-    const needsResume = job.employmentType === "full_time" && job.requirements?.requireResume;
+    const needsResume = false;
     if (needsResume && !resumeFile) {
       toast.error("Please upload your CV/Resume before applying.");
       return;
@@ -64,11 +64,11 @@ export default function JobDetail() {
   );
 
   const business = job.postedBy;
-  const isFullTime = job.employmentType === "full_time";
-  const totalPay = isFullTime ? job.payPerHour : job.payPerHour * job.durationHours;
+  const isFullTime = false;
+  const totalPay = job.payPerHour * job.durationHours;
   const isOwner = user?._id === business?._id;
   const slotsLeft = job.slotsRequired - (job.slotsFilled || 0);
-  const employmentLabel = job.employmentType === "full_time" ? "Full-time" : "Part-time / Gig";
+  const employmentLabel = "Part-time / Gig";
 
   return (
     <div className="page-content">
@@ -201,25 +201,7 @@ export default function JobDetail() {
 
             {user?.role === "worker" && job.status === "open" && !isOwner && (
               <>
-                {job.employmentType === "full_time" && job.requirements?.requireResume && (
-                  <div className="input-group" style={{ marginBottom:12 }}>
-                    <label className="input-label">CV / Resume (required for this job)</label>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      className="input"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] || null;
-                        setResumeFile(file);
-                      }}
-                    />
-                    {resumeFile && (
-                      <p style={{ fontSize:11, color:"var(--accent)", marginTop:4 }}>
-                        Selected: {resumeFile.name}
-                      </p>
-                    )}
-                  </div>
-                )}
+
                 {showNote && (
                   <div className="input-group" style={{ marginBottom:12 }}>
                     <label className="input-label">Cover Note (optional)</label>
@@ -231,8 +213,7 @@ export default function JobDetail() {
                   className="btn btn-primary btn-full btn-lg"
                   disabled={
                     applying ||
-                    !checks.age ||
-                    (job.employmentType === "full_time" && job.requirements?.requireResume && !resumeFile)
+                    !checks.age
                   }
                   onClick={handleApply}
                 >

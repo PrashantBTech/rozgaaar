@@ -37,10 +37,12 @@ api.interceptors.response.use(
 export const authAPI = {
   register: (d) => api.post("/auth/register", d),
   login: (d) => api.post("/auth/login", d),
+  googleLogin: (idToken, role) => api.post("/auth/google", { idToken, role }),
   logout: () => api.post("/auth/logout"),
   getMe: () => api.get("/auth/me"),
   forgotPassword: (email) => api.post("/auth/forgot-password", { email }),
   resetPassword: (token, password) => api.put(`/auth/reset-password/${token}`, { password }),
+  verifyEmail: (token) => api.get(`/auth/verify-email/${token}`),
 };
 
 // ── Jobs ──────────────────────────────────────────────────────────────────────

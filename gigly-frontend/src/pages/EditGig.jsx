@@ -122,6 +122,18 @@ export default function EditGig() {
     setForm({ ...form, [parent]: { ...form[parent], [k]: e.target.value } });
 
   const totalPay = (parseFloat(form.payPerHour) || 0) * (parseInt(form.durationHours) || 0);
+  
+  useEffect(() => {
+    if (form.startTime && form.durationHours && !loading) {
+      const [h, m] = form.startTime.split(":");
+      const start = new Date();
+      start.setHours(parseInt(h), parseInt(m), 0, 0);
+      start.setHours(start.getHours() + parseInt(form.durationHours));
+      const endH = String(start.getHours()).padStart(2, "0");
+      const endM = String(start.getMinutes()).padStart(2, "0");
+      setForm(prev => ({ ...prev, endTime: `${endH}:${endM}` }));
+    }
+  }, [form.startTime, form.durationHours, loading]);
 
   const validateRequired = () => {
     return (
@@ -275,31 +287,7 @@ export default function EditGig() {
                 <label className="input-label">Job Title *</label>
                 <input className="input" placeholder='e.g. "Help me move a sofa"' value={form.title} onChange={upd("title")} />
               </div>
-              <div className="input-group">
-                <label className="input-label">Hiring Type *</label>
-                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-                    <input
-                      type="radio"
-                      name="employmentType"
-                      value="part_time"
-                      checked={form.employmentType === "part_time"}
-                      onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                    />
-                    Part-time / Gig
-                  </label>
-                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-                    <input
-                      type="radio"
-                      name="employmentType"
-                      value="full_time"
-                      checked={form.employmentType === "full_time"}
-                      onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                    />
-                    Full-time hire
-                  </label>
-                </div>
-              </div>
+              {/* Hiring Type removed */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 <div className="input-group">
                   <label className="input-label">Category *</label>
@@ -389,7 +377,7 @@ export default function EditGig() {
                 </div>
                 <div className="input-group">
                   <label className="input-label">End Time</label>
-                  <input className="input" type="time" value={form.endTime} onChange={upd("endTime")} />
+                  <input className="input" type="time" value={form.endTime} readOnly style={{ background:"var(--bg-base)" }} />
                 </div>
               </div>
               <div className="input-group">
@@ -411,55 +399,7 @@ export default function EditGig() {
                 </div>
               </div>
 
-              {/* Full-time extras */}
-              {form.employmentType === "full_time" && (
-                <div
-                  style={{
-                    padding: "14px 16px",
-                    borderRadius: "var(--radius-md)",
-                    border: "1px solid var(--border)",
-                    background: "var(--bg-elevated)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>Full-time options</div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
-                    Do you want applicants to upload a CV/Resume for this role?
-                  </div>
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-                      <input
-                        type="radio"
-                        name="requireResume"
-                        checked={form.requirements.requireResume === true}
-                        onChange={() =>
-                          setForm({
-                            ...form,
-                            requirements: { ...form.requirements, requireResume: true },
-                          })
-                        }
-                      />
-                      Yes, CV/Resume required
-                    </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-                      <input
-                        type="radio"
-                        name="requireResume"
-                        checked={form.requirements.requireResume === false}
-                        onChange={() =>
-                          setForm({
-                            ...form,
-                            requirements: { ...form.requirements, requireResume: false },
-                          })
-                        }
-                      />
-                      No, CV/Resume not required
-                    </label>
-                  </div>
-                </div>
-              )}
+              {/* Full-time extras removed */}
 
               {/* Urgent toggle */}
               <div
@@ -536,7 +476,7 @@ export default function EditGig() {
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
               {form.category && <span className="badge badge-info">{categoriesForSelect.find((c) => c.v === form.category)?.l || form.category}</span>}
-              {form.durationHours && <span className="badge badge-info">⏱ {form.durationHours}h</span>}
+              {form.durationHours && <span className="badge badge-info">⏱ {form.durationHours}h / gig</span>}
             </div>
             <p style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
               {form.description || "Your job description will appear here."}
