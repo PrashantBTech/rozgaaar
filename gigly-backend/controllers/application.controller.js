@@ -22,11 +22,6 @@ exports.applyToJob = asyncHandler(async (req, res, next) => {
   // If a resume file was uploaded for this application, capture its URL.
   const uploadedResumeUrl = req.file?.path;
 
-  // Enforce CV requirement for full-time roles
-  if (job.employmentType === "full_time" && job.requirements?.requireResume && !uploadedResumeUrl) {
-    return next(new ErrorResponse("CV/Resume is required to apply for this job", 400));
-  }
-
   const existing = await Application.findOne({ job: jobId, worker: req.user.id });
   if (existing) return next(new ErrorResponse("You already applied for this job", 400));
 
