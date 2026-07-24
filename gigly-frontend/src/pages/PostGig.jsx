@@ -11,8 +11,7 @@ const CATEGORIES = [
   { v:"other",l:"⚡ Other"},
 ];
 const PAYMENT_MODES = [
-  { v:"platform_wallet",l:"⚡ Instant Pay (Platform)"}, { v:"upi",l:"📱 UPI"},
-  { v:"cash",l:"💵 Cash"}, { v:"bank_transfer",l:"🏦 Bank Transfer"},
+  { v:"platform_wallet",l:"⚡ Instant Pay (Platform)"},
 ];
 
 export default function PostGig() {

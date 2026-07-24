@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import { useAuth } from "../context/AuthContext";
 
 const categoryEmoji = {
   cafe_staff:"☕", kitchen_help:"🍳", event_crew:"🎪", warehouse_loader:"📦",
@@ -9,11 +10,14 @@ const categoryEmoji = {
 };
 
 export default function GigCard({ job, onApply, showApply = true }) {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const distanceText = job.workerDistance ? `${job.workerDistance.toFixed(1)} mi` : null;
   const timeAgo = job.createdAt ? formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }) : "";
   const emoji = categoryEmoji[job.category] || "⚡";
   const slotsLeft = job.slotsRequired - (job.slotsFilled || 0);
+
+  const isOwner = user && (user.role === "business" || (job.postedBy?._id && job.postedBy._id === user._id));
 
   return (
     <div className={`gig-card fade-in${job.isUrgent ? " urgent" : ""}`}
@@ -81,7 +85,11 @@ export default function GigCard({ job, onApply, showApply = true }) {
           </div>
         </div>
 
-        {showApply && (
+        {isOwner ? (
+          <button className="btn btn-ghost btn-sm" onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job._id}`); }}>
+            Manage →
+          </button>
+        ) : showApply && (
           <button className="btn btn-primary btn-sm" onClick={(e) => { e.stopPropagation(); onApply?.(job); }}>
             Apply Now
           </button>

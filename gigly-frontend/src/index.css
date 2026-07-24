@@ -1,52 +1,52 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Playfair+Display:ital,wght@1,400;1,700&display=swap');
 
 :root {
-  /* Editorial Premium Theme Overrides */
-  --bg-base: #EBE9E4;
-  --bg-surface: #F2F0EB;
+  /* Professional Whitish / Slate Theme Overrides */
+  --bg-base: #F8FAFC;
+  --bg-surface: #FFFFFF;
   --bg-card: #FFFFFF;
   --bg-elevated: #FFFFFF;
-  --bg-hover: #F8F7F4;
+  --bg-hover: #F1F5F9;
 
-  --border: rgba(26, 26, 26, 0.08);
-  --border-active: #D4A853;
+  --border: #E2E8F0;
+  --border-active: #103461;
 
-  --accent: #D4A853; /* Amber Gold */
-  --accent-dim: rgba(212, 168, 83, 0.12);
-  --accent-glow: rgba(212, 168, 83, 0.2);
+  --accent: #103461; /* Deep Navy Blue */
+  --accent-dim: rgba(16, 52, 97, 0.08);
+  --accent-glow: rgba(16, 52, 97, 0.15);
   
-  --dark-accent: #1A1A1A;
-  --urgent: #E63946;
-  --urgent-dim: rgba(230, 57, 70, 0.1);
-  --gold: #D4A853;
-  --gold-dim: rgba(212, 168, 83, 0.1);
+  --dark-accent: #103461;
+  --urgent: #C53030;
+  --urgent-dim: rgba(197, 48, 48, 0.08);
+  --gold: #D69E2E;
+  --gold-dim: rgba(214, 158, 46, 0.08);
 
-  --text-primary: #1A1A1A;
-  --text-secondary: rgba(26, 26, 26, 0.7);
-  --text-muted: rgba(26, 26, 26, 0.4);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
 
-  --success: #2A9D8F;
-  --warning: #E9C46A;
-  --danger: #E63946;
+  --success: #006e37; /* Forest Green */
+  --warning: #D69E2E;
+  --danger: #C53030;
 
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 24px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --radius-xl: 100px; /* Pill Shape */
 
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 10px 30px rgba(212, 168, 83, 0.1);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-glow: 0 10px 30px rgba(16, 185, 129, 0.08);
 
-  --font-display: 'Syne', sans-serif;
+  --font-display: 'DM Sans', sans-serif;
   --font-body: 'DM Sans', sans-serif;
-  --font-editorial: 'Playfair Display', serif;
+  --font-editorial: 'DM Sans', sans-serif;
 
   --sidebar-w: 260px;
   --header-h: 70px;
 
   /* Specific colors */
-  --dark-glass: rgba(26, 26, 26, 0.95);
-  --dark-glass-border: rgba(255, 255, 255, 0.1);
+  --dark-glass: rgba(15, 23, 42, 0.95);
+  --dark-glass-border: rgba(255, 255, 255, 0.08);
 }
 
 /* Removed Light Theme variables to lock in Dark Neon Experience */
@@ -1115,5 +1115,239 @@ h6 {
     margin-bottom: 20px;
     width: 100%;
     z-index: 10;
+  }
+}
+
+/* ── Job Row Card Responsive Layout ── */
+.job-row-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.job-row-card:hover {
+  border-color: var(--border-active);
+  box-shadow: var(--shadow-card);
+}
+
+.job-row-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.job-row-content {
+  padding: 16px 20px 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.job-row-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.job-row-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #EFF6FF;
+  color: #2563EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.job-row-title {
+  font-weight: 800;
+  font-size: 15px;
+  color: #0F172A;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.job-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.job-row-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.job-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.job-row-pay {
+  text-align: right;
+}
+
+.job-row-price {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  color: #0F172A;
+}
+
+.job-row-price-unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.job-row-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #16A34A;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.job-row-manage-btn {
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.job-row-manage-btn:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+/* Mobile responsive layout adjustment */
+@media (max-width: 640px) {
+  .job-row-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 16px 14px 18px;
+  }
+
+  .job-row-main {
+    width: 100%;
+  }
+
+  .job-row-title {
+    white-space: normal;
+    font-size: 14px;
+  }
+
+  .job-row-meta {
+    gap: 10px;
+    font-size: 11px;
+  }
+
+  .job-row-actions {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid #F1F5F9;
+  }
+
+  .job-row-pay {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+/* ── Wallet Responsive Layouts ── */
+.wallet-hero-card {
+  border-radius: 16px;
+  padding: clamp(20px, 4vw, 32px);
+  margin-bottom: 24px;
+}
+
+.wallet-hero-amount {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 900;
+  font-size: clamp(30px, 6vw, 44px);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.wallet-tx-table-header {
+  display: grid;
+  grid-template-columns: 140px 1fr 120px 120px;
+  gap: 16px;
+  padding: 14px 20px;
+  background: #F8FAFC;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wallet-tx-table-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 120px 120px;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .wallet-tx-table-header {
+    display: none;
+  }
+
+  .wallet-tx-table-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .wallet-tx-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .wallet-tx-mobile-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-top: 8px;
+    border-top: 1px dashed #F1F5F9;
   }
 }

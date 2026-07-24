@@ -3,6 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { notifsAPI } from "../services/api";
+import RozgaaarLogo from "./RozgaaarLogo";
+
+// ── SVG Icons ──
+const SearchIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+);
+
+const BellIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+  </svg>
+);
+
+const InboxIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+    <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+  </svg>
+);
 
 export default function Header({ onMenuToggle }) {
   const { user } = useAuth();
@@ -20,7 +43,7 @@ export default function Header({ onMenuToggle }) {
       setDbNotifs(r.data.data || []);
       setUnread(r.data.unreadCount || 0);
     }).catch(() => {});
-  }, [user, liveNotifs.length]);
+  }, [user, liveNotifs?.length || 0]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -37,14 +60,14 @@ export default function Header({ onMenuToggle }) {
   };
 
   const allNotifs = [
-    ...liveNotifs.slice(0,3).map(n => ({ ...n, _id:"live_"+Math.random(), isRead:false })),
+    ...(liveNotifs || []).slice(0,3).map(n => ({ ...n, _id:"live_"+Math.random(), isRead:false })),
     ...dbNotifs,
   ].slice(0, 8);
 
   return (
     <header style={{
       height: "var(--header-h)",
-      background: "rgba(235, 233, 228, 0.8)",
+      background: "rgba(255, 255, 255, 0.85)",
       backdropFilter: "blur(20px)",
       WebkitBackdropFilter: "blur(20px)",
       borderBottom: "1px solid var(--border)",
@@ -54,18 +77,24 @@ export default function Header({ onMenuToggle }) {
       transition: "all 0.3s"
     }}>
 
-      {/* ── Hamburger — always visible on mobile ── */}
-      <button className="btn btn-ghost btn-sm header-menu-btn"
-        style={{ padding: 8, flexShrink: 0 }}
-        onClick={onMenuToggle}
-        aria-label="Open menu">
-        ☰
-      </button>
+      {/* ── Logo for unauthenticated / hamburger for logged in ── */}
+      {user ? (
+        <button className="btn btn-ghost btn-sm header-menu-btn"
+          style={{ padding: 8, flexShrink: 0 }}
+          onClick={onMenuToggle}
+          aria-label="Open menu">
+          ☰
+        </button>
+      ) : (
+        <div onClick={() => navigate("/")} style={{ cursor: "pointer", display: "flex", alignItems: "center", marginRight: 8, flexShrink: 0 }}>
+          <RozgaaarLogo height={28} textColor="var(--accent)" />
+        </div>
+      )}
 
-      {/* ── Search bar — hidden on mobile unless toggled ── */}
+      {/* ── Search bar ── */}
       <div className={`input-icon-wrap header-search`}
         style={{ flex: 1, maxWidth: 460, display: "flex" }}>
-        <span className="input-icon" style={{ fontSize: 14 }}>🔍</span>
+        <span className="input-icon" style={{ display: "flex", alignItems: "center", top: "50%", transform: "translateY(-50%)" }}><SearchIcon /></span>
         <input className="input"
           placeholder="Search gigs, skills, locations..."
           style={{ background: "var(--bg-base)", borderColor: "var(--border)", padding: "8px 14px 8px 38px" }}
@@ -75,10 +104,10 @@ export default function Header({ onMenuToggle }) {
 
       {/* ── Mobile search toggle ── */}
       <button className="btn btn-ghost btn-sm show-mobile"
-        style={{ padding: 8, fontSize: 16, flexShrink: 0 }}
+        style={{ padding: 8, display: "flex", alignItems: "center", flexShrink: 0 }}
         onClick={() => setShowSearch(s => !s)}
         aria-label="Search">
-        🔍
+        <SearchIcon />
       </button>
 
       {/* ── Mobile search overlay ── */}
@@ -89,7 +118,7 @@ export default function Header({ onMenuToggle }) {
           padding: "12px 16px", zIndex: 100, display: "flex", gap: 8,
         }}>
           <div className="input-icon-wrap" style={{ flex: 1 }}>
-            <span className="input-icon" style={{ fontSize: 14 }}>🔍</span>
+            <span className="input-icon" style={{ display: "flex", alignItems: "center", top: "50%", transform: "translateY(-50%)" }}><SearchIcon /></span>
             <input className="input" placeholder="Search gigs..."
               style={{ background: "var(--bg-base)", padding: "8px 14px 8px 38px" }}
               autoFocus
@@ -106,80 +135,88 @@ export default function Header({ onMenuToggle }) {
       )}
 
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-
-        {/* ── Notification bell ── */}
-        <div style={{ position: "relative" }} ref={dropRef}>
-          <button className="btn btn-ghost btn-sm"
-            style={{ position: "relative", padding: 8 }}
-            onClick={() => setShowNotifs(s => !s)}>
-            🔔
-            {unread > 0 && (
-              <span style={{
-                position: "absolute", top: 4, right: 4,
-                width: 16, height: 16, borderRadius: "50%",
-                background: "var(--urgent)", fontSize: 9, fontWeight: 700,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "#fff", border: "2px solid var(--bg-surface)",
-              }}>{unread > 9 ? "9+" : unread}</span>
-            )}
-          </button>
-
-          {showNotifs && (
-            <div className="notif-dropdown" style={{
-              position: "absolute", right: 0, top: "calc(100% + 8px)",
-              width: "min(360px, 90vw)", background: "var(--bg-card)",
-              border: "1px solid var(--border)", borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-card)", zIndex: 200, overflow: "hidden",
-            }}>
-              <div style={{
-                padding: "14px 16px", borderBottom: "1px solid var(--border)",
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-              }}>
-                <span style={{ fontWeight: 700, fontSize: 14 }}>Notifications</span>
+        {user ? (
+          <>
+            {/* ── Notification bell ── */}
+            <div style={{ position: "relative" }} ref={dropRef}>
+              <button className="btn btn-ghost btn-sm"
+                style={{ position: "relative", padding: 8, display: "flex", alignItems: "center" }}
+                onClick={() => setShowNotifs(s => !s)}>
+                <BellIcon />
                 {unread > 0 && (
-                  <button className="btn btn-ghost btn-sm" style={{ fontSize: 12 }} onClick={markAll}>
-                    Mark all read
-                  </button>
+                  <span style={{
+                    position: "absolute", top: 4, right: 4,
+                    width: 16, height: 16, borderRadius: "50%",
+                    background: "var(--urgent)", fontSize: 9, fontWeight: 700,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#fff", border: "2px solid var(--bg-surface)",
+                  }}>{unread > 9 ? "9+" : unread}</span>
                 )}
-              </div>
-              <div style={{ maxHeight: "min(420px, 60vh)", overflowY: "auto" }}>
-                {allNotifs.length === 0 ? (
-                  <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)" }}>
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>📭</div>
-                    No notifications yet
-                  </div>
-                ) : allNotifs.map((n, i) => (
-                  <div key={n._id || i} style={{
-                    padding: "12px 16px", borderBottom: "1px solid var(--border)",
-                    background: n.isRead ? "transparent" : "rgba(212,168,83,0.05)",
-                    cursor: "pointer",
-                    transition: "background 0.2s"
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
-                  onMouseLeave={e => e.currentTarget.style.background = n.isRead ? "transparent" : "rgba(212,168,83,0.05)"}>
-                    <div style={{ fontWeight: n.isRead ? 400 : 700, fontSize: 13, color: "var(--text-primary)", marginBottom: 2 }}>
-                      {n.title || n.type}
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>
-                      {n.body || n.jobTitle || ""}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+              </button>
 
-        {/* ── User avatar ── */}
-        <button className="btn btn-ghost btn-sm" style={{ gap: 8, padding: "6px 8px" }}
-          onClick={() => navigate("/profile")}>
-          <div className="avatar avatar-sm avatar-placeholder" style={{ fontSize: 11 }}>
-            {user?.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+              {showNotifs && (
+                <div className="notif-dropdown" style={{
+                  position: "absolute", right: 0, top: "calc(100% + 8px)",
+                  width: "min(360px, 90vw)", background: "var(--bg-card)",
+                  border: "1px solid var(--border)", borderRadius: "var(--radius-lg)",
+                  boxShadow: "var(--shadow-card)", zIndex: 200, overflow: "hidden",
+                }}>
+                  <div style={{
+                    padding: "14px 16px", borderBottom: "1px solid var(--border)",
+                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                  }}>
+                    <span style={{ fontWeight: 700, fontSize: 14 }}>Notifications</span>
+                    {unread > 0 && (
+                      <button className="btn btn-ghost btn-sm" style={{ fontSize: 12 }} onClick={markAll}>
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ maxHeight: "min(420px, 60vh)", overflowY: "auto" }}>
+                    {allNotifs.length === 0 ? (
+                      <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                        <InboxIcon />
+                        No notifications yet
+                      </div>
+                    ) : allNotifs.map((n, i) => (
+                      <div key={n._id || i} style={{
+                        padding: "12px 16px", borderBottom: "1px solid var(--border)",
+                        background: n.isRead ? "transparent" : "rgba(212,168,83,0.05)",
+                        cursor: "pointer",
+                        transition: "background 0.2s"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+                      onMouseLeave={e => e.currentTarget.style.background = n.isRead ? "transparent" : "rgba(212,168,83,0.05)"}>
+                        <div style={{ fontWeight: n.isRead ? 400 : 700, fontSize: 13, color: "var(--text-primary)", marginBottom: 2 }}>
+                          {n.title || n.type}
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>
+                          {n.body || n.jobTitle || ""}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ── User avatar ── */}
+            <button className="btn btn-ghost btn-sm" style={{ gap: 8, padding: "6px 8px" }}
+              onClick={() => navigate("/profile")}>
+              <div className="avatar avatar-sm avatar-placeholder" style={{ fontSize: 11 }}>
+                {user?.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+              </div>
+              <span className="hide-mobile" style={{ fontSize: 13, fontWeight: 600 }}>
+                {user?.name?.split(" ")[0]}
+              </span>
+            </button>
+          </>
+        ) : (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/login")}>Log in</button>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate("/register")}>Get Started</button>
           </div>
-          <span className="hide-mobile" style={{ fontSize: 13, fontWeight: 600 }}>
-            {user?.name?.split(" ")[0]}
-          </span>
-        </button>
+        )}
       </div>
 
       <style>{`

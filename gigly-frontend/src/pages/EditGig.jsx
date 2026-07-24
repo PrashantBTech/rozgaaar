@@ -21,9 +21,6 @@ const CATEGORIES = [
 
 const PAYMENT_MODES = [
   { v: "platform_wallet", l: "⚡ Instant Pay (Platform)" },
-  { v: "upi", l: "📱 UPI" },
-  { v: "cash", l: "💵 Cash" },
-  { v: "bank_transfer", l: "🏦 Bank Transfer" },
 ];
 
 const toDateInput = (d) => {
@@ -438,27 +435,7 @@ export default function EditGig() {
             </button>
           </div>
 
-          {/* Danger Zone */}
-          <div className="card fade-in" style={{ border: "1px solid rgba(255,107,107,0.35)", background: "rgba(255,107,107,0.02)" }}>
-            <div style={{ padding: 18 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                <div>
-                  <h3 style={{ fontSize: 16, marginBottom: 6, color: "var(--urgent)" }}>Danger Zone</h3>
-                  <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: 0, lineHeight: 1.6 }}>
-                    Deleting <b>{job.title}</b> will remove the post and all applications for it.
-                  </p>
-                </div>
-                <button
-                  className="btn btn-danger btn-sm"
-                  style={{ whiteSpace: "nowrap" }}
-                  disabled={updating || !user}
-                  onClick={() => setConfirmDelete(true)}
-                >
-                  🗑️ Delete Post
-                </button>
-              </div>
-            </div>
-          </div>
+
         </div>
 
         {/* ── Live Preview ── */}

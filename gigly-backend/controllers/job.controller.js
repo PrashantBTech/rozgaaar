@@ -16,9 +16,18 @@ exports.getJobs = asyncHandler(async (req, res) => {
     employmentType,
     page = 1, limit = 20,
     sort = "-isUrgent,-createdAt",
+    datePosted,
   } = req.query;
 
   const query = { status };
+
+  // ── Date Posted Filter ───────────────────────────────────────────────────
+  if (datePosted) {
+    const hours = datePosted === "24h" ? 24 : datePosted === "7d" ? 24 * 7 : 0;
+    if (hours > 0) {
+      query.createdAt = { $gte: new Date(Date.now() - hours * 60 * 60 * 1000) };
+    }
+  }
 
   // ── Text Search ──────────────────────────────────────────────────────────
   if (q) {

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { authAPI } from "../services/api";
 import { useGoogleLogin } from "@react-oauth/google";
+import RozgaaarFullLogo, { RozgaaarMiniLogo, RozgaaarNameLogo } from "../components/RozgaaarLogo";
 
 // ── Shared auth card wrapper ──────────────────────────────────────────────────
 function AuthCard({ title, subtitle, children }) {
@@ -38,22 +39,13 @@ function AuthCard({ title, subtitle, children }) {
 
       <div style={{ width:"100%", maxWidth:480, position:"relative", zIndex: 1 }}>
         <div style={{ textAlign:"center", marginBottom:40 }}>
-          <Link to="/" style={{ textDecoration:"none" }}>
-            <div style={{ 
-              fontFamily:"var(--font-display)", fontWeight:800, fontSize:32, 
-              color:"var(--text-primary)", letterSpacing:"-0.04em", textTransform: "uppercase" 
-            }}>
-              Rozgaaar<span style={{ color: "var(--accent)" }}>.</span>
-            </div>
+          <Link to="/" style={{ textDecoration:"none", display: "inline-flex", alignItems: "center", gap: 14, justifyContent: "center" }}>
+            <RozgaaarMiniLogo size={80} textColor="var(--text-primary)" />
+            <RozgaaarNameLogo height={60} textColor="var(--text-primary)" />
           </Link>
-          <h2 style={{ 
-            fontSize:38, marginTop:24, marginBottom:12, 
-            fontFamily: "var(--font-display)", letterSpacing: "-0.02em",
-            textTransform: "uppercase"
-          }}>{title}</h2>
           <p style={{ 
-            color:"var(--text-secondary)", fontSize:16, 
-            fontFamily: "var(--font-editorial)", fontStyle: "italic" 
+            color:"var(--text-secondary)", fontSize:15, marginTop: 16,
+            fontFamily: "'DM Sans', sans-serif", fontWeight: 500
           }}>{subtitle}</p>
         </div>
         <div className="card" style={{ padding: "clamp(24px, 8vw, 40px)", border: "1px solid rgba(0,0,0,0.05)" }}>
@@ -71,13 +63,15 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTarget = searchParams.get("redirect") || "/dashboard";
 
   const handleGoogleSuccess = async (tokenResponse) => {
     setLoading(true);
     try {
       const user = await googleLogin(tokenResponse.access_token, "worker"); // defaulting to worker on login
       toast.success(`Welcome back, ${user.name.split(" ")[0]}! ⚡`);
-      navigate("/dashboard");
+      navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Google Login failed");
     } finally {
@@ -101,7 +95,7 @@ export function Login() {
     try {
       const user = await login(form.email, form.password);
       toast.success(`Welcome back, ${user.name.split(" ")[0]}! ⚡`);
-      navigate("/dashboard");
+      navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Invalid credentials");
     } finally { setLoading(false); }
@@ -127,22 +121,22 @@ export function Login() {
       toast.success("Password reset successfully! You can now login.");
       setForgotMode(false);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Invalid OTP or request expired");
+      toast.error(err.response?.data?.message || "Failed to reset password");
     } finally { setLoading(false); }
   };
 
   if (forgotMode === "email") {
     return (
-      <AuthCard title="Reset Password" subtitle="Enter your email to receive an OTP.">
+      <AuthCard title="Reset Password" subtitle="Enter your registered email address to receive an OTP.">
         <form onSubmit={handleForgotRequest} style={{ display:"flex", flexDirection:"column", gap:16 }}>
           <div className="input-group">
-            <label className="input-label">Email Address</label>
+            <label className="input-label">Email address</label>
             <input className="input" type="email" value={forgotEmail} onChange={e=>setForgotEmail(e.target.value)} required />
           </div>
           <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
             {loading ? "Sending..." : "Send OTP"}
           </button>
-          <button className="btn btn-ghost btn-sm btn-full" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
+          <button className="btn btn-ghost btn-sm btn-full" type="button" onClick={() => setForgotMode(false)}>Back to Sign In</button>
         </form>
       </AuthCard>
     );
@@ -150,7 +144,7 @@ export function Login() {
 
   if (forgotMode === "otp") {
     return (
-      <AuthCard title="Enter OTP" subtitle="Enter the 6-digit OTP sent to your email.">
+      <AuthCard title="Set New Password" subtitle="Enter the OTP sent to your email and your new password.">
         <form onSubmit={handleForgotReset} style={{ display:"flex", flexDirection:"column", gap:16 }}>
           <div className="input-group">
             <label className="input-label">OTP</label>
@@ -158,32 +152,24 @@ export function Login() {
           </div>
           <div className="input-group">
             <label className="input-label">New Password</label>
-            <div className="input-icon-wrap" style={{ position: "relative" }}>
-              <input className="input" type={showPassword ? "text" : "password"} value={newPassword} onChange={e=>setNewPassword(e.target.value)} required minLength={8} />
-              <span onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 16 }}>
-                {showPassword ? "👁️‍🗨️" : "👁️"}
-              </span>
-            </div>
+            <input className="input" type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} required />
           </div>
           <button className="btn btn-primary btn-full btn-lg" type="submit" disabled={loading}>
             {loading ? "Resetting..." : "Reset Password"}
           </button>
-          <button className="btn btn-ghost btn-sm btn-full" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
+          <button className="btn btn-ghost btn-sm btn-full" type="button" onClick={() => setForgotMode(false)}>Back to Sign In</button>
         </form>
       </AuthCard>
     );
   }
 
   return (
-    <AuthCard title="Welcome Back" subtitle="Enter your credentials to access your dashboard.">
+    <AuthCard title="Welcome Back" subtitle="Sign in to manage your gigs, earnings, and applications.">
       <form onSubmit={submit} style={{ display:"flex", flexDirection:"column", gap:16 }}>
         <div className="input-group">
-          <label className="input-label">Email Address</label>
-          <div className="input-icon-wrap">
-            <span className="input-icon" style={{ fontSize:14 }}>✉️</span>
-            <input className="input" type="email" placeholder="name@rozgaaar.app"
-              value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required />
-          </div>
+          <label className="input-label">Email address</label>
+          <input className="input" type="email" placeholder="you@example.com"
+            value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required />
         </div>
         <div className="input-group">
           <div style={{ display:"flex", justifyContent:"space-between" }}>
@@ -218,7 +204,7 @@ export function Login() {
       </div>
       <p style={{ textAlign:"center", fontSize:13, color:"var(--text-muted)", marginTop:20 }}>
         New to Rozgaaar?{" "}
-        <Link to="/register" style={{ color:"var(--accent)", fontWeight:600, textDecoration:"none" }}>Create an account</Link>
+        <Link to={`/register${redirectTarget !== "/dashboard" ? `?redirect=${encodeURIComponent(redirectTarget)}` : ""}`} style={{ color:"var(--accent)", fontWeight:600, textDecoration:"none" }}>Create an account</Link>
       </p>
     </AuthCard>
   );
@@ -228,6 +214,7 @@ export function Login() {
 export function Register() {
   const [searchParams] = useSearchParams();
   const initRole = searchParams.get("role") || "worker";
+  const redirectTarget = searchParams.get("redirect") || "/dashboard";
   const [form, setForm] = useState({ name:"", email:"", phone:"", password:"", role:initRole, businessName:"", city:"" });
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -242,7 +229,7 @@ export function Register() {
     try {
       await googleLogin(tokenResponse.access_token, form.role);
       toast.success("Logged in with Google! ⚡");
-      navigate("/dashboard");
+      navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Google Login failed");
     } finally {
@@ -276,7 +263,7 @@ export function Register() {
     try {
       await authAPI.verifyEmail(otp);
       toast.success("Email verified! Welcome to Rozgaaar ⚡");
-      navigate("/dashboard");
+      navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Invalid OTP");
     } finally { setLoading(false); }

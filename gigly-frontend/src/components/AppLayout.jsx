@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
 export default function AppLayout() {
   const { user, loading } = useAuth();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) return (
@@ -22,7 +23,11 @@ export default function AppLayout() {
     </div>
   );
 
-  if (!user) return <Navigate to="/login" replace />;
+  const isPublicRoute = location.pathname === "/find-work" || (location.pathname.startsWith("/jobs/") && !location.pathname.endsWith("/edit"));
+
+  if (!user && !isPublicRoute) {
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
 
   return (
     <div className="app-layout" style={{ position: "relative", minHeight: "100vh", background: "var(--bg-base)", overflowX: "hidden" }}>
@@ -43,8 +48,15 @@ export default function AppLayout() {
         ROZGAAAR
       </div>
 
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="main-content" style={{ zIndex: 10, position: "relative", flex: 1, minHeight: "100vh" }}>
+      {user && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
+      
+      <div className="main-content" style={{ 
+        zIndex: 10, 
+        position: "relative", 
+        flex: 1, 
+        minHeight: "100vh",
+        marginLeft: user ? undefined : 0
+      }}>
         <Header onMenuToggle={() => setSidebarOpen(s => !s)} />
         <main style={{ flex: 1, position: "relative", zIndex: 10, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <Outlet />

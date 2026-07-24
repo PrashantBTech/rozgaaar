@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import RozgaaarLogo, { RozgaaarMiniLogo, RozgaaarNameLogo } from "../components/RozgaaarLogo";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -66,8 +67,6 @@ export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const mainRef = useRef(null);
-  const cursorRef = useRef(null);
-  const cursorDotRef = useRef(null);
   const navRef = useRef(null);
   const [activeFaq, setActiveFaq] = useState(null);
   const [navScrolled, setNavScrolled] = useState(false);
@@ -77,45 +76,6 @@ export default function Landing() {
   useEffect(() => {
     if (user) navigate("/dashboard");
   }, [user, navigate]);
-
-  /* ── Custom Cursor ── */
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    const dot = cursorDotRef.current;
-    if (!cursor || !dot) return;
-
-    let mouseX = 0, mouseY = 0;
-    let curX = 0, curY = 0;
-
-    const onMove = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      dot.style.left = mouseX + "px";
-      dot.style.top = mouseY + "px";
-    };
-
-    const animate = () => {
-      curX += (mouseX - curX) * 0.1;
-      curY += (mouseY - curY) * 0.1;
-      cursor.style.left = curX + "px";
-      cursor.style.top = curY + "px";
-      requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("mousemove", onMove);
-    animate();
-
-    /* hover enlarge on links/buttons */
-    const addHover = () => {
-      document.querySelectorAll("a, button, [data-cursor]").forEach(el => {
-        el.addEventListener("mouseenter", () => cursor.classList.add("cursor-hover"));
-        el.addEventListener("mouseleave", () => cursor.classList.remove("cursor-hover"));
-      });
-    };
-    setTimeout(addHover, 500);
-
-    return () => window.removeEventListener("mousemove", onMove);
-  }, []);
 
   /* ── Navbar Scroll ── */
   useEffect(() => {
@@ -234,7 +194,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div ref={mainRef} style={{ background: "#EBE9E4", minHeight: "100vh", color: "#1A1A1A", overflow: "hidden", position: "relative" }}>
+    <div ref={mainRef} style={{ background: "#F8FAFC", minHeight: "100vh", color: "#0F172A", overflow: "hidden", position: "relative" }}>
 
       {/* ── Keyframes injection ── */}
       <style>{`
@@ -245,91 +205,68 @@ export default function Landing() {
         @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
         @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
         @keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes cursorPulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.2); } }
-
-        * { cursor: none !important; }
-
-        .custom-cursor {
-          position: fixed;
-          width: 36px; height: 36px;
-          border: 1.5px solid #1A1A1A;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 9999;
-          transform: translate(-50%, -50%);
-          transition: width 0.3s, height 0.3s, background 0.3s, border-color 0.3s;
-          mix-blend-mode: multiply;
-        }
-        .custom-cursor.cursor-hover {
-          width: 64px; height: 64px;
-          background: rgba(212,168,83,0.2);
-          border-color: #D4A853;
-        }
-        .cursor-dot {
-          position: fixed;
-          width: 5px; height: 5px;
-          background: #1A1A1A;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 9999;
-          transform: translate(-50%, -50%);
-        }
 
         .pill-nav {
           position: fixed;
-          top: 24px;
+          top: 20px;
           left: 50%;
           transform: translateX(-50%);
           z-index: 1000;
           display: flex;
           align-items: center;
-          gap: 0;
-          background: #1A1A1A;
+          gap: clamp(16px, 2.5vw, 32px);
+          background: #103461;
+          border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 100px;
-          padding: 10px 20px;
-          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-          min-width: 600px;
-          justify-content: space-between;
+          padding: 10px 24px;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 12px 40px rgba(16,52,97,0.3);
+          width: max-content;
+          max-width: calc(100vw - 32px);
         }
         .pill-nav.scrolled {
-          background: rgba(26,26,26,0.95);
+          background: rgba(16,52,97,0.96);
           backdrop-filter: blur(20px);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-          padding: 8px 18px;
-          min-width: 500px;
+          box-shadow: 0 16px 48px rgba(16,52,97,0.4);
+          padding: 8px 20px;
         }
 
-        @media (max-width: 400px) {
-          .pill-nav {
-            padding: 8px 12px !important;
-          }
-          .btn-pill-white {
-            padding: 6px 14px !important;
-            font-size: 11px !important;
-          }
-          .nav-link-login {
-            font-size: 11px !important;
-            padding: 4px 8px !important;
-          }
+        .nav-logo-img {
+          height: 38px !important;
+          max-height: 38px !important;
+          transition: all 0.3s ease;
+        }
+
+        .nav-links-group {
+          display: flex;
+          align-items: center;
+          gap: 20px;
         }
 
         .nav-link {
-          color: rgba(255,255,255,0.6);
-          font-size: 13px;
+          color: rgba(255,255,255,0.85);
+          font-size: 13.5px;
           font-weight: 500;
           cursor: pointer;
           transition: color 0.2s;
-          padding: 4px 14px;
+          padding: 4px 10px;
           text-decoration: none;
           font-family: 'DM Sans', sans-serif;
           letter-spacing: 0.01em;
         }
-        .nav-link:hover { color: #fff; }
+        .nav-link:hover { color: #ffffff; }
+
+        .nav-link-login {
+          color: rgba(255,255,255,0.85) !important;
+          font-weight: 600 !important;
+        }
+        .nav-link-login:hover {
+          color: #ffffff !important;
+        }
 
         .btn-pill-white {
-          background: #EBE9E4;
-          color: #1A1A1A;
+          background: #ffffff;
+          color: #103461;
           border: none;
           padding: 8px 20px;
           border-radius: 100px;
@@ -341,14 +278,14 @@ export default function Landing() {
           letter-spacing: 0.01em;
         }
         .btn-pill-white:hover {
-          background: #D4A853;
-          color: #1A1A1A;
-          transform: scale(1.04);
+          background: #006e37;
+          color: #ffffff;
+          transform: translateY(-1px);
         }
 
         .btn-pill-dark {
-          background: #1A1A1A;
-          color: #EBE9E4;
+          background: #103461;
+          color: #ffffff;
           border: none;
           padding: 16px 36px;
           border-radius: 100px;
@@ -363,15 +300,15 @@ export default function Landing() {
           letter-spacing: 0.01em;
         }
         .btn-pill-dark:hover {
-          background: #D4A853;
-          color: #1A1A1A;
+          background: #006e37;
+          color: #ffffff;
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(212,168,83,0.35);
+          box-shadow: 0 8px 24px rgba(0,110,55,0.3);
         }
 
         .btn-pill-dark-sm {
-          background: #1A1A1A;
-          color: #EBE9E4;
+          background: #103461;
+          color: #ffffff;
           border: none;
           padding: 12px 28px;
           border-radius: 100px;
@@ -385,14 +322,14 @@ export default function Landing() {
           gap: 8px;
         }
         .btn-pill-dark-sm:hover {
-          background: #D4A853;
-          color: #1A1A1A;
+          background: #006e37;
+          color: #ffffff;
         }
 
         .btn-outline {
           background: transparent;
-          color: #1A1A1A;
-          border: 1.5px solid #1A1A1A;
+          color: #103461;
+          border: 1.5px solid #103461;
           padding: 15px 32px;
           border-radius: 100px;
           font-family: 'DM Sans', sans-serif;
@@ -402,8 +339,8 @@ export default function Landing() {
           transition: all 0.25s;
         }
         .btn-outline:hover {
-          background: #1A1A1A;
-          color: #EBE9E4;
+          background: #103461;
+          color: #ffffff;
         }
 
         .hero-section {
@@ -430,7 +367,7 @@ export default function Landing() {
           font-family: 'Syne', sans-serif;
           font-weight: 800;
           font-size: clamp(160px, 22vw, 340px);
-          color: rgba(26,26,26,0.04);
+          color: rgba(16,52,97,0.04);
           white-space: nowrap;
           user-select: none;
           pointer-events: none;
@@ -447,24 +384,24 @@ export default function Landing() {
           font-family: 'Syne', sans-serif;
           font-weight: 800;
           font-size: 13px;
-          color: rgba(26,26,26,0.3);
+          color: rgba(16,52,97,0.5);
           letter-spacing: 0.1em;
           margin-bottom: 16px;
         }
 
         .divider-line {
           height: 1px;
-          background: rgba(26,26,26,0.12);
+          background: rgba(16,52,97,0.1);
           width: 100%;
         }
 
         .live-dot {
           width: 7px; height: 7px;
           border-radius: 50%;
-          background: #4CAF50;
+          background: #006e37;
           display: inline-block;
           animation: blink 2s ease-in-out infinite;
-          box-shadow: 0 0 6px #4CAF50;
+          box-shadow: 0 0 6px rgba(0,110,55,0.6);
         }
 
         .tag-pill {
@@ -474,40 +411,41 @@ export default function Landing() {
           border-radius: 100px;
           font-size: 13px;
           font-weight: 500;
-          border: 1.5px solid rgba(26,26,26,0.18);
-          color: rgba(26,26,26,0.7);
-          background: transparent;
+          border: 1.5px solid rgba(16,52,97,0.2);
+          color: rgba(16,52,97,0.8);
+          background: rgba(16,52,97,0.04);
           font-family: 'DM Sans', sans-serif;
           transition: all 0.2s;
           cursor: pointer;
           letter-spacing: 0.01em;
         }
         .tag-pill:hover {
-          background: #1A1A1A;
-          color: #EBE9E4;
-          border-color: #1A1A1A;
+          background: #103461;
+          color: #ffffff;
+          border-color: #103461;
         }
 
         .gig-card-preview {
-          background: #fff;
+          background: #ffffff;
           border-radius: 20px;
-          border: 1px solid rgba(26,26,26,0.08);
+          border: 1px solid rgba(16,52,97,0.1);
           padding: 24px;
           transition: transform 0.3s, box-shadow 0.3s;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+          box-shadow: 0 4px 20px rgba(16,52,97,0.06);
         }
         .gig-card-preview:hover {
           transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+          box-shadow: 0 12px 40px rgba(16,52,97,0.14);
+          border-color: rgba(16,52,97,0.2);
         }
 
         .faq-item-row {
           padding: 28px 0;
-          border-bottom: 1px solid rgba(26,26,26,0.1);
+          border-bottom: 1px solid rgba(16,52,97,0.1);
           cursor: pointer;
         }
         .faq-item-row:first-child {
-          border-top: 1px solid rgba(26,26,26,0.1);
+          border-top: 1px solid rgba(16,52,97,0.1);
         }
 
         .rotate-circle {
@@ -515,28 +453,41 @@ export default function Landing() {
         }
 
         @media (max-width: 768px) {
-          .pill-nav { min-width: calc(100vw - 32px) !important; padding: 10px 16px !important; }
+          .pill-nav {
+            width: calc(100vw - 32px) !important;
+            max-width: 480px !important;
+            padding: 8px 20px !important;
+            justify-content: space-between !important;
+            top: 16px !important;
+          }
+          .nav-logo-img {
+            height: 28px !important;
+            max-height: 28px !important;
+          }
           .nav-links-group { display: none !important; }
+          .btn-pill-white {
+            padding: 7px 16px !important;
+            font-size: 12px !important;
+          }
+          .nav-link-login {
+            font-size: 12px !important;
+            padding: 4px 8px !important;
+          }
           .hero-section { padding: 140px 24px 60px !important; }
           .hero-bg-text { display: none; }
           .two-col { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      {/* ── Custom Cursor ── */}
-      <div ref={cursorRef} className="custom-cursor" />
-      <div ref={cursorDotRef} className="cursor-dot" />
+
 
       {/* ── Floating Pill Navbar ── */}
       <nav ref={navRef} className={`pill-nav${navScrolled ? " scrolled" : ""}`}>
         {/* Logo */}
-        <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 17, color: "#fff", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          <span className="live-dot" />
-          Rozgaaar
-        </div>
+        <RozgaaarLogo height={38} textColor="#FFFFFF" className="nav-logo-img" style={{ cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
 
         {/* Nav links */}
-        <div className="nav-links-group" style={{ display: "flex", alignItems: "center" }}>
+        <div className="nav-links-group">
           {[
             { label: "About",           id: "about-section" },
             { label: "How It Works",    id: "how-it-works-section" },
@@ -552,7 +503,7 @@ export default function Landing() {
 
         {/* CTA */}
         <div style={{ display: "flex", gap: "clamp(4px, 1.5vw, 8px)", alignItems: "center", flexShrink: 0 }}>
-          <span className="nav-link nav-link-login" style={{ color: "rgba(255,255,255,0.5)" }} onClick={() => navigate("/login")}>Log in</span>
+          <span className="nav-link nav-link-login" onClick={() => navigate("/login")}>Log in</span>
           <button className="btn-pill-white" onClick={() => navigate("/register")}>Get Started</button>
         </div>
       </nav>
@@ -566,34 +517,34 @@ export default function Landing() {
 
           {/* Top label */}
           <div className="hero-sub" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 40 }}>
-            <span style={{ width: 32, height: 1.5, background: "#1A1A1A", display: "inline-block" }} />
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(26,26,26,0.55)" }}>
+            <span style={{ width: 32, height: 1.5, background: "#103461", display: "inline-block" }} />
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "#475569" }}>
               ⚡ Hyper-local Hiring Platform · India
             </span>
           </div>
 
-          {/* Hero Typography — Rekordr-style mix */}
+          {/* Hero Typography */}
           <div style={{ lineHeight: 1.0, marginBottom: 48 }}>
             <div className="hero-line">
-              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#1A1A1A" }}>
+              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#0F172A" }}>
                 FIND
               </span>
             </div>
             <div className="hero-line" style={{ display: "flex", alignItems: "baseline", gap: "0.3em", flexWrap: "wrap" }}>
-              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#1A1A1A" }}>
+              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#0F172A" }}>
                 WORK
               </span>
-              <span className="serif-italic" style={{ fontSize: "clamp(32px, 7vw, 90px)", color: "rgba(26,26,26,0.45)", lineHeight: 1.1 }}>
+              <span className="serif-italic" style={{ fontSize: "clamp(32px, 7vw, 90px)", color: "rgba(15,23,42,0.45)", lineHeight: 1.1 }}>
                 and
               </span>
             </div>
             <div className="hero-line">
-              <span className="serif-italic" style={{ fontSize: "clamp(40px, 8.5vw, 110px)", color: "#D4A853" }}>
+              <span className="serif-italic" style={{ fontSize: "clamp(40px, 8.5vw, 110px)", color: "#103461" }}>
                 hire seamlessly
               </span>
             </div>
             <div className="hero-line">
-              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#1A1A1A" }}>
+              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#0F172A" }}>
                 INSTANTLY.
               </span>
             </div>
@@ -601,11 +552,11 @@ export default function Landing() {
 
           {/* Sub + CTA row */}
           <div className="hero-cta" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 32 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(15px, 1.5vw, 18px)", color: "rgba(26,26,26,0.6)", maxWidth: 420, lineHeight: 1.7, margin: 0 }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(15px, 1.5vw, 18px)", color: "#475569", maxWidth: 420, lineHeight: 1.7, margin: 0 }}>
               The hyper-local marketplace connecting businesses with on-demand workers in your neighborhood — no friction, no delays.
             </p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
-              <button className="btn-pill-dark" onClick={() => navigate("/register?role=worker")}>
+              <button className="btn-pill-dark" onClick={() => navigate("/find-work")}>
                 Find Work →
               </button>
               <button className="btn-outline" onClick={() => navigate("/register?role=business")}>
@@ -624,11 +575,11 @@ export default function Landing() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "clamp(20px, 4vw, 40px)" }}>
           {STATS.map((s, i) => (
             <div key={i} className="stat-item">
-              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(40px, 5vw, 64px)", letterSpacing: "-0.03em", color: "#1A1A1A", lineHeight: 1 }}>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(40px, 5vw, 64px)", letterSpacing: "-0.03em", color: "#103461", lineHeight: 1 }}>
                 {s.value}
               </div>
               <div className="divider-line" style={{ margin: "16px 0 12px" }} />
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: "rgba(26,26,26,0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em" }}>
                 {s.label}
               </div>
             </div>
@@ -637,25 +588,25 @@ export default function Landing() {
       </section>
 
       {/* ── About Section ── */}
-      <section id="about-section" style={{ background: "#1A1A1A", padding: "clamp(60px, 10vw, 100px) 6vw", scrollMarginTop: "90px" }}>
+      <section id="about-section" style={{ background: "#103461", padding: "clamp(60px, 10vw, 100px) 6vw", scrollMarginTop: "90px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           {/* Scrolling "ABOUT" label */}
           <div style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "14px 0", marginBottom: 80 }}>
             <div style={{ display: "inline-flex", animation: "marquee 25s linear infinite" }}>
               {["ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT"].map((t, i) => (
-                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "rgba(255,255,255,0.18)", padding: "0 40px" }}>{t}</span>
+                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "rgba(255,255,255,0.25)", padding: "0 40px" }}>{t}</span>
               ))}
             </div>
           </div>
 
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
             <div>
-              <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 58px)", color: "#EBE9E4", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 32 }}>
+              <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 58px)", color: "#FFFFFF", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 32 }}>
                 India's fastest<br />
-                <span className="serif-italic" style={{ color: "#D4A853" }}>gig network.</span>
+                <span className="serif-italic" style={{ color: "#006e37" }}>gig network.</span>
               </div>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "rgba(235,233,228,0.6)", lineHeight: 1.8, marginBottom: 40 }}>
-                Rozgaaar is a playground dedicated to flexible work — a colourful community of workers and businesses across India's cities. From restaurants to retail chains, event organizers to individual households.
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, marginBottom: 40 }}>
+                Rozgaaar is a playground dedicated to flexible work — a vibrant community of workers and businesses across India's cities. From restaurants to retail chains, event organizers to individual households.
               </p>
               <button className="btn-pill-white" style={{ padding: "14px 32px", fontSize: 14 }} onClick={() => navigate("/register")}>
                 Join the network →
@@ -669,18 +620,18 @@ export default function Landing() {
                 { emoji: "🏠", label: "Home Services", count: "15K+ gigs" },
               ].map((c, i) => (
                 <div key={i} style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.12)",
                   borderRadius: 16,
                   padding: 24,
                   transition: "all 0.3s",
                 }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(212,168,83,0.1)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(0,110,55,0.2)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
                 >
                   <div style={{ fontSize: 32, marginBottom: 12 }}>{c.emoji}</div>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 14, color: "#EBE9E4", marginBottom: 4 }}>{c.label}</div>
-                  <div style={{ fontSize: 12, color: "#D4A853", fontWeight: 600 }}>{c.count}</div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 14, color: "#FFFFFF", marginBottom: 4 }}>{c.label}</div>
+                  <div style={{ fontSize: 12, color: "#006e37", fontWeight: 700 }}>{c.count}</div>
                 </div>
               ))}
             </div>
@@ -689,11 +640,11 @@ export default function Landing() {
       </section>
 
       {/* ── Marquee 2 ── */}
-      <div style={{ overflow: "hidden", whiteSpace: "nowrap", borderTop: "1px solid rgba(26,26,26,0.12)", borderBottom: "1px solid rgba(26,26,26,0.12)", padding: "18px 0", background: "#EBE9E4" }}>
+      <div style={{ overflow: "hidden", whiteSpace: "nowrap", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", padding: "18px 0", background: "#F1F5F9" }}>
         <div style={{ display: "inline-flex", gap: 0, animation: "marqueeRev 40s linear infinite" }}>
           {["INSTANT HIRING", "SECURE PAYMENTS", "VERIFIED WORKERS", "REAL REVIEWS", "AI MATCHING", "NO RESUMES NEEDED", "HYPERLOCAL"].flatMap((t, i) => [
-            <span key={`a${i}`} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.2em", color: "rgba(26,26,26,0.35)", padding: "0 32px" }}>{t}</span>,
-            <span key={`b${i}`} style={{ color: "#D4A853", padding: "0 4px" }}>✦</span>
+            <span key={`a${i}`} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.2em", color: "#475569", padding: "0 32px" }}>{t}</span>,
+            <span key={`b${i}`} style={{ color: "#006e37", padding: "0 4px" }}>✦</span>
           ])}
         </div>
       </div>
@@ -703,17 +654,17 @@ export default function Landing() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
           {/* Section label */}
-          <div style={{ overflow: "hidden", borderTop: "1px solid rgba(26,26,26,0.12)", borderBottom: "1px solid rgba(26,26,26,0.12)", padding: "14px 0", marginBottom: 80 }}>
+          <div style={{ overflow: "hidden", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", padding: "14px 0", marginBottom: 80 }}>
             <div style={{ display: "inline-flex", animation: "marquee 30s linear infinite" }}>
               {["HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS"].map((t, i) => (
-                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "rgba(26,26,26,0.18)", padding: "0 40px" }}>{t}</span>
+                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "#94A3B8", padding: "0 40px" }}>{t}</span>
               ))}
             </div>
           </div>
 
           <div style={{ marginBottom: 60 }}>
-            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 60px)", letterSpacing: "-0.03em", lineHeight: 1, color: "#1A1A1A" }}>
-              Synchronize in <span className="serif-italic" style={{ color: "#D4A853" }}>3 steps.</span>
+            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 60px)", letterSpacing: "-0.03em", lineHeight: 1, color: "#0F172A" }}>
+              Synchronize in <span className="serif-italic" style={{ color: "#103461" }}>3 steps.</span>
             </div>
           </div>
 
@@ -725,20 +676,21 @@ export default function Landing() {
                 alignItems: "center",
                 gap: 40,
                 padding: "48px 0",
-                borderBottom: "1px solid rgba(26,26,26,0.1)",
+                borderBottom: "1px solid #E2E8F0",
               }}>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, color: "rgba(26,26,26,0.25)", letterSpacing: "0.1em" }}>{s.num}</div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, color: "#94A3B8", letterSpacing: "0.1em" }}>{s.num}</div>
                 <div>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(22px, 2.5vw, 30px)", color: "#1A1A1A", marginBottom: 12, letterSpacing: "-0.02em" }}>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(22px, 2.5vw, 30px)", color: "#0F172A", marginBottom: 12, letterSpacing: "-0.02em" }}>
                     {s.title}
                   </div>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: "rgba(26,26,26,0.55)", lineHeight: 1.7, margin: 0, maxWidth: 480 }}>{s.desc}</p>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: "#475569", lineHeight: 1.7, margin: 0, maxWidth: 480 }}>{s.desc}</p>
                 </div>
                 <div style={{
                   width: 56, height: 56, borderRadius: "50%",
-                  border: "1.5px solid rgba(26,26,26,0.15)",
+                  border: "1.5px solid #E2E8F0",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "#1A1A1A",
+                  fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "#103461",
+                  background: "#F8FAFC",
                   flexShrink: 0,
                 }}>
                   {i === 0 ? "📝" : i === 1 ? "⚡" : "✅"}
@@ -750,11 +702,11 @@ export default function Landing() {
       </section>
 
       {/* ── Live Gig Cards ── */}
-      <section style={{ background: "#F2F0EB", padding: "clamp(60px, 10vw, 100px) 6vw" }}>
+      <section style={{ background: "#F1F5F9", padding: "clamp(60px, 10vw, 100px) 6vw" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 56, flexWrap: "wrap", gap: 24 }}>
-            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", letterSpacing: "-0.03em", lineHeight: 1, color: "#1A1A1A" }}>
-              Live Gigs Near <span className="serif-italic" style={{ color: "#D4A853" }}>You.</span>
+            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", letterSpacing: "-0.03em", lineHeight: 1, color: "#0F172A" }}>
+              Live Gigs Near <span className="serif-italic" style={{ color: "#103461" }}>You.</span>
             </div>
             <button className="btn-pill-dark-sm" onClick={() => navigate("/find-work")}>Browse all gigs →</button>
           </div>
@@ -767,19 +719,19 @@ export default function Landing() {
             ].map((job, i) => (
               <div key={i} className="gig-card-preview">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <span style={{ fontSize: 12, color: "rgba(26,26,26,0.4)", fontWeight: 600, letterSpacing: "0.05em" }}>📍 {job.dist}</span>
-                  {job.urgent && <span style={{ background: "#FF4444", color: "#fff", padding: "3px 10px", borderRadius: 100, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>URGENT</span>}
+                  <span style={{ fontSize: 12, color: "#475569", fontWeight: 600, letterSpacing: "0.05em" }}>📍 {job.dist}</span>
+                  {job.urgent && <span style={{ background: "#C53030", color: "#fff", padding: "3px 10px", borderRadius: 100, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>URGENT</span>}
                 </div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "#1A1A1A", marginBottom: 16, letterSpacing: "-0.02em" }}>{job.title}</div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "#0F172A", marginBottom: 16, letterSpacing: "-0.02em" }}>{job.title}</div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
                   {job.tags.map(t => <span key={t} className="tag-pill" style={{ fontSize: 12 }}>{t}</span>)}
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#1A1A1A", color: "#EBE9E4", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12 }}>{job.employer}</div>
-                    <span style={{ fontSize: 12, color: "#D4A853", fontWeight: 700 }}>★ {job.rating}</span>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#103461", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12 }}>{job.employer}</div>
+                    <span style={{ fontSize: 12, color: "#006e37", fontWeight: 700 }}>★ {job.rating}</span>
                   </div>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 24, color: "#1A1A1A" }}>{job.pay}</div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 24, color: "#103461" }}>{job.pay}</div>
                 </div>
               </div>
             ))}
@@ -788,23 +740,23 @@ export default function Landing() {
       </section>
 
       {/* ── Trust & Safety ── */}
-      <section id="trust-section" className="trust-section" style={{ padding: "clamp(60px, 10vw, 100px) 6vw", background: "#EBE9E4", scrollMarginTop: "90px" }}>
+      <section id="trust-section" className="trust-section" style={{ padding: "clamp(60px, 10vw, 100px) 6vw", background: "#F8FAFC", scrollMarginTop: "90px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
-          <div style={{ overflow: "hidden", borderTop: "1px solid rgba(26,26,26,0.12)", borderBottom: "1px solid rgba(26,26,26,0.12)", padding: "14px 0", marginBottom: 80 }}>
+          <div style={{ overflow: "hidden", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", padding: "14px 0", marginBottom: 80 }}>
             <div style={{ display: "inline-flex", animation: "marquee 28s linear infinite" }}>
               {["TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY"].map((t, i) => (
-                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "rgba(26,26,26,0.18)", padding: "0 40px" }}>{t}</span>
+                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "#94A3B8", padding: "0 40px" }}>{t}</span>
               ))}
             </div>
           </div>
 
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
             <div>
-              <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 56px)", letterSpacing: "-0.03em", lineHeight: 1.1, color: "#1A1A1A", marginBottom: 28 }}>
-                Encrypted &<br /><span className="serif-italic" style={{ color: "#D4A853" }}>verified.</span>
+              <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 56px)", letterSpacing: "-0.03em", lineHeight: 1.1, color: "#0F172A", marginBottom: 28 }}>
+                Encrypted &<br /><span className="serif-italic" style={{ color: "#103461" }}>verified.</span>
               </div>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "rgba(26,26,26,0.55)", lineHeight: 1.8 }}>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "#475569", lineHeight: 1.8 }}>
                 Rozgaaar ensures trust through digital identity verification, secure ledger transactions, and a transparent review architecture that holds every user accountable.
               </p>
             </div>
@@ -816,13 +768,13 @@ export default function Landing() {
                   gridTemplateColumns: "30px 1fr",
                   gap: 16,
                   padding: "28px 0",
-                  borderBottom: i < TRUST.length - 1 ? "1px solid rgba(26,26,26,0.1)" : "none",
+                  borderBottom: i < TRUST.length - 1 ? "1px solid #E2E8F0" : "none",
                   alignItems: "start",
                 }}>
-                  <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13, color: "rgba(26,26,26,0.3)", letterSpacing: "0.05em", paddingTop: 2 }}>{t.num}</span>
+                  <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13, color: "#103461", letterSpacing: "0.05em", paddingTop: 2 }}>{t.num}</span>
                   <div>
-                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 18, color: "#1A1A1A", marginBottom: 8 }}>{t.title}</div>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "rgba(26,26,26,0.5)", lineHeight: 1.6, margin: 0 }}>{t.desc}</p>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 18, color: "#0F172A", marginBottom: 8 }}>{t.title}</div>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#475569", lineHeight: 1.6, margin: 0 }}>{t.desc}</p>
                   </div>
                 </div>
               ))}
@@ -832,23 +784,23 @@ export default function Landing() {
       </section>
 
       {/* ── Categories / Tags ── */}
-      <section style={{ padding: "80px 6vw", background: "#1A1A1A" }}>
+      <section style={{ padding: "80px 6vw", background: "#103461" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48, flexWrap: "wrap", gap: 20 }}>
-            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 3.5vw, 48px)", letterSpacing: "-0.03em", color: "#EBE9E4" }}>
-              What we <span className="serif-italic" style={{ color: "#D4A853" }}>offer.</span>
+            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 3.5vw, 48px)", letterSpacing: "-0.03em", color: "#FFFFFF" }}>
+              What we <span className="serif-italic" style={{ color: "#006e37" }}>offer.</span>
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             {CATEGORIES.map(cat => (
               <span key={cat} style={{
                 display: "inline-flex", alignItems: "center", padding: "10px 22px", borderRadius: 100,
-                border: "1.5px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.65)",
+                border: "1.5px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.9)",
                 fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, cursor: "pointer",
                 transition: "all 0.2s", letterSpacing: "0.01em",
               }}
-                onMouseEnter={e => { e.currentTarget.style.background = "#D4A853"; e.currentTarget.style.color = "#1A1A1A"; e.currentTarget.style.borderColor = "#D4A853"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.65)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#006e37"; e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.borderColor = "#006e37"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.9)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
               >{cat}</span>
             ))}
           </div>
@@ -856,28 +808,29 @@ export default function Landing() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="faq-section" style={{ padding: "100px 6vw", background: "#EBE9E4" }}>
+      <section className="faq-section" style={{ padding: "100px 6vw", background: "#F8FAFC" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5vw, 64px)", letterSpacing: "-0.03em", color: "#1A1A1A", marginBottom: 64, lineHeight: 1 }}>
-            System <span className="serif-italic" style={{ color: "#D4A853" }}>Queries.</span>
+          <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5vw, 64px)", letterSpacing: "-0.03em", color: "#0F172A", marginBottom: 64, lineHeight: 1 }}>
+            System <span className="serif-italic" style={{ color: "#103461" }}>Queries.</span>
           </div>
 
           {FAQS.map((faq, index) => (
             <div key={index} className="faq-row faq-item-row" onClick={() => setActiveFaq(activeFaq === index ? null : index)}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
-                <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(16px, 1.8vw, 20px)", color: "#1A1A1A", lineHeight: 1.3 }}>{faq.q}</span>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(16px, 1.8vw, 20px)", color: "#0F172A", lineHeight: 1.3 }}>{faq.q}</span>
                 <span style={{
                   width: 36, height: 36, borderRadius: "50%",
-                  border: "1.5px solid rgba(26,26,26,0.2)",
+                  border: "1.5px solid #E2E8F0",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontWeight: 700, fontSize: 18, flexShrink: 0,
                   transform: activeFaq === index ? "rotate(45deg)" : "rotate(0deg)",
                   transition: "transform 0.3s",
-                  color: activeFaq === index ? "#D4A853" : "#1A1A1A",
+                  color: activeFaq === index ? "#103461" : "#0F172A",
+                  background: activeFaq === index ? "#F1F5F9" : "transparent"
                 }}>+</span>
               </div>
               {activeFaq === index && (
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: "rgba(26,26,26,0.55)", lineHeight: 1.8, marginTop: 20, marginBottom: 0, animation: "fadeUp 0.3s ease" }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: "#475569", lineHeight: 1.8, marginTop: 20, marginBottom: 0, animation: "fadeUp 0.3s ease" }}>
                   {faq.a}
                 </p>
               )}
@@ -887,29 +840,30 @@ export default function Landing() {
       </section>
 
       {/* ── CTA ── */}
-      <section style={{ padding: "0 6vw 120px", background: "#EBE9E4" }}>
+      <section style={{ padding: "0 6vw 120px", background: "#F8FAFC" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{
-            background: "#1A1A1A",
+            background: "#103461",
             borderRadius: 28,
             padding: "clamp(60px, 8vw, 100px) clamp(40px, 6vw, 80px)",
             display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
             position: "relative", overflow: "hidden",
+            boxShadow: "0 20px 40px rgba(16,52,97,0.25)"
           }}>
             {/* Decorative circle */}
             <div style={{
               position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%",
-              border: "1px solid rgba(212,168,83,0.2)", pointerEvents: "none",
+              border: "1px solid rgba(255,255,255,0.15)", pointerEvents: "none",
             }} />
             <div style={{
               position: "absolute", bottom: -40, left: -40, width: 160, height: 160, borderRadius: "50%",
-              border: "1px solid rgba(212,168,83,0.12)", pointerEvents: "none",
+              border: "1px solid rgba(255,255,255,0.1)", pointerEvents: "none",
             }} />
 
-            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5vw, 68px)", color: "#EBE9E4", letterSpacing: "-0.04em", lineHeight: 1.05, marginBottom: 24 }}>
-              Initialize <span className="serif-italic" style={{ color: "#D4A853" }}>your gig</span><br />today.
+            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5vw, 68px)", color: "#FFFFFF", letterSpacing: "-0.04em", lineHeight: 1.05, marginBottom: 24 }}>
+              Initialize <span className="serif-italic" style={{ color: "#006e37" }}>your gig</span><br />today.
             </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "rgba(235,233,228,0.55)", maxWidth: 440, lineHeight: 1.7, marginBottom: 48 }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.8)", maxWidth: 440, lineHeight: 1.7, marginBottom: 48 }}>
               Connect your coordinates to the network and instantly interface with hyperlocal opportunities across your city.
             </p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
@@ -917,13 +871,13 @@ export default function Landing() {
                 Get Started →
               </button>
               <button style={{
-                background: "transparent", color: "rgba(235,233,228,0.6)", border: "1.5px solid rgba(235,233,228,0.2)",
+                background: "transparent", color: "#FFFFFF", border: "1.5px solid rgba(255,255,255,0.4)",
                 padding: "16px 32px", borderRadius: 100,
                 fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 15, cursor: "pointer",
                 transition: "all 0.25s",
               }}
-                onMouseEnter={e => { e.currentTarget.style.color = "#EBE9E4"; e.currentTarget.style.borderColor = "rgba(235,233,228,0.5)"; }}
-                onMouseLeave={e => { e.currentTarget.style.color = "rgba(235,233,228,0.6)"; e.currentTarget.style.borderColor = "rgba(235,233,228,0.2)"; }}
+                onMouseEnter={e => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.borderColor = "#FFFFFF"; e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "transparent"; }}
                 onClick={() => navigate("/login")}
               >
                 Log in
@@ -934,21 +888,21 @@ export default function Landing() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ background: "#111", padding: "48px 6vw", color: "#EBE9E4" }}>
+      <footer style={{ background: "#0F172A", padding: "48px 6vw", color: "#ffffff" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span className="live-dot" />
-            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, letterSpacing: "-0.02em" }}>Rozgaaar</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <RozgaaarMiniLogo size={68} textColor="#FFFFFF" />
+            <RozgaaarNameLogo height={50} textColor="#FFFFFF" />
           </div>
           <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
             {["About Us", "Privacy", "Terms", "Support"].map(l => (
-              <span key={l} style={{ fontSize: 13, color: "rgba(235,233,228,0.35)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, transition: "color 0.2s" }}
-                onMouseEnter={e => e.target.style.color = "#EBE9E4"}
-                onMouseLeave={e => e.target.style.color = "rgba(235,233,228,0.35)"}
+              <span key={l} style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, transition: "color 0.2s" }}
+                onMouseEnter={e => e.target.style.color = "#ffffff"}
+                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.5)"}
               >{l}</span>
             ))}
           </div>
-          <span style={{ fontSize: 12, color: "rgba(235,233,228,0.2)", fontFamily: "'DM Sans', sans-serif" }}>© 2026 Rozgaaar Network.</span>
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "'DM Sans', sans-serif" }}>© 2026 Rozgaaar Network.</span>
         </div>
       </footer>
 

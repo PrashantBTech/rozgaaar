@@ -26,33 +26,15 @@ const seed = async () => {
   // ── Businesses ─────────────────────────────────────────────────────────────
   const businesses = await User.insertMany([
     {
-      name: "Rohan Mehta",
-      email: "prashant@gmail.com",
-      password: await bcrypt.hash("987654321", 12),
+      name: "Rapid Delivery Solutions",
+      email: "rapid@rozgaaar.app",
+      password: await bcrypt.hash("123456789", 12),
       role: "business",
-      businessName: "Brew & Grind Café",
-      businessCategory: "cafe",
+      businessName: "Rapid Delivery Solutions",
+      businessCategory: "other",
       isEmailVerified: true,
       isIdVerified: true,
-      averageRating: 4.5,
-      location: {
-        type: "Point",
-        coordinates: [77.2090, 28.6139], // New Delhi
-        address: "Connaught Place, New Delhi",
-        city: "New Delhi",
-        pincode: "110001",
-      },
-    },
-    {
-      name: "Rohan Mehta",
-      email: "prashant@gmail.com",
-      password: await bcrypt.hash("987654321", 12),
-      role: "business",
-      businessName: "EventPro India",
-      businessCategory: "event",
-      isEmailVerified: true,
-      isIdVerified: true,
-      averageRating: 4.8,
+      averageRating: 4.9,
       location: {
         type: "Point",
         coordinates: [72.8777, 19.0760], // Mumbai
@@ -61,60 +43,81 @@ const seed = async () => {
         pincode: "400050",
       },
     },
+    {
+      name: "DigitX Services Pvt Ltd",
+      email: "digitx@rozgaaar.app",
+      password: await bcrypt.hash("123456789", 12),
+      role: "business",
+      businessName: "DigitX Services Pvt Ltd",
+      businessCategory: "office",
+      isEmailVerified: true,
+      isIdVerified: true,
+      averageRating: 4.7,
+      location: {
+        type: "Point",
+        coordinates: [77.2090, 28.6139], // Delhi
+        address: "Connaught Place, New Delhi",
+        city: "New Delhi",
+        pincode: "110001",
+      },
+    },
+    {
+      name: "Elite Lifestyle Retail",
+      email: "elite@rozgaaar.app",
+      password: await bcrypt.hash("123456789", 12),
+      role: "business",
+      businessName: "Elite Lifestyle Retail",
+      businessCategory: "retail",
+      isEmailVerified: true,
+      isIdVerified: true,
+      averageRating: 4.8,
+      location: {
+        type: "Point",
+        coordinates: [77.6412, 12.9116], // Bangalore HSR
+        address: "HSR Layout, Bangalore",
+        city: "Bangalore",
+        pincode: "560102",
+      },
+    },
   ]);
 
   // ── Workers ────────────────────────────────────────────────────────────────
-  // const workers = await User.insertMany([
-  //   {
-  //     name: "Arjun Singh",
-  //     email: "arjun@worker.com",
-  //     password: await bcrypt.hash("Worker@123", 12),
-  //     role: "worker",
-  //     skills: ["barista", "customer service", "cashier"],
-  //     isEmailVerified: true,
-  //     isIdVerified: true,
-  //     averageRating: 4.7,
-  //     totalJobsCompleted: 12,
-  //     location: {
-  //       type: "Point",
-  //       coordinates: [77.2150, 28.6200],
-  //       address: "Karol Bagh, New Delhi",
-  //       city: "New Delhi",
-  //     },
-  //   },
-  //   {
-  //     name: "Sneha Patel",
-  //     email: "sneha@worker.com",
-  //     password: await bcrypt.hash("Worker@123", 12),
-  //     role: "worker",
-  //     skills: ["event crew", "decoration", "hosting"],
-  //     isEmailVerified: true,
-  //     isIdVerified: true,
-  //     averageRating: 4.9,
-  //     totalJobsCompleted: 27,
-  //     location: {
-  //       type: "Point",
-  //       coordinates: [72.8850, 19.0800],
-  //       address: "Andheri, Mumbai",
-  //       city: "Mumbai",
-  //     },
-  //   },
-  //   {
-  //     name: "Rahul Kumar",
-  //     email: "rahul@worker.com",
-  //     password: await bcrypt.hash("Worker@123", 12),
-  //     role: "worker",
-  //     skills: ["warehouse", "loading", "forklift"],
-  //     isEmailVerified: true,
-  //     totalJobsCompleted: 5,
-  //     location: {
-  //       type: "Point",
-  //       coordinates: [77.1025, 28.7041],
-  //       address: "Rohini, New Delhi",
-  //       city: "New Delhi",
-  //     },
-  //   },
-  // ]);
+  const workers = await User.insertMany([
+    {
+      name: "Prashant Kumar",
+      email: "mr.prashant.cse@gmail.com",
+      password: await bcrypt.hash("123456789", 12),
+      role: "worker",
+      skills: ["data entry", "delivery", "retail"],
+      isEmailVerified: true,
+      isIdVerified: true,
+      averageRating: 4.8,
+      totalJobsCompleted: 5,
+      location: {
+        type: "Point",
+        coordinates: [72.8777, 19.0760],
+        address: "Bandra West, Mumbai",
+        city: "Mumbai",
+      },
+    },
+    {
+      name: "Arjun Singh",
+      email: "arjun@worker.com",
+      password: await bcrypt.hash("Worker@123", 12),
+      role: "worker",
+      skills: ["barista", "customer service", "cashier"],
+      isEmailVerified: true,
+      isIdVerified: true,
+      averageRating: 4.7,
+      totalJobsCompleted: 12,
+      location: {
+        type: "Point",
+        coordinates: [77.2150, 28.6200],
+        address: "Karol Bagh, New Delhi",
+        city: "New Delhi",
+      },
+    },
+  ]);
 
   // ── Jobs ───────────────────────────────────────────────────────────────────
   const tomorrow = new Date();
@@ -122,85 +125,88 @@ const seed = async () => {
 
   await Job.insertMany([
     {
-      title: "Barista needed for morning rush",
-      description: "Experienced barista required for busy morning shift at our café in CP. Must know espresso-based drinks and latte art basics.",
-      category: "cafe_staff",
-      skills: ["barista", "coffee"],
+      title: "Delivery Partner | EV Fleet",
+      description: "Join our EV fleet as a delivery partner. Deliver orders across the region with high incentives per delivery. Flexible shifts, fuel allowance, and insurance covered. Immediate joining required.",
+      category: "delivery",
+      skills: ["delivery", "driving"],
       postedBy: businesses[0]._id,
       date: tomorrow,
-      startTime: "07:00",
-      endTime: "12:00",
-      durationHours: 5,
+      startTime: "09:00",
+      endTime: "17:00",
+      durationHours: 8,
       payPerHour: 180,
-      totalPay: 900,
-      slotsRequired: 2,
-      isUrgent: true,
-      status: "open",
-      location: {
-        type: "Point",
-        coordinates: [77.2090, 28.6139],
-        address: "Connaught Place, New Delhi",
-        landmark: "Near Regal Cinema",
-        city: "New Delhi",
-        pincode: "110001",
-      },
-    },
-    {
-      title: "Event crew for corporate gala",
-      description: "Looking for 5 enthusiastic crew members for a corporate gala dinner. Duties include setup, guest welcome, and teardown.",
-      category: "event_crew",
-      skills: ["event crew", "hospitality"],
-      postedBy: businesses[1]._id,
-      date: tomorrow,
-      startTime: "16:00",
-      endTime: "23:00",
-      durationHours: 7,
-      payPerHour: 200,
-      totalPay: 1400,
+      totalPay: 1440,
       slotsRequired: 5,
-      isUrgent: false,
+      isUrgent: true,
       status: "open",
       location: {
         type: "Point",
         coordinates: [72.8777, 19.0760],
-        address: "Bandra Kurla Complex, Mumbai",
+        address: "Mumbai Metro Region",
+        landmark: "Metro Station",
         city: "Mumbai",
-        pincode: "400051",
+        pincode: "400050",
       },
     },
     {
-      title: "Warehouse loader — same day",
-      description: "Immediate requirement: 3 loaders for unloading a truck at our warehouse. No experience needed, just physical fitness.",
-      category: "warehouse_loader",
-      skills: ["loading", "physical work"],
-      postedBy: businesses[0]._id,
-      date: new Date(),
-      startTime: "14:00",
+      title: "Data Entry Specialist",
+      description: "Looking for a detail-oriented Data Entry Specialist to manage spreadsheet entries, customer logs, and documentation. This is a fully remote / work from home opportunity with flexible hours and weekly reports.",
+      category: "data_entry",
+      skills: ["data entry", "excel", "typing"],
+      postedBy: businesses[1]._id,
+      date: tomorrow,
+      startTime: "10:00",
       endTime: "18:00",
-      durationHours: 4,
-      payPerHour: 150,
-      totalPay: 600,
-      slotsRequired: 3,
-      isUrgent: true,
+      durationHours: 8,
+      employmentType: "full_time",
+      payPerHour: 22000, // Monthly salary stored in payPerHour for full_time
+      totalPay: 22000,
+      slotsRequired: 2,
+      isUrgent: false,
       status: "open",
       location: {
         type: "Point",
-        coordinates: [77.1500, 28.6500],
-        address: "Okhla Industrial Area, New Delhi",
-        city: "New Delhi",
-        pincode: "110020",
+        coordinates: [77.2090, 28.6139],
+        address: "Remote / Work from Home",
+        city: "Remote",
+        pincode: "110001",
+      },
+    },
+    {
+      title: "Store Assistant (Retail)",
+      description: "Assist with inventory management, product display, billing, and helping customers find products at our premium lifestyle store. Good communication skills are preferred.",
+      category: "retail_assistant",
+      skills: ["customer service", "retail", "billing"],
+      postedBy: businesses[2]._id,
+      date: tomorrow,
+      startTime: "11:00",
+      endTime: "19:00",
+      durationHours: 8,
+      payPerHour: 140,
+      totalPay: 1120,
+      slotsRequired: 3,
+      isUrgent: false,
+      status: "open",
+      location: {
+        type: "Point",
+        coordinates: [77.6412, 12.9116],
+        address: "HSR Layout, Bangalore",
+        city: "Bangalore",
+        pincode: "560102",
       },
     },
   ]);
 
   console.log(`
-✅ Seed complete!
-
-👤 Admin:    admin@rozgaaar.app     / Admin@1234
-🏪 Business: prashant@gmail.com     / 987654321
-🏪 Business: aarif@gmail.com     / 123456789
-👷 Worker: mr.prashant.cse@gmail.com / 123456789
-📚 API Docs: http://localhost:5000/api/docs
+  ✅ Seed complete!
+  
+  👤 Admin:    admin@rozgaaar.app          / Admin@1234
+  🏪 Business: rapid@rozgaaar.app         / 123456789 (Rapid Delivery)
+  🏪 Business: digitx@rozgaaar.app        / 123456789 (DigitX Services)
+  🏪 Business: elite@rozgaaar.app         / 123456789 (Elite Retail)
+  👷 Worker: mr.prashant.cse@gmail.com    / 123456789
+  👷 Worker: arjun@worker.com             / Worker@123
+  📚 API Docs: http://localhost:5000/api/docs
   `);
 
   process.exit(0);

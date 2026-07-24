@@ -93,7 +93,6 @@ const userSchema = new mongoose.Schema(
 );
 
 // ── Indexes ───────────────────────────────────────────────────────────────────
-userSchema.index({ "location.coordinates": "2dsphere" });
 userSchema.index({ role: 1, isActive: 1 });
 userSchema.index({ skills: 1 });
 

@@ -3,257 +3,484 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { jobsAPI, appsAPI, paymentsAPI } from "../services/api";
-import GigCard from "../components/GigCard";
 import toast from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
+import FindWork from "./FindWork";
+
+// ── SVG Icon Components ──────────────────────────────────────────────────────
+const PlusIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+);
+
+const FolderIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+    <circle cx="12" cy="13" r="2"></circle>
+  </svg>
+);
+
+const ClipboardIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+    <line x1="9" y1="12" x2="15" y2="12"></line>
+    <line x1="9" y1="16" x2="13" y2="16"></line>
+  </svg>
+);
+
+const UserPlusIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+    <circle cx="8.5" cy="7" r="4"></circle>
+    <line x1="20" y1="8" x2="20" y2="14"></line>
+    <line x1="17" y1="11" x2="23" y2="11"></line>
+  </svg>
+);
+
+const PinIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+    <circle cx="12" cy="10" r="3"></circle>
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <polyline points="12 6 12 12 16 14"></polyline>
+  </svg>
+);
+
+const DotsVerticalIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="1"></circle>
+    <circle cx="12" cy="5" r="1"></circle>
+    <circle cx="12" cy="19" r="1"></circle>
+  </svg>
+);
+
+const ArrowRightIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+    <polyline points="12 5 19 12 12 19"></polyline>
+  </svg>
+);
+
+const BriefcaseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+  </svg>
+);
 
 const GREET = () => {
   const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+  return h < 12 ? "GOOD MORNING" : h < 17 ? "GOOD AFTERNOON" : "GOOD EVENING";
 };
 
 export default function Dashboard() {
   const { user } = useAuth();
+
+  if (user?.role === "worker") {
+    return <FindWork />;
+  }
+
   const { nearbyJobs } = useSocket();
   const navigate = useNavigate();
   const [stats, setStats] = useState({ earned: 0, newGigs: 0, activeJobs: 0 });
   const [recentActivity, setRecentActivity] = useState([]);
-  const [nearbyGigs, setNearbyGigs] = useState([]);
+  const [myGigsList, setMyGigsList] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { loadData(); }, [user]);
+  useEffect(() => { loadData(); }, [user, nearbyJobs]);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [jobsRes, appsRes, walletRes] = await Promise.allSettled([
-        jobsAPI.getAll({ limit: 6, status: "open" }),
-        appsAPI.getMine(),
-        paymentsAPI.getWallet(),
-      ]);
+      if (user?.role === "business") {
+        const [myJobsRes, walletRes] = await Promise.allSettled([
+          jobsAPI.getMine(),
+          paymentsAPI.getWallet(),
+        ]);
 
-      if (jobsRes.status === "fulfilled") setNearbyGigs(jobsRes.value.data.data || []);
+        if (myJobsRes.status === "fulfilled") {
+          const gigs = myJobsRes.value.data.data || [];
+          setMyGigsList(gigs);
+          const activeJobs = gigs.filter(g => ["open", "in_progress"].includes(g.status)).length;
+          const openGigs = gigs.filter(g => g.status === "open").length;
+          setStats(s => ({ ...s, activeJobs, newGigs: openGigs }));
 
-      if (appsRes.status === "fulfilled") {
-        const apps = appsRes.value.data.data || [];
-        const activeJobs = apps.filter(a => ["accepted","in_progress"].includes(a.status)).length;
-        setStats(s => ({ ...s, activeJobs }));
-        const recent = apps.slice(0, 5).map(a => ({
-          id: a._id,
-          type: a.status === "completed" ? "payment" : a.status === "accepted" ? "accepted" : "application",
-          title: a.status === "completed" ? "Payment Received" : a.status === "accepted" ? "Application Accepted 🎉" : "Application Submitted",
-          desc: a.job?.title || "Gig",
-          amount: a.status === "completed" ? `₹${a.totalPaid}` : null,
-          status: a.status,
-          time: a.updatedAt,
-        }));
-        setRecentActivity(recent);
+          const recent = gigs.slice(0, 5).map(g => ({
+            id: g._id,
+            type: g.status === "completed" ? "payment" : "job_posted",
+            title: g.status === "completed" ? "Gig Completed" : "Gig Posted",
+            badge: g.status === "open" ? "OPEN" : g.status === "in_progress" ? "IN PROGRESS" : g.status.toUpperCase(),
+            desc: g.title,
+            time: g.updatedAt || g.createdAt,
+          }));
+          setRecentActivity(recent);
+        }
+
+        if (walletRes.status === "fulfilled") {
+          const w = walletRes.value.data.data;
+          setStats(s => ({ ...s, earned: w.walletBalance || 0 }));
+        }
       }
-
-      if (walletRes.status === "fulfilled") {
-        const w = walletRes.value.data.data;
-        setStats(s => ({ ...s, earned: w.walletBalance || 0 }));
-      }
-    } catch {}
-    finally { setLoading(false); }
-  };
-
-  const handleApply = async (job) => {
-    try {
-      await appsAPI.apply(job._id);
-      toast.success("Applied successfully! 🎉");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Could not apply");
+      console.error("Error loading dashboard data:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const quickActions = user?.role === "worker"
-    ? [
-        { icon:"🔍", label:"Find Work", sub:"Browse local gigs and get paid today.", action:()=>navigate("/find-work"), color:"var(--accent)" },
-        { icon:"📋", label:"My Jobs", sub:"View all your applications and active gigs.", action:()=>navigate("/my-jobs"), color:"var(--cyan)" },
-      ]
-    : [
-        { icon:"➕", label:"Post Work", sub:"Need help fast? Hire instantly for short-term gigs.", action:()=>navigate("/post-gig"), color:"var(--accent)" },
-        { icon:"📋", label:"My Gigs", sub:"Manage your postings and hired workers.", action:()=>navigate("/my-gigs"), color:"var(--cyan)" },
-      ];
-
   return (
-    <div className="page-content">
+    <div className="page-content" style={{ position: "relative", paddingBottom: 80 }}>
 
       {/* ── Welcome Banner ── */}
-      <div className="fade-in" style={{ marginBottom:48 }}>
-        <div style={{ fontSize:14, color:"var(--text-muted)", marginBottom:10, fontWeight:700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-          {GREET()}, {user?.name?.split(" ")[0]}
+      <div className="fade-in" style={{ marginBottom: 32 }}>
+        <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 6, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+          {GREET()}, {user?.businessName?.toUpperCase() || user?.name?.toUpperCase() || "RAPID DELIVERY SOLUTIONS"}
         </div>
-        <h1 className="resp-h1" style={{ 
-          marginBottom:16, 
-          fontFamily: "var(--font-display)", 
+        <h1 style={{ 
+          fontSize: "clamp(24px, 4vw, 30px)", 
           fontWeight: 800, 
-          textTransform: "uppercase", 
-          lineHeight: 1,
-          letterSpacing: "-0.04em"
+          color: "#0F172A", 
+          letterSpacing: "-0.025em", 
+          marginBottom: 6,
+          fontFamily: "'DM Sans', sans-serif"
         }}>
-          Overview<span style={{ color:"var(--accent)", fontStyle: "italic", fontFamily: "var(--font-editorial)", textTransform: "lowercase", marginLeft: 10, fontWeight: 400 }}>of your gig activity.</span>
+          Overview of Your Gig Activity
         </h1>
-        <p style={{ color:"var(--text-secondary)", fontSize:18, fontFamily: "var(--font-editorial)", fontStyle: "italic" }}>
+        <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: 0, fontStyle: "normal" }}>
           Explore and manage your local network opportunities.
         </p>
       </div>
 
-      {/* ── Stats Row ── */}
-      <div
-        className="stats-grid fade-in fade-in-1"
-        style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))", gap:16, marginBottom:32 }}
-      >
-        {/*<div className="stat-card">
-          <div className="stat-label">Earned Today</div>
-          <div className="stat-value" style={{ color:"var(--accent)" }}>
-            ₹{stats.earned.toLocaleString("en-IN", { minimumFractionDigits:2, maximumFractionDigits:2 })}
-          </div>
-          <div className="stat-delta">+₹120 vs yesterday</div>
-        </div> */}
+      {/* ── Top Grid (Active Jobs & Recent Activity) ── */}
+      <div className="fade-in fade-in-1" style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", 
+        gap: 24, 
+        marginBottom: 28 
+      }}>
         
-        {user?.role === "worker" && (
-          <div className="stat-card">
-            <div className="stat-label">New Gigs Nearby</div>
-            <div className="stat-value" style={{ color:"var(--cyan)" }}>{nearbyGigs.length}</div>
-            <div className="stat-delta">Available now</div>
+        {/* Active Jobs Card */}
+        <div className="card" style={{ padding: 28, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 20 }}>
+              ACTIVE JOBS
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 20 }}>
+              <span style={{ fontSize: 56, fontWeight: 900, color: "#0F172A", lineHeight: 1 }}>
+                {stats.activeJobs}
+              </span>
+              <span style={{ fontSize: 16, fontWeight: 600, color: "#475569" }}>
+                In progress
+              </span>
+            </div>
+            <div style={{ width: 70, height: 2.5, background: "var(--border-active)", borderRadius: 2, marginBottom: 24 }} />
           </div>
-        )}
-        <div className="stat-card">
-          <div className="stat-label">Active Jobs</div>
-          <div className="stat-value">{stats.activeJobs}</div>
-          <div className="stat-delta">In progress</div>
-        </div>
-      </div>
 
-      {/* ── Quick Actions ── */}
-      <div className="fade-in fade-in-2" style={{ marginBottom:32 }}>
-        <div style={{ fontSize:12, color:"var(--text-muted)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:14 }}>
-          Quick Actions
+          <div 
+            onClick={() => navigate("/my-gigs")}
+            style={{ 
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: 8, 
+              color: "#103461", 
+              fontWeight: 700, 
+              fontSize: 14, 
+              cursor: "pointer",
+              transition: "transform 0.2s ease"
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = "translateX(4px)"}
+            onMouseLeave={e => e.currentTarget.style.transform = "none"}
+          >
+            View all active tasks <ArrowRightIcon />
+          </div>
         </div>
-        <div className="grid-2" style={{ gap:"clamp(12px, 3vw, 16px)" }}>
-          {quickActions.map(a => (
-            <button key={a.label} className="card"
-              style={{ padding:"clamp(16px, 4vw, 24px)", border:"1px solid var(--border)", cursor:"pointer", textAlign:"left", background:"var(--bg-card)", transition:"all 0.2s" }}
-              onClick={a.action}
-              onMouseEnter={e => { e.currentTarget.style.borderColor="var(--border-active)"; e.currentTarget.style.transform="translateY(-2px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor="var(--border)"; e.currentTarget.style.transform="none"; }}>
-              <div style={{ fontSize:"clamp(20px, 5vw, 28px)", marginBottom:12 }}>{a.icon}</div>
-              <div style={{ fontFamily:"var(--font-display)", fontWeight:700, fontSize:"clamp(14px, 2vw, 16px)", color:a.color, marginBottom:6 }}>{a.label}</div>
-              <div style={{ fontSize:"clamp(11px, 1.5vw, 13px)", color:"var(--text-secondary)" }}>{a.sub}</div>
+
+        {/* Recent Activity Card */}
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              RECENT ACTIVITY
+            </div>
+            <button 
+              className="btn btn-ghost btn-sm" 
+              style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}
+              onClick={() => navigate("/my-gigs")}
+            >
+              VIEW ALL
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Main 2-col grid ── */}
-      <div
-        className="dashboard-grid"
-        style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:24 }}
-      >
-
-        {/* ── Nearby Gigs / Posted Jobs ── */}
-        <div className="fade-in fade-in-3">
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-            <div style={{ fontSize:12, color:"var(--text-muted)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>
-              {user?.role === "worker" ? "Nearby Opportunities" : "Your Recent Postings"}
-            </div>
-            <button className="btn btn-ghost btn-sm"
-              onClick={() => navigate(user?.role === "worker" ? "/find-work" : "/my-gigs")}>
-              View all →
-            </button>
           </div>
 
-          {loading ? (
-            <div style={{ display:"grid", gap:12 }}>
-              {[1,2,3].map(i => (
-                <div key={i} className="skeleton" style={{ height:140, borderRadius:"var(--radius-lg)" }} />
-              ))}
-            </div>
-          ) : nearbyGigs.length === 0 ? (
-            <div className="card" style={{ textAlign:"center", padding:40, color:"var(--text-muted)" }}>
-              <div style={{ fontSize:40, marginBottom:12 }}>🔍</div>
-              <div>No gigs available right now</div>
-            </div>
-          ) : (
-            <div style={{ display:"grid", gap:12 }}>
-              {nearbyGigs.slice(0,4).map(job => (
-                <GigCard key={job._id} job={job} onApply={handleApply} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ── Recent Activity ── */}
-        <div className="fade-in fade-in-4">
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-            <div style={{ fontSize:12, color:"var(--text-muted)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>
-              Recent Activity
-            </div>
-            <button className="btn btn-ghost btn-sm">View all</button>
-          </div>
-
-          <div className="card" style={{ padding:0, overflow:"hidden" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {recentActivity.length === 0 ? (
-              <div style={{ padding:32, textAlign:"center", color:"var(--text-muted)" }}>
-                <div style={{ fontSize:32, marginBottom:8 }}>📭</div>
-                <div style={{ fontSize:13 }}>No activity yet</div>
+              <div style={{ padding: "20px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+                No recent activity recorded
               </div>
-            ) : recentActivity.map((a, i) => (
-              <div key={a.id} style={{
-                padding:"14px 16px",
-                borderBottom: i < recentActivity.length - 1 ? "1px solid var(--border)" : "none",
-                display:"flex", gap:12, alignItems:"flex-start",
-              }}>
-                <div style={{
-                  width:36, height:36, borderRadius:"var(--radius-sm)", flexShrink:0,
-                  background: a.type === "payment" ? "var(--accent-dim)" : a.type === "accepted" ? "var(--gold-dim)" : "var(--cyan-dim)",
-                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:16,
+            ) : recentActivity.slice(0, 2).map(act => (
+              <div key={act.id} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div style={{ 
+                  width: 42, 
+                  height: 42, 
+                  borderRadius: 10, 
+                  background: "#EFF6FF", 
+                  color: "#2563EB", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  flexShrink: 0
                 }}>
-                  {a.type === "payment" ? "💰" : a.type === "accepted" ? "🎉" : "📋"}
+                  {act.type === "payment" ? <UserPlusIcon /> : <ClipboardIcon />}
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:13, marginBottom:2 }}>{a.title}</div>
-                  <div style={{ fontSize:12, color:"var(--text-muted)", overflow:"hidden", whiteSpace:"nowrap", textOverflow:"ellipsis" }}>
-                    {a.desc}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: "#0F172A" }}>{act.title}</span>
+                    {act.badge && (
+                      <span style={{ 
+                        fontSize: 10, 
+                        fontWeight: 800, 
+                        background: "#DCFCE7", 
+                        color: "#166534", 
+                        padding: "2px 6px", 
+                        borderRadius: 4 
+                      }}>
+                        {act.badge}
+                      </span>
+                    )}
                   </div>
-                  <div style={{ fontSize:11, color:"var(--text-muted)", marginTop:2 }}>
-                    {a.time ? formatDistanceToNow(new Date(a.time), { addSuffix:true }) : ""}
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                    {act.desc}
                   </div>
-                </div>
-                <div style={{ flexShrink:0, textAlign:"right" }}>
-                  {a.amount && (
-                    <div style={{ fontWeight:700, color:"var(--accent)", fontSize:13 }}>{a.amount}</div>
-                  )}
-                  <span className={`badge ${
-                    a.status === "completed" ? "badge-success" :
-                    a.status === "accepted"  ? "badge-info"    : "badge-pending"
-                  }`} style={{ fontSize:9, padding:"2px 6px" }}>
-                    {a.status}
-                  </span>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+                    {act.time ? formatDistanceToNow(new Date(act.time), { addSuffix: true }) : ""}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Trending categories */}
-          <div style={{ marginTop:24 }}>
-            <div style={{ fontSize:12, color:"var(--text-muted)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:12 }}>
-              Trending Near You
-            </div>
-            <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-              {["Delivery","Cleaning","Moving","Pet Care","☕ Cafe"].map(c => (
-                <button key={c} className="tag" style={{ cursor:"pointer" }}
-                  onClick={() => navigate(`/find-work?category=${c.toLowerCase().replace(/[^a-z]/g,"_")}`)}>
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
       </div>
+
+      {/* ── Quick Actions Grid (Post Work & My Gigs) ── */}
+      <div className="fade-in fade-in-2" style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", 
+        gap: 20, 
+        marginBottom: 36 
+      }}>
+        {/* Post Work Action Card */}
+        <div 
+          onClick={() => navigate("/post-gig")}
+          style={{ 
+            border: "1.5px dashed rgba(37, 99, 235, 0.35)", 
+            background: "rgba(239, 246, 255, 0.45)", 
+            borderRadius: 14, 
+            padding: 24, 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 18,
+            transition: "all 0.25s ease"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "#2563EB"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(37, 99, 235, 0.35)"; e.currentTarget.style.transform = "none"; }}
+        >
+          <div style={{ 
+            width: 48, 
+            height: 48, 
+            borderRadius: 12, 
+            background: "#3B82F6", 
+            color: "#FFFFFF", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            flexShrink: 0
+          }}>
+            <PlusIcon />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 16, color: "#0F172A", marginBottom: 4 }}>Post Work</div>
+            <div style={{ fontSize: 13, color: "#64748B", lineHeight: 1.4 }}>Need help fast? Hire instantly for short-term gigs.</div>
+          </div>
+        </div>
+
+        {/* My Gigs Action Card */}
+        <div 
+          onClick={() => navigate("/my-gigs")}
+          style={{ 
+            border: "1px solid var(--border)", 
+            background: "#FFFFFF", 
+            borderRadius: 14, 
+            padding: 24, 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 18,
+            transition: "all 0.25s ease"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--border-active)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = "none"; }}
+        >
+          <div style={{ 
+            width: 48, 
+            height: 48, 
+            borderRadius: 12, 
+            background: "#EFF6FF", 
+            color: "#2563EB", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            flexShrink: 0
+          }}>
+            <FolderIcon />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 16, color: "#0F172A", marginBottom: 4 }}>My Gigs</div>
+            <div style={{ fontSize: 13, color: "#64748B", lineHeight: 1.4 }}>Manage your postings and hired workers in one place.</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Your Recent Postings Section ── */}
+      <div className="fade-in fade-in-3">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
+              YOUR RECENT POSTINGS
+            </div>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", margin: 0 }}>
+              Active Opportunities
+            </h2>
+          </div>
+          <button 
+            className="btn btn-ghost btn-sm" 
+            style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", alignItems: "center", gap: 6 }}
+            onClick={() => navigate("/my-gigs")}
+          >
+            VIEW ALL POSTINGS <ArrowRightIcon />
+          </button>
+        </div>
+
+        {loading ? (
+          <div style={{ display: "grid", gap: 14 }}>
+            {[1, 2].map(i => (
+              <div key={i} className="skeleton" style={{ height: 80, borderRadius: 12 }} />
+            ))}
+          </div>
+        ) : myGigsList.length === 0 ? (
+          <div className="card" style={{ textAlign: "center", padding: 48, color: "var(--text-muted)" }}>
+            <div style={{ fontSize: 32, marginBottom: 12, color: "#2563EB" }}><BriefcaseIcon /></div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#0F172A", marginBottom: 6 }}>You haven't posted any gigs yet</div>
+            <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>Create your first posting to start hiring nearby workers instantly.</div>
+            <button className="btn btn-primary btn-sm" style={{ padding: "8px 20px" }} onClick={() => navigate("/post-gig")}>
+              <PlusIcon /> Post Your First Gig
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {myGigsList.slice(0, 4).map(job => (
+              <div 
+                key={job._id}
+                className="job-row-card"
+                onClick={() => navigate(`/jobs/${job._id}`)}
+              >
+                {/* Left accent bar */}
+                <div 
+                  className="job-row-accent"
+                  style={{
+                    background: job.status === "open" ? "#16A34A" : job.status === "in_progress" ? "#2563EB" : "#94A3B8"
+                  }} 
+                />
+
+                <div className="job-row-content">
+                  {/* Left info & icon */}
+                  <div className="job-row-main">
+                    <div className="job-row-icon">
+                      <BriefcaseIcon />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div className="job-row-title">
+                        {job.title}
+                      </div>
+                      <div className="job-row-meta">
+                        <span className="job-row-meta-item">
+                          <PinIcon /> {job.location?.address || job.location?.city || "Mumbai, Suburban"}
+                        </span>
+                        <span className="job-row-meta-item">
+                          <ClockIcon /> {job.durationHours ? `${job.durationHours}h Flexible Hours` : "Flexible Hours"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right controls */}
+                  <div className="job-row-actions">
+                    <div className="job-row-pay">
+                      <div className="job-row-price">
+                        ₹{job.payPerHour}<span className="job-row-price-unit">/hr</span>
+                      </div>
+                      <div className="job-row-badge">
+                        {job.status === "open" ? "HIRING NOW" : job.status.toUpperCase()}
+                      </div>
+                    </div>
+
+                    <button 
+                      className="job-row-manage-btn" 
+                      onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job._id}`); }}
+                    >
+                      Manage
+                    </button>
+
+                    <button 
+                      style={{ background: "none", border: "none", color: "#94A3B8", cursor: "pointer", padding: 4, display: "flex", alignItems: "center" }}
+                      onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job._id}/edit`); }}
+                      title="Options"
+                    >
+                      <DotsVerticalIcon />
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Floating Action Button (FAB) ── */}
+      <div 
+        onClick={() => navigate("/post-gig")}
+        style={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+          width: 56,
+          height: 56,
+          borderRadius: 14,
+          background: "#0F172A",
+          color: "#FFFFFF",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 10px 25px rgba(15, 23, 42, 0.3)",
+          zIndex: 999,
+          cursor: "pointer",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease"
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.08)"; e.currentTarget.style.boxShadow = "0 14px 30px rgba(15, 23, 42, 0.4)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(15, 23, 42, 0.3)"; }}
+        title="Post a New Gig"
+      >
+        <PlusIcon />
+      </div>
+
     </div>
   );
 }
