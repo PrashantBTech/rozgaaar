@@ -402,6 +402,9 @@ h6 {
   transition: all 0.2s;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .gig-card:hover {

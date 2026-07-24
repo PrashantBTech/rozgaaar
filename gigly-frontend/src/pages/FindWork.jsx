@@ -332,8 +332,11 @@ export default function FindWork() {
         .findwork-container {
           padding: 24px clamp(16px, 3vw, 32px);
           max-width: 100%;
+          width: 100%;
+          box-sizing: border-box;
           font-family: var(--font-body);
           color: #1E293B;
+          overflow-x: hidden;
         }
         
         /* ── Header ── */
@@ -368,6 +371,9 @@ export default function FindWork() {
           box-shadow: 0 1px 3px rgba(0,0,0,0.02);
           margin-bottom: 24px;
           transition: border-color 0.2s, box-shadow 0.2s;
+          max-width: 100%;
+          width: 100%;
+          box-sizing: border-box;
         }
         .search-bar-wrapper:focus-within {
           border-color: #103461;
@@ -379,6 +385,7 @@ export default function FindWork() {
           margin-right: 10px;
           display: flex;
           align-items: center;
+          flex-shrink: 0;
         }
         .search-input {
           border: none;
@@ -389,6 +396,7 @@ export default function FindWork() {
           outline: none;
           color: #1E293B;
           font-family: var(--font-body);
+          min-width: 0;
         }
         .search-input::placeholder {
           color: #94A3B8;
@@ -402,6 +410,10 @@ export default function FindWork() {
           padding-bottom: 12px;
           margin-bottom: 24px;
           scrollbar-width: none;
+          max-width: 100%;
+          width: 100%;
+          box-sizing: border-box;
+          -webkit-overflow-scrolling: touch;
         }
         .quick-tabs-container::-webkit-scrollbar {
           display: none;
@@ -421,6 +433,7 @@ export default function FindWork() {
           white-space: nowrap;
           transition: all 0.2s ease;
           font-family: var(--font-body);
+          flex-shrink: 0;
         }
         .quick-tab-btn:hover {
           background: #F8FAFC;
@@ -441,9 +454,12 @@ export default function FindWork() {
         /* ── Main Layout ── */
         .layout-grid {
           display: grid;
-          grid-template-columns: 290px 1fr;
+          grid-template-columns: 290px minmax(0, 1fr);
           gap: 32px;
           align-items: start;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
 
         /* ── Sidebar Filters ── */
@@ -453,6 +469,7 @@ export default function FindWork() {
           border-radius: 16px;
           padding: 26px;
           box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+          box-sizing: border-box;
         }
         .filters-title-row {
           display: flex;
@@ -552,6 +569,10 @@ export default function FindWork() {
           display: flex;
           flex-direction: column;
           gap: 16px;
+          min-width: 0;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         
         /* ── Job Card ── */
@@ -566,6 +587,10 @@ export default function FindWork() {
           box-shadow: 0 1px 3px rgba(0,0,0,0.01);
           display: flex;
           flex-direction: column;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          overflow: hidden;
         }
         .job-card:hover {
           border-color: #103461;
@@ -576,6 +601,10 @@ export default function FindWork() {
           display: flex;
           gap: 18px;
           align-items: flex-start;
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
         }
         .job-logo-box {
           width: 54px;
@@ -591,6 +620,8 @@ export default function FindWork() {
         .job-details-mid {
           flex: 1;
           min-width: 0;
+          max-width: 100%;
+          overflow: hidden;
         }
         .job-title-text {
           font-size: 18px;
@@ -600,6 +631,7 @@ export default function FindWork() {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          max-width: 100%;
           font-family: var(--font-body);
         }
         .job-company-text {
@@ -607,6 +639,10 @@ export default function FindWork() {
           color: #64748B;
           margin-bottom: 14px;
           font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100%;
           font-family: var(--font-body);
         }
         .job-meta-row {
@@ -618,11 +654,15 @@ export default function FindWork() {
           color: #475569;
           font-weight: 500;
           font-family: var(--font-body);
+          max-width: 100%;
         }
         .job-meta-item {
           display: flex;
           align-items: center;
           gap: 6px;
+          min-width: 0;
+          max-width: 100%;
+          word-break: break-word;
         }
         .job-meta-item.pay-item {
           color: #0F172A;
@@ -632,6 +672,7 @@ export default function FindWork() {
           color: #006e37;
           display: flex;
           align-items: center;
+          flex-shrink: 0;
         }
         
         /* Actions */
@@ -643,6 +684,7 @@ export default function FindWork() {
           margin-left: 12px;
           align-self: stretch;
           justify-content: space-between;
+          flex-shrink: 0;
         }
         .bookmark-btn {
           background: transparent;
@@ -681,6 +723,8 @@ export default function FindWork() {
           border-radius: 16px;
           text-align: center;
           padding: 48px 24px;
+          box-sizing: border-box;
+          max-width: 100%;
         }
         .no-jobs-icon-wrap {
           margin-bottom: 12px;
@@ -740,7 +784,8 @@ export default function FindWork() {
         /* ── Responsive ── */
         @media (max-width: 900px) {
           .layout-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 20px;
           }
           .filters-panel {
             display: none; /* Hide standard filters panel on mobile */
@@ -762,6 +807,87 @@ export default function FindWork() {
           }
           .mobile-filter-fab {
             display: flex;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .findwork-container {
+            padding: 16px 12px;
+          }
+          .jobs-count-title {
+            font-size: 24px;
+            margin-bottom: 4px;
+          }
+          .jobs-subtitle {
+            font-size: 13px;
+            margin-bottom: 16px;
+          }
+          .search-bar-wrapper {
+            margin-bottom: 16px;
+            padding: 2px 6px;
+          }
+          .search-input {
+            font-size: 14px;
+            padding: 10px 4px;
+          }
+          .quick-tabs-container {
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+          }
+          .quick-tab-btn {
+            padding: 8px 14px;
+            font-size: 13px;
+            gap: 6px;
+          }
+          .job-card {
+            padding: 14px 16px;
+            border-radius: 14px;
+          }
+          .job-card-top {
+            gap: 12px;
+          }
+          .job-logo-box {
+            width: 46px;
+            height: 46px;
+            font-size: 20px;
+            border-radius: 10px;
+          }
+          .job-title-text {
+            font-size: 15px;
+            margin-bottom: 3px;
+          }
+          .job-company-text {
+            font-size: 13px;
+            margin-bottom: 8px;
+          }
+          .job-meta-row {
+            font-size: 12px;
+            column-gap: 12px;
+            row-gap: 4px;
+          }
+          .job-card-actions {
+            margin-left: 6px;
+            gap: 12px;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .findwork-container {
+            padding: 12px 10px;
+          }
+          .job-card {
+            padding: 12px 14px;
+          }
+          .job-logo-box {
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+          }
+          .job-meta-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
           }
         }
 
