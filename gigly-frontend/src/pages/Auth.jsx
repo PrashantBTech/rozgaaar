@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
@@ -6,23 +6,49 @@ import { authAPI } from "../services/api";
 import { useGoogleLogin } from "@react-oauth/google";
 import RozgaaarFullLogo, { RozgaaarMiniLogo, RozgaaarNameLogo } from "../components/RozgaaarLogo";
 
+/* ── Inline SVG Icons (No Emojis) ────────────────────────── */
+const EyeIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+    <line x1="1" y1="1" x2="23" y2="23" />
+  </svg>
+);
+
+const LocationPinIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
+
 // ── Shared auth card wrapper ──────────────────────────────────────────────────
-function AuthCard({ title, subtitle, children }) {
+function AuthCard({ title, subtitle, notice, children }) {
   return (
     <div style={{
       minHeight:"100vh", background:"var(--bg-base)",
       display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
       padding:"clamp(16px, 4vw, 24px)", position:"relative", overflow: "hidden"
     }}>
-      {/* Background Watermark */}
-      <div style={{ 
-        position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", 
-        fontSize: "clamp(120px, 25vw, 400px)", fontWeight: 900, color: "rgba(0,0,0,0.015)", 
-        pointerEvents: "none", zIndex: 0, whiteSpace: "nowrap", fontFamily: "var(--font-display)" 
-      }}>
-        ROZGAAAR
-      </div>
-
       <Link
         to="/"
         className="auth-back-link"
@@ -39,14 +65,31 @@ function AuthCard({ title, subtitle, children }) {
 
       <div style={{ width:"100%", maxWidth:480, position:"relative", zIndex: 1 }}>
         <div style={{ textAlign:"center", marginBottom:40 }}>
-          <Link to="/" style={{ textDecoration:"none", display: "inline-flex", alignItems: "center", gap: 14, justifyContent: "center" }}>
-            <RozgaaarMiniLogo size={80} textColor="var(--text-primary)" />
-            <RozgaaarNameLogo height={60} textColor="var(--text-primary)" />
+          <Link to="/" style={{ textDecoration:"none", display: "inline-flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
+            <RozgaaarMiniLogo size={50} textColor="var(--text-primary)" />
+            <RozgaaarNameLogo height={40} textColor="var(--text-primary)" />
           </Link>
           <p style={{ 
             color:"var(--text-secondary)", fontSize:15, marginTop: 16,
             fontFamily: "'DM Sans', sans-serif", fontWeight: 500
           }}>{subtitle}</p>
+
+          {notice && (
+            <p style={{ 
+              color: "#dc2626", 
+              fontSize: "13px", 
+              fontWeight: "600", 
+              marginTop: "10px",
+              padding: "6px 14px",
+              backgroundColor: "rgba(220, 38, 38, 0.08)",
+              border: "1px solid rgba(220, 38, 38, 0.2)",
+              borderRadius: "8px",
+              display: "inline-block",
+              lineHeight: "1.4"
+            }}>
+              {notice}
+            </p>
+          )}
         </div>
         <div className="card" style={{ padding: "clamp(24px, 8vw, 40px)", border: "1px solid rgba(0,0,0,0.05)" }}>
           {children}
@@ -70,7 +113,7 @@ export function Login() {
     setLoading(true);
     try {
       const user = await googleLogin(tokenResponse.access_token, "worker"); // defaulting to worker on login
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}! ⚡`);
+      toast.success(`Welcome back, ${user.name.split(" ")[0]}!`);
       navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Google Login failed");
@@ -94,7 +137,7 @@ export function Login() {
     setLoading(true);
     try {
       const user = await login(form.email, form.password);
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}! ⚡`);
+      toast.success(`Welcome back, ${user.name.split(" ")[0]}!`);
       navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Invalid credentials");
@@ -176,12 +219,26 @@ export function Login() {
             <label className="input-label">Password</label>
             <span onClick={() => setForgotMode("email")} style={{ fontSize:11, color:"var(--accent)", cursor:"pointer" }}>Forgot password?</span>
           </div>
-          <div className="input-icon-wrap" style={{ position: "relative" }}>
+          <div className="input-icon-wrap" style={{ position: "relative", display: "flex", alignItems: "center" }}>
             <input className="input" type={showPassword ? "text" : "password"} placeholder="••••••••"
-              value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required />
-            <span onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 16 }}>
-              {showPassword ? "👁️‍🗨️" : "👁️"}
-            </span>
+              value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required style={{ paddingRight: "40px" }} />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 12,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
           </div>
         </div>
         <label style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:13, color:"var(--text-secondary)" }}>
@@ -215,6 +272,22 @@ export function Register() {
   const [searchParams] = useSearchParams();
   const initRole = searchParams.get("role") || "worker";
   const redirectTarget = searchParams.get("redirect") || "/dashboard";
+  const reasonParam = searchParams.get("reason");
+  const [noticeMsg, setNoticeMsg] = useState(
+    reasonParam === "business_required"
+      ? "Only business accounts can hire talent. Please create a business account."
+      : null
+  );
+
+  useEffect(() => {
+    if (noticeMsg) {
+      const timer = setTimeout(() => {
+        setNoticeMsg(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [noticeMsg]);
+
   const [form, setForm] = useState({ name:"", email:"", phone:"", password:"", role:initRole, businessName:"", city:"" });
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -228,7 +301,7 @@ export function Register() {
     setLoading(true);
     try {
       await googleLogin(tokenResponse.access_token, form.role);
-      toast.success("Logged in with Google! ⚡");
+      toast.success("Logged in with Google!");
       navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Google Login failed");
@@ -262,7 +335,7 @@ export function Register() {
     setLoading(true);
     try {
       await authAPI.verifyEmail(otp);
-      toast.success("Email verified! Welcome to Rozgaaar ⚡");
+      toast.success("Email verified! Welcome to Rozgaaar");
       navigate(redirectTarget);
     } catch (err) {
       toast.error(err.response?.data?.message || "Invalid OTP");
@@ -287,10 +360,10 @@ export function Register() {
   }
 
   return (
-    <AuthCard title="Create Account" subtitle="Join the fastest growing local gig community.">
+    <AuthCard title="Create Account" subtitle="Join the fastest growing local gig community." notice={noticeMsg}>
       {/* Role toggle */}
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:20 }}>
-        {[{ v:"worker", l:"👷 Worker" }, { v:"business", l:"🏪 Business" }].map(r => (
+        {[{ v:"worker", l:"Worker" }, { v:"business", l:"Business" }].map(r => (
           <button key={r.v} type="button"
             className={`btn btn-sm ${form.role===r.v ? "btn-primary" : "btn-secondary"}`}
             onClick={() => setForm({...form,role:r.v})}>
@@ -312,32 +385,46 @@ export function Register() {
         )}
         <div className="input-group">
           <label className="input-label">City</label>
-          <div className="input-icon-wrap">
-            <span className="input-icon" style={{ fontSize:13 }}>📍</span>
-            <input className="input" placeholder="New Delhi" value={form.city} onChange={upd("city")} />
+          <div className="input-icon-wrap" style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <span className="input-icon" style={{ position: "absolute", left: 12, display: "flex", alignItems: "center" }}><LocationPinIcon /></span>
+            <input className="input" placeholder="New Delhi" value={form.city} onChange={upd("city")} style={{ paddingLeft: "36px" }} />
           </div>
         </div>
         <div className="input-group">
           <label className="input-label">Email Address</label>
-          <div className="input-icon-wrap">
-            <span className="input-icon" style={{ fontSize:13 }}>✉️</span>
-            <input className="input" type="email" placeholder="alex@example.com" value={form.email} onChange={upd("email")} required />
+          <div className="input-icon-wrap" style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <span className="input-icon" style={{ position: "absolute", left: 12, display: "flex", alignItems: "center" }}><MailIcon /></span>
+            <input className="input" type="email" placeholder="alex@example.com" value={form.email} onChange={upd("email")} required style={{ paddingLeft: "36px" }} />
           </div>
         </div>
         <div className="input-group">
           <label className="input-label">Phone Number</label>
-          <div className="input-icon-wrap">
-            <span className="input-icon" style={{ fontSize:13 }}>📱</span>
-            <input className="input" type="tel" placeholder="+91 9876543210" value={form.phone} onChange={upd("phone")} />
+          <div className="input-icon-wrap" style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <span className="input-icon" style={{ position: "absolute", left: 12, display: "flex", alignItems: "center" }}><PhoneIcon /></span>
+            <input className="input" type="tel" placeholder="+91 9876543210" value={form.phone} onChange={upd("phone")} style={{ paddingLeft: "36px" }} />
           </div>
         </div>
         <div className="input-group">
           <label className="input-label">Password</label>
-          <div className="input-icon-wrap" style={{ position: "relative" }}>
-            <input className="input" type={showPassword ? "text" : "password"} placeholder="Min 8 characters" value={form.password} onChange={upd("password")} required minLength={8} />
-            <span onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", cursor: "pointer", fontSize: 16 }}>
-              {showPassword ? "👁️‍🗨️" : "👁️"}
-            </span>
+          <div className="input-icon-wrap" style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <input className="input" type={showPassword ? "text" : "password"} placeholder="Min 8 characters" value={form.password} onChange={upd("password")} required minLength={8} style={{ paddingRight: "40px" }} />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 12,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
           </div>
         </div>
         <label style={{ display:"flex", alignItems:"flex-start", gap:8, cursor:"pointer", fontSize:13, color:"var(--text-secondary)" }}>

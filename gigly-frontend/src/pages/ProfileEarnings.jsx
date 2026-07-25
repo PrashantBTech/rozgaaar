@@ -1,5 +1,6 @@
 // ── Profile Page ──────────────────────────────────────────────────────────────
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { usersAPI, reviewsAPI } from "../services/api";
@@ -63,6 +64,14 @@ const EditIcon = () => (
   </svg>
 );
 
+const LogoutIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+
 // ── Edit Profile Modal Component (Fixed Viewport Framing & Scrollable Body) ──
 function EditProfileModal({ form, setForm, save, saving, onClose, isBusiness }) {
   const [skillInput, setSkillInput] = useState("");
@@ -102,7 +111,7 @@ function EditProfileModal({ form, setForm, save, saving, onClose, isBusiness }) 
 
   const removeEducation = (i) => setForm(f => ({ ...f, education: (f.education || []).filter((_, idx) => idx !== i) }));
 
-  return (
+  return ReactDOM.createPortal(
     <div 
       style={{
         position: "fixed",
@@ -110,38 +119,39 @@ function EditProfileModal({ form, setForm, save, saving, onClose, isBusiness }) 
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(15, 23, 42, 0.6)",
-        backdropFilter: "blur(4px)",
-        zIndex: 99999,
+        background: "rgba(15, 23, 42, 0.65)",
+        backdropFilter: "blur(6px)",
+        zIndex: 999999,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 16
+        padding: "24px 16px"
       }}
       onClick={onClose}
     >
       <div 
         style={{
           width: "100%",
-          maxWidth: 540,
-          maxHeight: "88vh",
+          maxWidth: 520,
+          maxHeight: "calc(100vh - 80px)",
+          margin: "auto",
           display: "flex",
           flexDirection: "column",
           background: "#FFFFFF",
           borderRadius: 20,
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          boxShadow: "0 25px 50px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05)",
           overflow: "hidden"
         }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ padding: "18px 24px", borderBottom: "1px solid #E2E8F0", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", margin: 0 }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid #E2E8F0", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+          <h2 style={{ fontSize: 19, fontWeight: 800, color: "#0F172A", margin: 0 }}>
             {isBusiness ? "Edit Business Details" : "Edit Profile Details"}
           </h2>
           <button 
             type="button" 
-            style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#64748B", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }} 
+            style={{ background: "#F1F5F9", border: "none", fontSize: 16, cursor: "pointer", color: "#64748B", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", transition: "background 0.2s" }} 
             onClick={onClose}
           >
             ✕
@@ -203,18 +213,19 @@ function EditProfileModal({ form, setForm, save, saving, onClose, isBusiness }) 
           </div>
 
           {/* Footer */}
-          <div style={{ padding: "14px 24px", borderTop: "1px solid #E2E8F0", display: "flex", justifyContent: "flex-end", gap: 12, background: "#F8FAFC", flexShrink: 0 }}>
+          <div style={{ padding: "16px 24px", borderTop: "1px solid #E2E8F0", display: "flex", justifyContent: "flex-end", gap: 12, background: "#F8FAFC", flexShrink: 0 }}>
             <button type="button" className="btn btn-secondary btn-sm" onClick={onClose} disabled={saving}>Cancel</button>
             <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>{saving ? "Saving…" : "Save Changes"}</button>
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
 // ── Worker Profile View (Matching Image 1 Screenshot & Full Responsive Spacing) ──
-function WorkerProfileView({ user, form, setForm, save, saving, reviews }) {
+function WorkerProfileView({ user, form, setForm, save, saving, reviews, onLogout }) {
   const [isEditing, setIsEditing] = useState(false);
   const initials = user.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
@@ -226,13 +237,22 @@ function WorkerProfileView({ user, form, setForm, save, saving, reviews }) {
           <h1 style={{ fontSize: 28, fontWeight: 800, color: "#0F172A", margin: 0 }}>My Profile</h1>
           <p style={{ color: "var(--text-secondary)", fontSize: 14, margin: "4px 0 0 0" }}>Manage your personal details and reputation</p>
         </div>
-        <button 
-          className="btn btn-ghost btn-sm" 
-          style={{ border: "1px solid #CBD5E1", background: "#FFFFFF", fontWeight: 700, fontSize: 13, color: "#0F172A", display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8 }}
-          onClick={() => setIsEditing(true)}
-        >
-          <EditIcon /> Edit Profile
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <button 
+            className="btn btn-ghost btn-sm" 
+            style={{ border: "1px solid #CBD5E1", background: "#FFFFFF", fontWeight: 700, fontSize: 13, color: "#0F172A", display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8 }}
+            onClick={() => setIsEditing(true)}
+          >
+            <EditIcon /> Edit Profile
+          </button>
+          <button 
+            className="btn btn-ghost btn-sm" 
+            style={{ border: "1px solid #FCA5A5", background: "#FEF2F2", fontWeight: 700, fontSize: 13, color: "#DC2626", display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, cursor: "pointer", transition: "all 0.2s" }}
+            onClick={onLogout}
+          >
+            <LogoutIcon /> Logout
+          </button>
+        </div>
       </div>
 
       {/* 1. Top Profile Card */}
@@ -430,7 +450,7 @@ function WorkerProfileView({ user, form, setForm, save, saving, reviews }) {
 }
 
 // ── Business Profile View (Clean Employer Dashboard & Company Details) ──
-function BusinessProfileView({ user, form, setForm, save, saving, reviews }) {
+function BusinessProfileView({ user, form, setForm, save, saving, reviews, onLogout }) {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
@@ -449,13 +469,22 @@ function BusinessProfileView({ user, form, setForm, save, saving, reviews }) {
           </p>
         </div>
 
-        <button 
-          className="btn btn-ghost btn-sm" 
-          style={{ border: "1px solid #CBD5E1", background: "#FFFFFF", fontWeight: 700, fontSize: 13, color: "#0F172A", display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8 }}
-          onClick={() => setIsEditing(true)}
-        >
-          <EditIcon /> Edit Profile
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <button 
+            className="btn btn-ghost btn-sm" 
+            style={{ border: "1px solid #CBD5E1", background: "#FFFFFF", fontWeight: 700, fontSize: 13, color: "#0F172A", display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8 }}
+            onClick={() => setIsEditing(true)}
+          >
+            <EditIcon /> Edit Profile
+          </button>
+          <button 
+            className="btn btn-ghost btn-sm" 
+            style={{ border: "1px solid #FCA5A5", background: "#FEF2F2", fontWeight: 700, fontSize: 13, color: "#DC2626", display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, cursor: "pointer", transition: "all 0.2s" }}
+            onClick={onLogout}
+          >
+            <LogoutIcon /> Logout
+          </button>
+        </div>
       </div>
 
       {/* Main Business Banner */}
@@ -578,10 +607,16 @@ function BusinessProfileView({ user, form, setForm, save, saving, reviews }) {
 
 // ── Main Profile Component Export ────────────────────────────────────────────
 export function Profile() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", bio: "", phone: "", city: "", skills: [], education: [] });
   const [reviews, setReviews] = useState([]);
   const [saving, setSaving] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   useEffect(() => {
     if (user) {
@@ -615,9 +650,9 @@ export function Profile() {
   if (!user) return null;
 
   return user.role === "business" ? (
-    <BusinessProfileView user={user} form={form} setForm={setForm} save={save} saving={saving} reviews={reviews} />
+    <BusinessProfileView user={user} form={form} setForm={setForm} save={save} saving={saving} reviews={reviews} onLogout={handleLogout} />
   ) : (
-    <WorkerProfileView user={user} form={form} setForm={setForm} save={save} saving={saving} reviews={reviews} />
+    <WorkerProfileView user={user} form={form} setForm={setForm} save={save} saving={saving} reviews={reviews} onLogout={handleLogout} />
   );
 }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { RozgaaarMiniLogo, RozgaaarNameLogo } from "./RozgaaarLogo";
@@ -132,10 +132,10 @@ export default function Sidebar({ open, onClose }) {
         {/* Logo */}
         <div style={{ padding:"20px 16px 16px", borderBottom:"1px solid var(--border)" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-            <div style={{ display:"inline-flex", alignItems:"center", gap:10 }}>
-              <RozgaaarMiniLogo size={52} textColor="var(--text-primary)" />
-              <RozgaaarNameLogo height={38} textColor="var(--text-primary)" />
-            </div>
+            <Link to="/" onClick={onClose} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <RozgaaarMiniLogo size={36} textColor="var(--text-primary)" />
+              <RozgaaarNameLogo height={26} textColor="var(--text-primary)" />
+            </Link>
             <div style={{ width:6, height:6, borderRadius:"50%",
               background: isConnected ? "var(--success)" : "var(--text-muted)",
               boxShadow: isConnected ? "0 0 10px rgba(0,110,55,0.4)" : "none"

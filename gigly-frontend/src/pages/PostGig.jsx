@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jobsAPI } from "../services/api";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const CATEGORIES = [
   { v:"cafe_staff",l:"☕ Cafe Staff"}, { v:"kitchen_help",l:"🍳 Kitchen Help"},
@@ -16,6 +17,15 @@ const PAYMENT_MODES = [
 
 export default function PostGig() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/register?role=business&redirect=/post-gig&reason=business_required");
+    } else if (user.role === "worker") {
+      navigate("/register?role=business&reason=business_required");
+    }
+  }, [user, navigate]);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({

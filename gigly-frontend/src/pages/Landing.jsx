@@ -1,910 +1,739 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import RozgaaarLogo, { RozgaaarMiniLogo, RozgaaarNameLogo } from "../components/RozgaaarLogo";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import RozgaaarFullLogo from "../components/RozgaaarLogo";
+import toast from "react-hot-toast";
 
-gsap.registerPlugin(ScrollTrigger);
+/* ── Inline SVG Icons (No Emojis) ────────────────────────── */
+const StoreIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
 
-/* ── Data ──────────────────────────────────────────────── */
-const STATS = [
-  { value: "50K+", label: "Workers Registered" },
-  { value: "120K+", label: "Gigs Completed" },
-  { value: "< 5m", label: "Avg. Response Time" },
-  { value: "4.9★", label: "App Store Rating" },
-];
+const CalendarIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
 
-const STEPS = [
-  { num: "01", title: "Post a Gig", desc: "Describe the task, set your price, and post it to the local feed. Takes less than 2 minutes." },
-  { num: "02", title: "Apply Instantly", desc: "Workers browse nearby gigs and apply with one tap. No lengthy cover letters required." },
-  { num: "03", title: "Get It Done", desc: "Work gets completed, secure payment releases automatically, and everyone leaves a review." },
-];
+const LocationIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
 
-const CATEGORIES = ["Delivery", "Cleaning", "Moving", "Pet Care", "Cafe Staff", "Event Crew", "Warehouse", "Data Entry", "Photography", "Security"];
+const ArrowRightIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
 
-const TRUST = [
-  { num: "1.", title: "ID Verification", desc: "Government ID checks for all users on the platform." },
-  { num: "2.", title: "Secure Escrow", desc: "Money is held safely until the job is verified complete." },
-  { num: "3.", title: "AI Spam Guard", desc: "AI detection prevents fake listings and bad actors." },
-  { num: "4.", title: "Real Reviews", desc: "Reviews only from verified, completed gigs. Always." },
-];
+const MenuIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
 
-const FAQS = [
-  { q: "How fast do I receive payout?", a: "Funds are released from secure escrow the moment the business verifies gig completion. Transfers usually take < 24 hours." },
-  { q: "Is a formal resume required?", a: "No. Rozgaaar operates on skill-tags, verified reviews, and a centralized identity check. No cover letters needed." },
-  { q: "What happens on a no-show?", a: "Workers who drop a shift without notice face trust-score penalties, and businesses receive instant re-routing options." },
-];
+const CloseIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
 
-/* ── Marquee Component ──────────────────────────────────── */
-function Marquee({ items, speed = 30, reverse = false }) {
-  return (
-    <div style={{ overflow: "hidden", whiteSpace: "nowrap", borderTop: "1px solid rgba(26,26,26,0.12)", borderBottom: "1px solid rgba(26,26,26,0.12)", padding: "18px 0" }}>
-      <div style={{
-        display: "inline-flex", gap: 0,
-        animation: `marquee${reverse ? "Rev" : ""} ${speed}s linear infinite`,
-      }}>
-        {[...items, ...items, ...items, ...items].map((item, i) => (
-          <span key={i} style={{
-            fontFamily: "'Syne', sans-serif",
-            fontWeight: 800,
-            fontSize: "clamp(13px, 1.4vw, 16px)",
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "rgba(26,26,26,0.4)",
-            padding: "0 32px",
-          }}>
-            {item} <span style={{ color: "#D4A853", marginLeft: 4 }}>✦</span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
+const CheckCircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
 
-/* ── Main Component ─────────────────────────────────────── */
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const mainRef = useRef(null);
-  const navRef = useRef(null);
-  const [activeFaq, setActiveFaq] = useState(null);
-  const [navScrolled, setNavScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  /* redirect if logged in */
-  useEffect(() => {
-    if (user) navigate("/dashboard");
-  }, [user, navigate]);
+  const handleHireTalentClick = (e) => {
+    if (e) e.preventDefault();
+    setMobileMenuOpen(false);
+    if (!user) {
+      navigate("/register?role=business&reason=business_required");
+    } else if (user.role === "worker") {
+      navigate("/register?role=business&reason=business_required");
+    } else {
+      navigate("/post-gig");
+    }
+  };
 
-  /* ── Navbar Scroll ── */
-  useEffect(() => {
-    const onScroll = () => {
-      setNavScrolled(window.scrollY > 60);
-    };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  /* ── GSAP Animations ── */
-  useEffect(() => {
-    let ctx = gsap.context(() => {
-
-      /* Hero text clip reveal */
-      gsap.fromTo(".hero-line", {
-        clipPath: "inset(0 0 100% 0)",
-        y: 40,
-      }, {
-        clipPath: "inset(0 0 0% 0)",
-        y: 0,
-        duration: 1.1,
-        stagger: 0.18,
-        ease: "power3.out",
-        delay: 0.3,
-      });
-
-      gsap.fromTo(".hero-sub", {
-        opacity: 0,
-        y: 20,
-      }, {
-        opacity: 1,
-        y: 0,
-        duration: 0.9,
-        delay: 0.9,
-        ease: "power2.out",
-      });
-
-      gsap.fromTo(".hero-cta", {
-        opacity: 0,
-        scale: 0.92,
-      }, {
-        opacity: 1,
-        scale: 1,
-        duration: 0.7,
-        delay: 1.1,
-        ease: "back.out(1.5)",
-      });
-
-      /* Stats reveal */
-      gsap.from(".stat-item", {
-        scrollTrigger: { trigger: ".stats-row", start: "top 82%" },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.12,
-        ease: "power3.out",
-      });
-
-      /* Steps clip reveal */
-      gsap.from(".step-block", {
-        scrollTrigger: { trigger: ".steps-section", start: "top 78%" },
-        clipPath: "inset(0 0 100% 0)",
-        y: 30,
-        duration: 0.9,
-        stagger: 0.2,
-        ease: "power3.out",
-      });
-
-      /* Trust items */
-      gsap.from(".trust-row", {
-        scrollTrigger: { trigger: ".trust-section", start: "top 80%" },
-        x: -40,
-        opacity: 0,
-        duration: 0.7,
-        stagger: 0.1,
-        ease: "power2.out",
-      });
-
-      /* FAQ */
-      gsap.from(".faq-row", {
-        scrollTrigger: { trigger: ".faq-section", start: "top 80%" },
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
-      });
-
-      /* Section headings */
-      gsap.utils.toArray(".section-heading").forEach(el => {
-        gsap.from(el, {
-          scrollTrigger: { trigger: el, start: "top 85%" },
-          clipPath: "inset(0 0 100% 0)",
-          y: 20,
-          duration: 0.9,
-          ease: "power3.out",
-        });
-      });
-
-      /* Parallax hero bg text */
-      gsap.to(".hero-bg-text", {
-        scrollTrigger: {
-          trigger: ".hero-section",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-        y: -120,
-        opacity: 0.02,
-      });
-
-    }, mainRef);
-
-    return () => ctx.revert();
-  }, []);
+  const heroBgUrl =
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuBI1StzMoJg_IjKZ9z6UTcgVZPz3SvwpoKW6MMCcpVtof5mWoMrAhiJRy7xg0XFfsqcDSuH_Zi8fBSw1hWNkK7J7MBXKE3GVJpOrHb23FSmjGaWy_dj_lUsme8IDH4odMYVKINMAoVFDcv5lOV9rDjiJlrAM48ADwAosM2px5aOSMNjLXqiwqUasl9D4X-ES82ZJ58RM84Ijdj3zTylbSOgWhmQYdAV6B8wDxglnENVuTgXPV1wexwi2SmPr54bHl-RfcrtVyHslqfU";
 
   return (
-    <div ref={mainRef} style={{ background: "#F8FAFC", minHeight: "100vh", color: "#0F172A", overflow: "hidden", position: "relative" }}>
+    <div style={{ fontFamily: "'Inter', 'DM Sans', -apple-system, sans-serif", color: "#0f172a", backgroundColor: "#ffffff", overflowX: "hidden" }}>
 
-      {/* ── Keyframes injection ── */}
+      {/* ── 1. NAVBAR ───────────────────────────────────────── */}
+      <header
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(226, 232, 240, 0.8)",
+          padding: "16px 24px",
+        }}
+      >
+        <div style={{ maxWidth: "1280px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+          {/* Logo */}
+          <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}>
+            <RozgaaarFullLogo height={40} />
+          </Link>
+
+          {/* Desktop Nav Links */}
+          <nav className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+            <Link to="/find-work" style={{ textDecoration: "none", color: "#334155", fontWeight: "600", fontSize: "14px", transition: "color 0.2s" }}>
+              Find Work
+            </Link>
+            <a href="/post-gig" onClick={handleHireTalentClick} style={{ textDecoration: "none", color: "#334155", fontWeight: "600", fontSize: "14px", transition: "color 0.2s" }}>
+              Hire Talent
+            </a>
+            <a href="#how-it-works" style={{ textDecoration: "none", color: "#334155", fontWeight: "600", fontSize: "14px", transition: "color 0.2s" }}>
+              How it Works
+            </a>
+            <a href="#why-rozgaaar" style={{ textDecoration: "none", color: "#334155", fontWeight: "600", fontSize: "14px", transition: "color 0.2s" }}>
+              Categories
+            </a>
+          </nav>
+
+          {/* Desktop CTA Buttons */}
+          <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            {user ? (
+              <button
+                onClick={() => navigate("/dashboard")}
+                style={{
+                  backgroundColor: "#0b1e36",
+                  color: "#ffffff",
+                  padding: "10px 20px",
+                  borderRadius: "8px",
+                  fontWeight: "700",
+                  fontSize: "14px",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                Dashboard
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  style={{
+                    textDecoration: "none",
+                    color: "#0f172a",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    padding: "8px 16px",
+                  }}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  style={{
+                    textDecoration: "none",
+                    backgroundColor: "#0b1e36",
+                    color: "#ffffff",
+                    padding: "10px 20px",
+                    borderRadius: "8px",
+                    fontWeight: "700",
+                    fontSize: "14px",
+                    transition: "background-color 0.2s",
+                  }}
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Hamburger Toggle */}
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{
+              display: "none",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px",
+            }}
+          >
+            {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
+        </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div
+            style={{
+              padding: "20px 0",
+              borderTop: "1px solid #f1f5f9",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+              marginTop: "12px",
+            }}
+          >
+            <Link to="/find-work" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>
+              Find Work
+            </Link>
+            <a href="/post-gig" onClick={handleHireTalentClick} style={{ textDecoration: "none", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>
+              Hire Talent
+            </a>
+            <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>
+              How it Works
+            </a>
+            <a href="#why-rozgaaar" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>
+              Categories
+            </a>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", paddingTop: "10px", borderTop: "1px solid #f1f5f9" }}>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none", color: "#0f172a", fontWeight: "600", textAlign: "center", padding: "10px" }}>
+                Login
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  textDecoration: "none",
+                  backgroundColor: "#0b1e36",
+                  color: "#ffffff",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  fontWeight: "700",
+                  textAlign: "center",
+                }}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* ── 2. HERO SECTION ───────────────────────────────────── */}
+      <section
+        style={{
+          position: "relative",
+          backgroundImage: `url("${heroBgUrl}")`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          backgroundRepeat: "repeat",
+          padding: "160px 24px 220px 24px",
+          minHeight: "75vh",
+          textAlign: "center",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {/* Light Overlay Mask to ensure strong text legibility */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "rgba(255, 255, 255, 0.88)",
+            backdropFilter: "blur(2px)",
+            zIndex: 1,
+          }}
+        />
+
+        <div style={{ position: "relative", zIndex: 2, maxWidth: "860px", margin: "0 auto" }}>
+          <h1
+            style={{
+              fontSize: "clamp(32px, 5vw, 56px)",
+              fontWeight: "900",
+              color: "#0b1e36",
+              lineHeight: 1.15,
+              letterSpacing: "-0.02em",
+              marginBottom: "24px",
+            }}
+          >
+            Find reliable local staff and helpers for your business.
+          </h1>
+
+          <p
+            style={{
+              fontSize: "clamp(15px, 2vw, 18px)",
+              color: "#475569",
+              lineHeight: 1.6,
+              maxWidth: "680px",
+              margin: "0 auto 36px auto",
+              fontWeight: "400",
+            }}
+          >
+            Get part-time and full-time support from verified workers in your neighborhood. The premier marketplace connecting businesses with reliable local staff. Fast, secure, and efficient.
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
+            <button
+              onClick={handleHireTalentClick}
+              style={{
+                backgroundColor: "#152e4d",
+                color: "#ffffff",
+                padding: "14px 32px",
+                borderRadius: "8px",
+                fontWeight: "700",
+                fontSize: "15px",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                boxShadow: "0 4px 14px rgba(21, 46, 77, 0.25)",
+                transition: "all 0.2s ease",
+              }}
+            >
+              Hire Talent <ArrowRightIcon />
+            </button>
+
+            <button
+              onClick={() => navigate("/find-work")}
+              style={{
+                backgroundColor: "#ffffff",
+                color: "#0f172a",
+                padding: "14px 32px",
+                borderRadius: "8px",
+                fontWeight: "700",
+                fontSize: "15px",
+                border: "1px solid #cbd5e1",
+                cursor: "pointer",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.04)",
+                transition: "all 0.2s ease",
+              }}
+            >
+              Find Work
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. WHY ROZGAAAR ───────────────────────────────────── */}
+      <section id="why-rozgaaar" style={{ padding: "100px 24px", backgroundColor: "#ffffff" }}>
+        <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
+
+          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+            <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: "800", color: "#0b1e36", marginBottom: "12px" }}>
+              Why Rozgaaar
+            </h2>
+            <p style={{ fontSize: "16px", color: "#64748b" }}>
+              Built for reliability, speed, and trust.
+            </p>
+          </div>
+
+          <div className="grid-3-col" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "32px" }}>
+
+            {/* Card 1 */}
+            <div className="why-card">
+              <div className="why-icon-box">
+                <StoreIcon />
+              </div>
+              <h3 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", marginBottom: "12px" }}>
+                Local Staffing
+              </h3>
+              <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.6 }}>
+                Hire cleaners, retail staff, delivery drivers, and more from a pool of vetted local professionals ready to support your business.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="why-card">
+              <div className="why-icon-box">
+                <CalendarIcon />
+              </div>
+              <h3 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", marginBottom: "12px" }}>
+                Flexible Hiring
+              </h3>
+              <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.6 }}>
+                Choose between part-time shifts or full-time roles. Our platform adapts to your business needs with transparent, escrow-protected payments.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="why-card">
+              <div className="why-icon-box">
+                <LocationIcon />
+              </div>
+              <h3 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", marginBottom: "12px" }}>
+                Local Reach
+              </h3>
+              <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.6 }}>
+                Connect with workers in your exact zip code. Our intelligent matching ensures your help is just around the corner, reducing commute times and delays.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. FEATURE SHOWCASE (USER PROVIDED IMAGES INTEGRATION) ────────────── */}
+      <section style={{ padding: "80px 24px", backgroundColor: "#f8fafc", borderTop: "1px solid #f1f5f9", borderBottom: "1px solid #f1f5f9" }}>
+        <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
+
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <h2 style={{ fontSize: "clamp(24px, 3.5vw, 36px)", fontWeight: "800", color: "#0b1e36", marginBottom: "10px" }}>
+              Empower Your Business With Local Talent
+            </h2>
+            <p style={{ fontSize: "15px", color: "#64748b" }}>
+              Connecting local merchants, retail stores, and services with verified neighborhood workers.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "32px", alignItems: "stretch" }}>
+
+            {/* Feature Image 1: Local Market */}
+            <div className="feature-card">
+              <div className="feature-img-box" style={{ backgroundColor: "#fff7ed" }}>
+                <img
+                  src="/images/local-market.png"
+                  alt="Local Market Illustration"
+                />
+              </div>
+              <div style={{ padding: "28px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                  <CheckCircleIcon />
+                  <span style={{ fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#16a34a" }}>Local Merchants</span>
+                </div>
+                <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a", marginBottom: "8px" }}>
+                  Support for Storefronts & Markets
+                </h3>
+                <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.5 }}>
+                  Easily hire part-time store helpers, cashiers, stockers, and neighborhood delivery runners during peak demand hours.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature Image 2: Team Cheering */}
+            <div className="feature-card">
+              <div className="feature-img-box" style={{ backgroundColor: "#f0fdf4" }}>
+                <img
+                  src="/images/team-cheering.png"
+                  alt="Team Cheering Illustration"
+                />
+              </div>
+              <div style={{ padding: "28px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                  <CheckCircleIcon />
+                  <span style={{ fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "#16a34a" }}>Verified Staff</span>
+                </div>
+                <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a", marginBottom: "8px" }}>
+                  Reliable & Motivated Workforce
+                </h3>
+                <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.5 }}>
+                  Join thousands of happy teams who rely on Rozgaaar for fast hiring, instant payouts, and clear ratings.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. HOW IT WORKS ───────────────────────────────────── */}
+      <section id="how-it-works" style={{ padding: "100px 24px", backgroundColor: "#f8fafc" }}>
+        <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
+
+          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+            <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: "800", color: "#0b1e36", marginBottom: "12px" }}>
+              How it Works
+            </h2>
+            <p style={{ fontSize: "16px", color: "#64748b" }}>
+              Simple steps to get your work done efficiently.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "32px" }}>
+
+            {/* Step 1 */}
+            <div className="step-card">
+              <div className="step-badge">
+                1
+              </div>
+              <h3 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", marginBottom: "12px" }}>
+                Post a Job
+              </h3>
+              <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.6 }}>
+                Describe your needs and budget in minutes. Our platform makes it easy to specify exactly what you're looking for.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="step-card">
+              <div className="step-badge">
+                2
+              </div>
+              <h3 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", marginBottom: "12px" }}>
+                Review Matches
+              </h3>
+              <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.6 }}>
+                Get instant proposals from vetted local talent. Compare profiles, ratings, and previous work history.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="step-card">
+              <div className="step-badge">
+                3
+              </div>
+              <h3 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", marginBottom: "12px" }}>
+                Hire & Manage
+              </h3>
+              <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.6 }}>
+                Approve work and pay securely through our platform. Manage schedules and communication all in one place.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. FOOTER ─────────────────────────────────────────── */}
+      <footer style={{ backgroundColor: "#0b1e36", color: "#ffffff", padding: "80px 24px 32px 24px" }}>
+        <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: "48px",
+              paddingBottom: "60px",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            {/* Brand Column */}
+            <div style={{ gridColumn: "span 1" }}>
+              <div style={{ marginBottom: "16px" }}>
+                <RozgaaarFullLogo height={48} textColor="#FFFFFF" />
+              </div>
+              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.6, maxWidth: "280px" }}>
+                The professional marketplace for reliable help and top-tier talent.
+              </p>
+            </div>
+
+            {/* Platform Links */}
+            <div>
+              <h4 style={{ fontSize: "14px", fontWeight: "700", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "20px" }}>
+                Platform
+              </h4>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
+                <li>
+                  <Link to="/find-work" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px", transition: "color 0.2s" }}>
+                    Find Work
+                  </Link>
+                </li>
+                <li>
+                  <a href="/post-gig" onClick={handleHireTalentClick} style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px", transition: "color 0.2s" }}>
+                    Hire Talent
+                  </a>
+                </li>
+                <li>
+                  <a href="#how-it-works" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px", transition: "color 0.2s" }}>
+                    How It Works
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Company Links */}
+            <div>
+              <h4 style={{ fontSize: "14px", fontWeight: "700", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "20px" }}>
+                Company
+              </h4>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
+                <li>
+                  <a href="#why-rozgaaar" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px" }}>
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#why-rozgaaar" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px" }}>
+                    Press Kit
+                  </a>
+                </li>
+                <li>
+                  <a href="#why-rozgaaar" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px" }}>
+                    Contact Support
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <h4 style={{ fontSize: "14px", fontWeight: "700", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "20px" }}>
+                Legal & Safety
+              </h4>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
+                <li>
+                  <a href="#why-rozgaaar" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px" }}>
+                    Safety Guide
+                  </a>
+                </li>
+                <li>
+                  <a href="#why-rozgaaar" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px" }}>
+                    Terms of Service
+                  </a>
+                </li>
+                <li>
+                  <a href="#why-rozgaaar" style={{ textDecoration: "none", color: "#94a3b8", fontSize: "14px" }}>
+                    Privacy Policy
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+          {/* Copyright Bottom Bar */}
+          <div style={{ paddingTop: "32px", textAlign: "center", fontSize: "13px", color: "#64748b" }}>
+            <p>© 2024 Rozgaaar. All rights reserved. Professional Marketplace.</p>
+          </div>
+
+        </div>
+      </footer>
+
+      {/* ── CSS Responsive Helper & Hover Effect Styles ── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Playfair+Display:ital,wght@1,400;1,700&display=swap');
+        .why-card {
+          background-color: #ffffff;
+          border-radius: 16px;
+          padding: 40px 32px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 4px 12px rgba(11, 30, 54, 0.03);
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          cursor: pointer;
+        }
 
-        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @keyframes marqueeRev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-        @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
-        @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
-        @keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .why-card:hover {
+          transform: translateY(-8px);
+          background-color: #ffffff;
+          border-color: rgba(37, 99, 235, 0.3);
+          box-shadow: 0 20px 40px -10px rgba(11, 30, 54, 0.12), 0 0 0 1px rgba(37, 99, 235, 0.2);
+        }
 
-        .pill-nav {
-          position: fixed;
-          top: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 1000;
+        .why-icon-box {
+          width: 52px;
+          height: 52px;
+          border-radius: 12px;
+          background-color: #eff6ff;
+          color: #2563eb;
           display: flex;
           align-items: center;
-          gap: clamp(16px, 2.5vw, 32px);
-          background: #103461;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 100px;
-          padding: 10px 24px;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 12px 40px rgba(16,52,97,0.3);
-          width: max-content;
-          max-width: calc(100vw - 32px);
-        }
-        .pill-nav.scrolled {
-          background: rgba(16,52,97,0.96);
-          backdrop-filter: blur(20px);
-          box-shadow: 0 16px 48px rgba(16,52,97,0.4);
-          padding: 8px 20px;
+          justify-content: center;
+          margin-bottom: 24px;
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .nav-logo-img {
-          height: 38px !important;
-          max-height: 38px !important;
-          transition: all 0.3s ease;
-        }
-
-        .nav-links-group {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-
-        .nav-link {
-          color: rgba(255,255,255,0.85);
-          font-size: 13.5px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: color 0.2s;
-          padding: 4px 10px;
-          text-decoration: none;
-          font-family: 'DM Sans', sans-serif;
-          letter-spacing: 0.01em;
-        }
-        .nav-link:hover { color: #ffffff; }
-
-        .nav-link-login {
-          color: rgba(255,255,255,0.85) !important;
-          font-weight: 600 !important;
-        }
-        .nav-link-login:hover {
-          color: #ffffff !important;
-        }
-
-        .btn-pill-white {
-          background: #ffffff;
-          color: #103461;
-          border: none;
-          padding: 8px 20px;
-          border-radius: 100px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 700;
-          font-size: 13px;
-          cursor: pointer;
-          transition: all 0.25s;
-          letter-spacing: 0.01em;
-        }
-        .btn-pill-white:hover {
-          background: #006e37;
+        .why-card:hover .why-icon-box {
+          background-color: #2563eb;
           color: #ffffff;
-          transform: translateY(-1px);
+          transform: scale(1.08) rotate(-3deg);
+          box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
         }
 
-        .btn-pill-dark {
-          background: #103461;
-          color: #ffffff;
-          border: none;
-          padding: 16px 36px;
-          border-radius: 100px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 700;
-          font-size: 15px;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          letter-spacing: 0.01em;
-        }
-        .btn-pill-dark:hover {
-          background: #006e37;
-          color: #ffffff;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0,110,55,0.3);
-        }
-
-        .btn-pill-dark-sm {
-          background: #103461;
-          color: #ffffff;
-          border: none;
-          padding: 12px 28px;
-          border-radius: 100px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 600;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.25s;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .btn-pill-dark-sm:hover {
-          background: #006e37;
-          color: #ffffff;
-        }
-
-        .btn-outline {
-          background: transparent;
-          color: #103461;
-          border: 1.5px solid #103461;
-          padding: 15px 32px;
-          border-radius: 100px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 600;
-          font-size: 15px;
-          cursor: pointer;
-          transition: all 0.25s;
-        }
-        .btn-outline:hover {
-          background: #103461;
-          color: #ffffff;
-        }
-
-        .hero-section {
-          min-height: 100vh;
+        .feature-card {
+          background-color: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          border: 1px solid #e2e8f0;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          padding: 160px 6vw 80px;
-          position: relative;
+          box-shadow: 0 4px 12px rgba(11, 30, 54, 0.03);
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          cursor: pointer;
+        }
+
+        .feature-card:hover {
+          transform: translateY(-8px);
+          border-color: rgba(37, 99, 235, 0.3);
+          box-shadow: 0 20px 40px -10px rgba(11, 30, 54, 0.12), 0 0 0 1px rgba(37, 99, 235, 0.2);
+        }
+
+        .feature-card .feature-img-box {
+          height: 260px;
           overflow: hidden;
-        }
-
-        .serif-italic {
-          font-family: 'Playfair Display', serif;
-          font-style: italic;
-          font-weight: 400;
-        }
-
-        .hero-bg-text {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-family: 'Syne', sans-serif;
-          font-weight: 800;
-          font-size: clamp(160px, 22vw, 340px);
-          color: rgba(16,52,97,0.04);
-          white-space: nowrap;
-          user-select: none;
-          pointer-events: none;
-          letter-spacing: -0.05em;
-          z-index: 0;
-        }
-
-        .hero-line {
-          display: block;
-          overflow: hidden;
-        }
-
-        .step-num {
-          font-family: 'Syne', sans-serif;
-          font-weight: 800;
-          font-size: 13px;
-          color: rgba(16,52,97,0.5);
-          letter-spacing: 0.1em;
-          margin-bottom: 16px;
-        }
-
-        .divider-line {
-          height: 1px;
-          background: rgba(16,52,97,0.1);
-          width: 100%;
-        }
-
-        .live-dot {
-          width: 7px; height: 7px;
-          border-radius: 50%;
-          background: #006e37;
-          display: inline-block;
-          animation: blink 2s ease-in-out infinite;
-          box-shadow: 0 0 6px rgba(0,110,55,0.6);
-        }
-
-        .tag-pill {
-          display: inline-flex;
+          display: flex;
           align-items: center;
-          padding: 7px 18px;
-          border-radius: 100px;
-          font-size: 13px;
-          font-weight: 500;
-          border: 1.5px solid rgba(16,52,97,0.2);
-          color: rgba(16,52,97,0.8);
-          background: rgba(16,52,97,0.04);
-          font-family: 'DM Sans', sans-serif;
-          transition: all 0.2s;
-          cursor: pointer;
-          letter-spacing: 0.01em;
+          justify-content: center;
         }
-        .tag-pill:hover {
-          background: #103461;
+
+        .feature-card .feature-img-box img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: center;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .feature-card:hover .feature-img-box img {
+          transform: scale(1.06);
+        }
+
+        .step-card {
+          background-color: #ffffff;
+          border-radius: 16px;
+          padding: 44px 32px;
+          text-align: center;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          border: 1px solid #f1f5f9;
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          cursor: pointer;
+        }
+
+        .step-card:hover {
+          transform: translateY(-8px);
+          border-color: rgba(220, 38, 38, 0.3);
+          box-shadow: 0 20px 40px -10px rgba(220, 38, 38, 0.12), 0 0 0 1px rgba(220, 38, 38, 0.2);
+        }
+
+        .step-badge {
+          width: 48px;
+          height: 48px;
+          border-radius: 10px;
+          background-color: #dc2626;
           color: #ffffff;
-          border-color: #103461;
+          font-size: 20px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 24px auto;
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .gig-card-preview {
-          background: #ffffff;
-          border-radius: 20px;
-          border: 1px solid rgba(16,52,97,0.1);
-          padding: 24px;
-          transition: transform 0.3s, box-shadow 0.3s;
-          box-shadow: 0 4px 20px rgba(16,52,97,0.06);
-        }
-        .gig-card-preview:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(16,52,97,0.14);
-          border-color: rgba(16,52,97,0.2);
-        }
-
-        .faq-item-row {
-          padding: 28px 0;
-          border-bottom: 1px solid rgba(16,52,97,0.1);
-          cursor: pointer;
-        }
-        .faq-item-row:first-child {
-          border-top: 1px solid rgba(16,52,97,0.1);
-        }
-
-        .rotate-circle {
-          animation: rotateSlow 20s linear infinite;
+        .step-card:hover .step-badge {
+          transform: scale(1.1) rotate(4deg);
+          box-shadow: 0 8px 18px rgba(220, 38, 38, 0.35);
         }
 
         @media (max-width: 768px) {
-          .pill-nav {
-            width: calc(100vw - 32px) !important;
-            max-width: 480px !important;
-            padding: 8px 20px !important;
-            justify-content: space-between !important;
-            top: 16px !important;
+          .desktop-nav {
+            display: none !important;
           }
-          .nav-logo-img {
-            height: 28px !important;
-            max-height: 28px !important;
+          .mobile-menu-btn {
+            display: block !important;
           }
-          .nav-links-group { display: none !important; }
-          .btn-pill-white {
-            padding: 7px 16px !important;
-            font-size: 12px !important;
-          }
-          .nav-link-login {
-            font-size: 12px !important;
-            padding: 4px 8px !important;
-          }
-          .hero-section { padding: 140px 24px 60px !important; }
-          .hero-bg-text { display: none; }
-          .two-col { grid-template-columns: 1fr !important; }
         }
       `}</style>
-
-
-
-      {/* ── Floating Pill Navbar ── */}
-      <nav ref={navRef} className={`pill-nav${navScrolled ? " scrolled" : ""}`}>
-        {/* Logo */}
-        <RozgaaarLogo height={38} textColor="#FFFFFF" className="nav-logo-img" style={{ cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
-
-        {/* Nav links */}
-        <div className="nav-links-group">
-          {[
-            { label: "About",           id: "about-section" },
-            { label: "How It Works",    id: "how-it-works-section" },
-            { label: "Trust & Safety",  id: "trust-section" },
-          ].map(({ label, id }) => (
-            <span key={label} className="nav-link"
-              onClick={() => {
-                document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-            >{label}</span>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div style={{ display: "flex", gap: "clamp(4px, 1.5vw, 8px)", alignItems: "center", flexShrink: 0 }}>
-          <span className="nav-link nav-link-login" onClick={() => navigate("/login")}>Log in</span>
-          <button className="btn-pill-white" onClick={() => navigate("/register")}>Get Started</button>
-        </div>
-      </nav>
-
-      {/* ── HERO ── */}
-      <section className="hero-section">
-        {/* Large background watermark */}
-        <div className="hero-bg-text">ROZGAAAR</div>
-
-        <div style={{ position: "relative", zIndex: 10, maxWidth: 1200, margin: "0 auto", width: "100%" }}>
-
-          {/* Top label */}
-          <div className="hero-sub" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 40 }}>
-            <span style={{ width: 32, height: 1.5, background: "#103461", display: "inline-block" }} />
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "#475569" }}>
-              ⚡ Hyper-local Hiring Platform · India
-            </span>
-          </div>
-
-          {/* Hero Typography */}
-          <div style={{ lineHeight: 1.0, marginBottom: 48 }}>
-            <div className="hero-line">
-              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#0F172A" }}>
-                FIND
-              </span>
-            </div>
-            <div className="hero-line" style={{ display: "flex", alignItems: "baseline", gap: "0.3em", flexWrap: "wrap" }}>
-              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#0F172A" }}>
-                WORK
-              </span>
-              <span className="serif-italic" style={{ fontSize: "clamp(32px, 7vw, 90px)", color: "rgba(15,23,42,0.45)", lineHeight: 1.1 }}>
-                and
-              </span>
-            </div>
-            <div className="hero-line">
-              <span className="serif-italic" style={{ fontSize: "clamp(40px, 8.5vw, 110px)", color: "#103461" }}>
-                hire seamlessly
-              </span>
-            </div>
-            <div className="hero-line">
-              <span className="resp-h1" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, textTransform: "uppercase", color: "#0F172A" }}>
-                INSTANTLY.
-              </span>
-            </div>
-          </div>
-
-          {/* Sub + CTA row */}
-          <div className="hero-cta" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 32 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(15px, 1.5vw, 18px)", color: "#475569", maxWidth: 420, lineHeight: 1.7, margin: 0 }}>
-              The hyper-local marketplace connecting businesses with on-demand workers in your neighborhood — no friction, no delays.
-            </p>
-            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
-              <button className="btn-pill-dark" onClick={() => navigate("/find-work")}>
-                Find Work →
-              </button>
-              <button className="btn-outline" onClick={() => navigate("/register?role=business")}>
-                Post a Gig
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Marquee 1 — Categories ── */}
-      <Marquee items={CATEGORIES} speed={35} />
-
-      {/* ── Stats Row ── */}
-      <section className="stats-row" style={{ padding: "clamp(40px, 8vw, 100px) 6vw", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "clamp(20px, 4vw, 40px)" }}>
-          {STATS.map((s, i) => (
-            <div key={i} className="stat-item">
-              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(40px, 5vw, 64px)", letterSpacing: "-0.03em", color: "#103461", lineHeight: 1 }}>
-                {s.value}
-              </div>
-              <div className="divider-line" style={{ margin: "16px 0 12px" }} />
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── About Section ── */}
-      <section id="about-section" style={{ background: "#103461", padding: "clamp(60px, 10vw, 100px) 6vw", scrollMarginTop: "90px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          {/* Scrolling "ABOUT" label */}
-          <div style={{ overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "14px 0", marginBottom: 80 }}>
-            <div style={{ display: "inline-flex", animation: "marquee 25s linear infinite" }}>
-              {["ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT", "ABOUT"].map((t, i) => (
-                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "rgba(255,255,255,0.25)", padding: "0 40px" }}>{t}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
-            <div>
-              <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 58px)", color: "#FFFFFF", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 32 }}>
-                India's fastest<br />
-                <span className="serif-italic" style={{ color: "#006e37" }}>gig network.</span>
-              </div>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.8)", lineHeight: 1.8, marginBottom: 40 }}>
-                Rozgaaar is a playground dedicated to flexible work — a vibrant community of workers and businesses across India's cities. From restaurants to retail chains, event organizers to individual households.
-              </p>
-              <button className="btn-pill-white" style={{ padding: "14px 32px", fontSize: 14 }} onClick={() => navigate("/register")}>
-                Join the network →
-              </button>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              {[
-                { emoji: "🍕", label: "Food & Cafes", count: "12K+ gigs" },
-                { emoji: "📦", label: "Delivery", count: "8K+ gigs" },
-                { emoji: "🎪", label: "Events", count: "5K+ gigs" },
-                { emoji: "🏠", label: "Home Services", count: "15K+ gigs" },
-              ].map((c, i) => (
-                <div key={i} style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 16,
-                  padding: 24,
-                  transition: "all 0.3s",
-                }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(0,110,55,0.2)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-                >
-                  <div style={{ fontSize: 32, marginBottom: 12 }}>{c.emoji}</div>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 14, color: "#FFFFFF", marginBottom: 4 }}>{c.label}</div>
-                  <div style={{ fontSize: 12, color: "#006e37", fontWeight: 700 }}>{c.count}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Marquee 2 ── */}
-      <div style={{ overflow: "hidden", whiteSpace: "nowrap", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", padding: "18px 0", background: "#F1F5F9" }}>
-        <div style={{ display: "inline-flex", gap: 0, animation: "marqueeRev 40s linear infinite" }}>
-          {["INSTANT HIRING", "SECURE PAYMENTS", "VERIFIED WORKERS", "REAL REVIEWS", "AI MATCHING", "NO RESUMES NEEDED", "HYPERLOCAL"].flatMap((t, i) => [
-            <span key={`a${i}`} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.2em", color: "#475569", padding: "0 32px" }}>{t}</span>,
-            <span key={`b${i}`} style={{ color: "#006e37", padding: "0 4px" }}>✦</span>
-          ])}
-        </div>
-      </div>
-
-      {/* ── How It Works ── */}
-      <section id="how-it-works-section" className="steps-section" style={{ padding: "clamp(60px, 10vw, 100px) 6vw", scrollMarginTop: "90px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-
-          {/* Section label */}
-          <div style={{ overflow: "hidden", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", padding: "14px 0", marginBottom: 80 }}>
-            <div style={{ display: "inline-flex", animation: "marquee 30s linear infinite" }}>
-              {["HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS", "HOW IT WORKS"].map((t, i) => (
-                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "#94A3B8", padding: "0 40px" }}>{t}</span>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 60 }}>
-            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 60px)", letterSpacing: "-0.03em", lineHeight: 1, color: "#0F172A" }}>
-              Synchronize in <span className="serif-italic" style={{ color: "#103461" }}>3 steps.</span>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {STEPS.map((s, i) => (
-              <div key={i} className="step-block" style={{
-                display: "grid",
-                gridTemplateColumns: "80px 1fr auto",
-                alignItems: "center",
-                gap: 40,
-                padding: "48px 0",
-                borderBottom: "1px solid #E2E8F0",
-              }}>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, color: "#94A3B8", letterSpacing: "0.1em" }}>{s.num}</div>
-                <div>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(22px, 2.5vw, 30px)", color: "#0F172A", marginBottom: 12, letterSpacing: "-0.02em" }}>
-                    {s.title}
-                  </div>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: "#475569", lineHeight: 1.7, margin: 0, maxWidth: 480 }}>{s.desc}</p>
-                </div>
-                <div style={{
-                  width: 56, height: 56, borderRadius: "50%",
-                  border: "1.5px solid #E2E8F0",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "#103461",
-                  background: "#F8FAFC",
-                  flexShrink: 0,
-                }}>
-                  {i === 0 ? "📝" : i === 1 ? "⚡" : "✅"}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Live Gig Cards ── */}
-      <section style={{ background: "#F1F5F9", padding: "clamp(60px, 10vw, 100px) 6vw" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 56, flexWrap: "wrap", gap: 24 }}>
-            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", letterSpacing: "-0.03em", lineHeight: 1, color: "#0F172A" }}>
-              Live Gigs Near <span className="serif-italic" style={{ color: "#103461" }}>You.</span>
-            </div>
-            <button className="btn-pill-dark-sm" onClick={() => navigate("/find-work")}>Browse all gigs →</button>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
-            {[
-              { title: "Lighting Installation", pay: "₹95/hr", dist: "0.5 km", urgent: true, tags: ["Electrical", "Night Shift"], employer: "AJ", rating: "4.9" },
-              { title: "Pop-up Shop Setup", pay: "₹800", dist: "1.2 km", urgent: false, tags: ["Physical", "One Day"], employer: "RS", rating: "4.7" },
-              { title: "Event Photography", pay: "₹450/hr", dist: "0.4 km", urgent: false, tags: ["Creative", "Weekend"], employer: "MK", rating: "5.0" },
-            ].map((job, i) => (
-              <div key={i} className="gig-card-preview">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <span style={{ fontSize: 12, color: "#475569", fontWeight: 600, letterSpacing: "0.05em" }}>📍 {job.dist}</span>
-                  {job.urgent && <span style={{ background: "#C53030", color: "#fff", padding: "3px 10px", borderRadius: 100, fontSize: 10, fontWeight: 800, letterSpacing: "0.05em" }}>URGENT</span>}
-                </div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: "#0F172A", marginBottom: 16, letterSpacing: "-0.02em" }}>{job.title}</div>
-                <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-                  {job.tags.map(t => <span key={t} className="tag-pill" style={{ fontSize: 12 }}>{t}</span>)}
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#103461", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12 }}>{job.employer}</div>
-                    <span style={{ fontSize: 12, color: "#006e37", fontWeight: 700 }}>★ {job.rating}</span>
-                  </div>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 24, color: "#103461" }}>{job.pay}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Trust & Safety ── */}
-      <section id="trust-section" className="trust-section" style={{ padding: "clamp(60px, 10vw, 100px) 6vw", background: "#F8FAFC", scrollMarginTop: "90px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-
-          <div style={{ overflow: "hidden", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0", padding: "14px 0", marginBottom: 80 }}>
-            <div style={{ display: "inline-flex", animation: "marquee 28s linear infinite" }}>
-              {["TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY", "TRUST & SAFETY"].map((t, i) => (
-                <span key={i} style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "0.25em", color: "#94A3B8", padding: "0 40px" }}>{t}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
-            <div>
-              <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 4.5vw, 56px)", letterSpacing: "-0.03em", lineHeight: 1.1, color: "#0F172A", marginBottom: 28 }}>
-                Encrypted &<br /><span className="serif-italic" style={{ color: "#103461" }}>verified.</span>
-              </div>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "#475569", lineHeight: 1.8 }}>
-                Rozgaaar ensures trust through digital identity verification, secure ledger transactions, and a transparent review architecture that holds every user accountable.
-              </p>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {TRUST.map((t, i) => (
-                <div key={i} className="trust-row" style={{
-                  display: "grid",
-                  gridTemplateColumns: "30px 1fr",
-                  gap: 16,
-                  padding: "28px 0",
-                  borderBottom: i < TRUST.length - 1 ? "1px solid #E2E8F0" : "none",
-                  alignItems: "start",
-                }}>
-                  <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13, color: "#103461", letterSpacing: "0.05em", paddingTop: 2 }}>{t.num}</span>
-                  <div>
-                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 18, color: "#0F172A", marginBottom: 8 }}>{t.title}</div>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#475569", lineHeight: 1.6, margin: 0 }}>{t.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Categories / Tags ── */}
-      <section style={{ padding: "80px 6vw", background: "#103461" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48, flexWrap: "wrap", gap: 20 }}>
-            <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 3.5vw, 48px)", letterSpacing: "-0.03em", color: "#FFFFFF" }}>
-              What we <span className="serif-italic" style={{ color: "#006e37" }}>offer.</span>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            {CATEGORIES.map(cat => (
-              <span key={cat} style={{
-                display: "inline-flex", alignItems: "center", padding: "10px 22px", borderRadius: 100,
-                border: "1.5px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.9)",
-                fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500, cursor: "pointer",
-                transition: "all 0.2s", letterSpacing: "0.01em",
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = "#006e37"; e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.borderColor = "#006e37"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.9)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
-              >{cat}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ── */}
-      <section className="faq-section" style={{ padding: "100px 6vw", background: "#F8FAFC" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <div className="section-heading" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5vw, 64px)", letterSpacing: "-0.03em", color: "#0F172A", marginBottom: 64, lineHeight: 1 }}>
-            System <span className="serif-italic" style={{ color: "#103461" }}>Queries.</span>
-          </div>
-
-          {FAQS.map((faq, index) => (
-            <div key={index} className="faq-row faq-item-row" onClick={() => setActiveFaq(activeFaq === index ? null : index)}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
-                <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "clamp(16px, 1.8vw, 20px)", color: "#0F172A", lineHeight: 1.3 }}>{faq.q}</span>
-                <span style={{
-                  width: 36, height: 36, borderRadius: "50%",
-                  border: "1.5px solid #E2E8F0",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontWeight: 700, fontSize: 18, flexShrink: 0,
-                  transform: activeFaq === index ? "rotate(45deg)" : "rotate(0deg)",
-                  transition: "transform 0.3s",
-                  color: activeFaq === index ? "#103461" : "#0F172A",
-                  background: activeFaq === index ? "#F1F5F9" : "transparent"
-                }}>+</span>
-              </div>
-              {activeFaq === index && (
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: "#475569", lineHeight: 1.8, marginTop: 20, marginBottom: 0, animation: "fadeUp 0.3s ease" }}>
-                  {faq.a}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CTA ── */}
-      <section style={{ padding: "0 6vw 120px", background: "#F8FAFC" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{
-            background: "#103461",
-            borderRadius: 28,
-            padding: "clamp(60px, 8vw, 100px) clamp(40px, 6vw, 80px)",
-            display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
-            position: "relative", overflow: "hidden",
-            boxShadow: "0 20px 40px rgba(16,52,97,0.25)"
-          }}>
-            {/* Decorative circle */}
-            <div style={{
-              position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%",
-              border: "1px solid rgba(255,255,255,0.15)", pointerEvents: "none",
-            }} />
-            <div style={{
-              position: "absolute", bottom: -40, left: -40, width: 160, height: 160, borderRadius: "50%",
-              border: "1px solid rgba(255,255,255,0.1)", pointerEvents: "none",
-            }} />
-
-            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5vw, 68px)", color: "#FFFFFF", letterSpacing: "-0.04em", lineHeight: 1.05, marginBottom: 24 }}>
-              Initialize <span className="serif-italic" style={{ color: "#006e37" }}>your gig</span><br />today.
-            </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.8)", maxWidth: 440, lineHeight: 1.7, marginBottom: 48 }}>
-              Connect your coordinates to the network and instantly interface with hyperlocal opportunities across your city.
-            </p>
-            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
-              <button className="btn-pill-white" style={{ padding: "16px 36px", fontSize: 15 }} onClick={() => navigate("/register")}>
-                Get Started →
-              </button>
-              <button style={{
-                background: "transparent", color: "#FFFFFF", border: "1.5px solid rgba(255,255,255,0.4)",
-                padding: "16px 32px", borderRadius: 100,
-                fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 15, cursor: "pointer",
-                transition: "all 0.25s",
-              }}
-                onMouseEnter={e => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.borderColor = "#FFFFFF"; e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
-                onMouseLeave={e => { e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "transparent"; }}
-                onClick={() => navigate("/login")}
-              >
-                Log in
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Footer ── */}
-      <footer style={{ background: "#0F172A", padding: "48px 6vw", color: "#ffffff" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <RozgaaarMiniLogo size={68} textColor="#FFFFFF" />
-            <RozgaaarNameLogo height={50} textColor="#FFFFFF" />
-          </div>
-          <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
-            {["About Us", "Privacy", "Terms", "Support"].map(l => (
-              <span key={l} style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, transition: "color 0.2s" }}
-                onMouseEnter={e => e.target.style.color = "#ffffff"}
-                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.5)"}
-              >{l}</span>
-            ))}
-          </div>
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: "'DM Sans', sans-serif" }}>© 2026 Rozgaaar Network.</span>
-        </div>
-      </footer>
 
     </div>
   );
